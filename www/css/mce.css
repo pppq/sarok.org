@@ -1,0 +1,8 @@
+@CHARSET "UTF-8";
+
+.mceEditorContainer img
+{
+	padding: 0px !important;
+	display: inline !important;
+	
+	}

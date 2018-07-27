@@ -1,0 +1,30 @@
+#statsbody{
+	/* background-color: red; */
+	}
+#statsbody table{
+	width: 95%;
+	}
+
+#statsbody table td, #statsbody table th{
+	font-size: 100%;
+border: 0px;
+line-height: 100%;
+padding: 0px;
+margin: 0px;
+text-align: center;
+border-bottom: 1px dotted #CCCCCC;
+}
+
+#statsbody table th{
+	width: 30%;
+	text-align: left;
+	padding-left: 5px;
+	}
+
+#statsbody thead td
+{
+	background-color: #AAAAAA;
+	padding: 3px;
+	color: white;
+	font-weight: bold;
+}

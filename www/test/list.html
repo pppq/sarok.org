@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+	<title>List submission demo</title>
+	<link rel="stylesheet" type="text/css" href="usab.css">
+<script src="list.js"></script>
+</head>
+
+<body>
+<h1>Accre 3.2 Admin List (Demo)</h1>
+<table cellpadding="0" cellspacing="0">
+<thead>
+<tr>
+<th>Name</th>
+<td>Value</td>
+<td>&nbsp;</td>
+
+</tr></thead>
+<tbody id="tabBody">
+<tr  id="r1">
+<th id="rn1" title="Accre1">Accre1 <span ></span></td>
+<td id="rv1" title="158.226.148.115" ><span onclick='performChange(1)' class="value">158.226.148.115</span></td>
+<td><a href='javascript:deleteRow("1")'>delete</a></td>
+</tr>
+<tr  id="r2">
+<th id="rn2" title="Accre2" >Accre2 </td>
+<td id="rv2" title="158.226.148.116"><span onclick='performChange(2)' class="value">158.226.148.116</span></td>
+<td><a href='javascript:deleteRow("2")'>delete</a></td>
+</tr>
+<tr  id="r3">
+<th id="rn3" title="Miraculix">Miraculix </td>
+<td id="rv3" title="158.226.148.4" ><span onclick='performChange(3)' class="value">158.226.148.4</span></td>
+<td><a href='javascript:deleteRow("3")'>delete</a></td>
+</tr>
+</tbody>
+<tfoot>
+<tr id='control'><td colspan="2" ><a href=javascript:showForm()>Add a new item</a></td></tr>
+<tr id="form">
+<th>
+Name: <input type=text id="newName"> <span id="newNameErr" class="error"></span>
+</td>
+<td>Ip: <input type=text id="newValue"> <input type="button" value="Add" onclick="addRow(document.getElementById('newName').value,document.getElementById('newValue').value)"> <a href="javascript:showControl()">cancel</a> <span id="newValueErr" class="error"></span></td>
+</tr>
+</tfoot>
+</table>
+
+<input type="button" value="SAVE TO DATABASE" onclick="save()" id="submitButton" disabled="true"> 
+<div id="status"></div>
+</body>
+</html>

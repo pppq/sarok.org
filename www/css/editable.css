@@ -1,0 +1,141 @@
+body{
+	background: #EFEFEF;
+	font-family: Verdana;
+	font-size: 0.8em;
+	line-height: 150%;
+}
+
+#editable{
+	border: 1px solid black;
+	padding: 0px;
+	margin-left:0px;
+	clear: both;
+	width: 99%;
+	border: none;
+}
+#panel{
+	height: 20px;
+	padding: 0px;
+	margin: 0px;
+}
+
+#innereditable, #innereditable_textarea{
+	border: 1px solid black;
+	border-top: 1px dotted black;
+	display: block;
+	padding: 0px;
+	margin: 0px;
+	margin-left: 0px;
+    background: white;
+	clear: left;
+	width: 100%;
+	height: 500px;
+	overflow-y: scroll;
+	overflow-x: auto;
+}
+#innereditable_textarea{
+display:none;
+	}
+
+img{
+	float:left;
+	padding: 15px;
+}
+
+h3, a{
+	color: Maroon;
+}
+#panel #buttons a{
+	display: block;
+	float:left;
+	height: 20px;
+	width: 20px;
+	background-position: left;
+	border: none;
+	cursor: default;
+/*	margin-right:2px;*/
+	border: 1px solid #efefef;
+	margin: 1px;
+}
+#panel #buttons a:hover{
+/*	background-position: 20px;*/
+	border: 1px solid #333333;
+}
+#panel .control_separator{
+	background-color: #efefef;
+	width: 10px !important;
+	margin-right:0px;
+	background-position: left;
+	background-position: 0px;
+	border: none !important;
+}
+
+#panel .control_separator:hover{
+	background-position: 0px;
+	background-position: left;
+	border: none !important;
+}
+
+#panel .control_i{
+	background-image: url(/images/editable/i.png);
+}
+
+#panel .control_b{
+	background-image: url(/images/editable/b.png);
+}
+#panel .control_u{
+	background-image: url(/images/editable/u.png);
+}
+#panel .control_strike{
+	background-image: url(/images/editable/strike.png);
+}
+#panel .control_subscript{
+	background-image: url(/images/editable/sub.png);
+}
+#panel .control_supscript{
+	background-image: url(/images/editable/sup.png);
+}
+
+#panel .control_ordered{
+	background-image: url(/images/editable/numb.png);
+}
+
+#panel .control_unordered{
+	background-image: url(/images/editable/unnumb.png);
+}
+
+#panel .control_left{
+	background-image: url(/images/editable/left.png);
+}
+
+#panel .control_center{
+	background-image: url(/images/editable/center.png);
+}
+
+#panel .control_right{
+	background-image: url(/images/editable/right.png);
+}
+
+#panel .control_indent{
+	background-image: url(/images/editable/indent.png);
+}
+
+#panel .control_unindent{
+	background-image: url(/images/editable/outdent.png);
+}
+
+#panel .control_link{
+	background-image: url(/images/editable/link.png);
+}
+
+#mode_switch{
+float: right;
+font-family: courier;
+margin-right: 20px;
+cursor: hand;
+font-weight: bold;
+color: Maroon;
+border: 1px solid #BBBBBB;
+padding-left: 15px;
+padding-right: 15px;
+}

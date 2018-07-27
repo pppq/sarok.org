@@ -1,0 +1,167 @@
+body{
+	padding: 0px;
+	margin: 0px;
+	font-family: Verdana;
+	background-color: white;
+	margin-left: auto;
+	margin-right: auto;
+	font-size: .8em;
+	padding-left: 0%;
+	padding-right: 0%;
+}
+a{
+	color: black;
+}
+a:hover{
+	text-decoration: none;
+}
+table td{
+	vertical-align: top;
+}
+#container{
+	width: 100%;
+	margin: 0px;
+	border: none;
+}
+#container td{
+	padding: 0px;
+	margin: 0px;
+}
+#container .menu {
+	background-color: #5B5B5B;
+	color: white;
+	font-weight: bold;
+  font-size: .8em;
+}
+#container .menu table{
+margin: 0px;
+padding: 0px;
+	
+}
+#container .menu table td{
+	border-left: 1px solid white;
+	padding-left: 10px;
+	padding-right: 10px;
+	vertical-align: middle;
+}
+#container .menu a{
+color: white;
+text-decoration: none;
+
+}
+#container .menu a:hover{
+color: Gray;
+}
+
+#container .menu div{
+	float: right;
+}
+
+#container .header{
+	height: 350px;
+	background-color: #F5F4F0;
+	background-image: url(../images/header.jpg);
+	background-position: right;
+	background-position: 90%;
+	background-repeat: no-repeat;
+	vertical-align: top;
+}
+#container .header div{
+   background-color: #F5F4F0;
+	width: 40%;
+	margin: 10px;
+	margin-left: 5%;
+	vertical-align: middle;
+}
+#container .header div h1{
+color: #656967;
+
+}
+
+#container .header div form{
+margin-left: 10%;
+margin-top:10%;
+}
+#container .left{
+	width: 25%;
+padding-left: 10px;
+padding-right: 10px;
+padding-bottom: 10px;
+	float: left;
+}
+
+#container .left ul{
+	background-color: #F5F4F0;
+	padding: 5px;
+}
+
+#container .center{
+padding-left: 10px;
+padding-right: 10px;
+padding-bottom: 10px;
+margin-left: 25%;
+}
+#container .center ul{
+width: 45%;
+float: left;
+	margin-left: 1%;
+	
+padding: 5px;
+}
+
+#container .center li{
+	margin-bottom: 30px;
+	margin-top:10px;
+}
+#container .center em{
+font-size: 0.7em;
+line-height: 2em;
+}
+
+#container .center ul h3{
+	font-size: 1em;
+	margin: 0px;
+
+}
+#container .center ul h3 a{
+color: #656967;
+text-decoration: none;
+}
+
+#container .right{
+display: none;
+}
+.content{
+width: 100%;
+padding-top: 20px;
+}
+
+
+.content>div{
+	padding: 10px;
+}
+.content h2{
+	font-size: 1.2em;
+	color: #656967;
+	border-bottom: 1px solid #E3E3E3;
+/*	width: 80%;*/
+}
+.content li{
+	list-style: none;
+	margin: 0px;
+}
+.content ul{
+	padding: 0px;
+	margin: 0px;
+}
+
+#container .footer{
+	border-top: solid Black 1px;
+	padding-left: 10%;
+	padding-right: 10%;
+	padding-top: 10px;
+}
+#container .footer img{
+border: none;
+float: left;
+}

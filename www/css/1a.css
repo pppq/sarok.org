@@ -1,0 +1,37 @@
+
+#container .header{
+	height: 350px;
+	background-color: black;
+	background-image: url(../images/headera.jpg);
+	background-position: left;
+/*	background-position: 100%;*/
+	background-repeat: no-repeat;
+	vertical-align: top;
+	text-align: right;
+}
+#container .header div{
+   background-color: black;
+	width: 20%;
+	margin: 10px;
+	margin-right: 5%;
+	vertical-align: top;
+	color: white;
+}
+#container .header div h1{
+color: White;
+
+}
+
+#container .menu {
+	background-color: black;
+}
+
+#container .header div form{
+margin-left: 10%;
+/*margin-top:10%;*/
+}
+
+#container .left ul{
+	background-color: #E9E9E9;
+	
+}

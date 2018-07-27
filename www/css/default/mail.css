@@ -1,0 +1,42 @@
+body.mail{
+		font-family: "Courier New", courier;
+		font-size: 0.8em;
+		width: 90%;
+		border: none;
+	}
+.mail{
+	width: 100%;
+	border: 1px solid #EFEFEF;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.mail blockquote, .mail quote{
+	border-left: 1px solid Gray;
+	font-size: 0.9em;
+	line-height: 130%;
+	font-family: "Courier New", courier;
+	color: Gray;
+	padding-left: 0.5em;
+}
+.mail .body{
+
+		font-family: "Courier New", courier;
+	}
+.newMail{
+	font-weight: bold;
+}
+
+.checkMail
+{
+	border: 1px solid #EFEFEF;
+	font-size: 90%;
+	line-height: normal;
+	padding: 1em;
+	margin: 1em;
+		color: grey;
+}
+.checkMail h4{
+	font-size: 1.5em;
+	padding-left: 50px;
+}

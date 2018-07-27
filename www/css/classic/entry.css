@@ -1,0 +1,207 @@
+.entry h1{
+	font-size: 1.5em;
+	color: #AD3B0F;
+}
+.entry h2{
+	font-size: 1.2em;
+	color: #999999;
+	position: relative;
+	left: 0px;
+	z-index: 50;
+	font-weight: bold;
+	margin-bottom: 1.5em;
+}
+
+.blog{
+/*	position: relative;*/
+width: 100%;
+/*	padding-left: 5%;
+	padding-right: 5%;*/
+}
+
+body.entry, body.comment{
+	padding: 0px;
+	margin: 0px;
+	font-family: Arial;
+	
+	background-color: white;
+	font-size: .8em;
+	padding: 5px;
+	line-height: 200%;
+	
+}
+body.comment{
+	width: 64%;
+}
+.entryBody { font-size: 12px; line-height: 1.6; margin-top: 15px; margin-bottom: 10px; }
+
+
+.comment .body { font-size: 12px; line-height: 1.6; margin-top: 5px; margin-bottom: 5px; }
+
+
+/*div.entry{
+	background: white;
+	font-family: Verdana, Arial;
+	line-height: 200%;
+	text-align: justify;
+	margin-left: 5%;
+	margin-right: 5%;
+	margin-top: 5em;
+	margin-bottom: 5em;
+	border-bottom: 1px dotted #EEEEEE;
+}*/
+
+
+.entry blockquote, .entry quote, .comment blockquote, .comment quote
+{
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: Gray;
+    font-size: 0.9em;
+    line-height: 130%;
+    font-family: "Courier New",courier;
+    color: Gray;
+    padding-left: 0.5em;
+
+}
+
+div.entry{
+	clear: both;
+	border: 1px solid #EFEFEF;
+	padding: 1em;
+	margin-bottom: 1em;
+	background-color: white;
+}
+
+.entry img{
+	
+	padding: 15px;
+	border: none;
+}
+
+.entry h1{
+	color: Gray;
+	font-size: 4em;
+	text-align: center;
+}
+.entry h4{
+	color: Maroon;
+	font-size:0.85em;
+	font-style: italic;
+}
+
+.entry h3, .h3{
+	color: #656967;
+	color:  #AD3B0F;
+/*	border-bottom: 1px solid #E3E3E3;*/
+	margin: 0px;
+	padding: 0px;
+}
+.h3{
+	height: 1em;
+	font-size: 1em;
+	width: 70%;
+	border: none;
+/*	border-bottom: 1px solid black;*/
+	}
+.entry h3 small{
+	font-size: 0.5em;
+	display: block;
+	/*color: #656967;*/
+	border-bottom: 1px solid #E3E3E3;
+	font-weight: normal;
+}
+.entry h2, .entry a, .comment a{
+	/*color: #480000;*/
+}
+
+
+.comments {
+	/*padding-left: 2em;*/
+	}
+
+.comment{
+	width: 90%;
+
+	}
+.comments h3{
+	padding: 0px;
+	margin: 0px;
+	font-size: 15px;
+
+	}
+
+.entry img, .comment img{
+/*	position: relative;
+	z-index: 1000 !important;*/
+	
+	}
+
+/*.entry img:hover, .comment img:hover{
+	max-width: none;
+	}*/
+div.comment{
+/*margin-top: 10px;*/
+	margin-bottom: 1em;
+/*	padding: 1em;*/
+/*	border: 1px solid #EEEEEE;*/
+		}
+.comment .blog_info{
+	margin-left: 0em;
+/*	margin-bottom: 0.5em;*/
+	font-size: 0.8em;
+	color: rgb(134, 134, 134);
+	}
+.comment .anchor{
+/*	margin-left: -3em;*/
+	}
+.comment .body{
+	margin-left: 2.5em;
+	padding-left: 5px;
+	border-left: 1px solid gray;
+}
+
+.entry blockquote, .entry quote, .comment blockquote, .comment quote{
+	border-left: 1px solid Gray;
+	font-size: 0.9em;
+	line-height: 130%;
+	font-family: "Courier New", courier;
+	color: Gray;
+	padding-left: 0.5em;
+}
+
+.entry p, .comment p{
+	padding: 0px;
+	margin: 0px;
+	}
+
+.entry .info_ALL, .entry .info_REGISTERED, .entry .info_FRIENDS, .entry .info_LIST, .entry .info_PRIVATE
+{
+  font-size: 0.8em;
+/*  height: 1.8em;*/
+  line-height: 140%;
+  padding-left: 30px;
+  background-repeat: no-repeat;
+/*  background-position: left;*/
+}
+.info_ALL, .info_REGISTERED, .info_FRIENDS, .info_LIST, .info_PRIVATE{
+/*	border: 1px solid black;*/
+	background-image: url(/images/keys.png);
+	background-repeat: no-repeat;
+	background-position: 100% 0%;
+	/*height: 400px;*/
+}
+.info_FRIENDS,.info_LIST {
+	background-position: 100% -200px;
+}
+.info_REGISTERED{
+		background-position: 100% -100px;
+}
+
+.info_PRIVATE{
+		background-position: 100% -300px;
+}
+
+.comment #editable{
+	margin-top: 2em;
+	}

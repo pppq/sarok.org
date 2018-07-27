@@ -1,0 +1,293 @@
+body.container{
+	font-family: verdana;
+	font-size: 0.8em;
+	margin: 0px;
+	padding: 0px;
+	background-color: White;
+}
+.container{
+	background: White;
+	background-image: url(/images/background.png);
+	background-repeat: repeat-y;
+	background-position: right;
+}
+
+.center{
+/*	padding-left: 20px;
+	padding-right: 20px;*/
+	position: relative;
+	top: 0px;
+	left: 0px;
+
+}
+.container a{
+	color: #700000;
+	text-decoration: none;
+}
+.container a:hover{
+	text-decoration: underline;
+}
+.top{
+/*	padding-top: 13px;*/
+	height: 36px;
+	background-color: #808080;
+   background-image: url(/images/topbackground.png);
+	background-repeat: repeat-x;
+	background-position: bottom;
+	vertical-align: text-bottom;
+}
+.top .menu{
+	/*border: 1px solid white;	*/
+}
+.top .menu ul{
+	display: block;
+
+	margin: 0px;
+	padding: 0px;
+position: absolute;
+top: 13px;
+left: 10px;
+vertical-align: bottom;
+}
+.top .menu li, .top .login{
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+	display: block;
+	float:left;
+/*	height: 23px;*/
+		background-image: url(/images/menuright.png);
+	background-repeat: no-repeat;
+	background-position: right bottom;
+/*	border: 1px solid white;*/
+margin-right: 2px;
+padding-right: 6px;
+}
+
+.top .menu a, .top .login form{
+display: block;
+float: left;
+font-size: 10px;
+padding-top: 3px;
+height: 20px;
+padding-left: 10px;
+padding-right: 10px;
+color: black;
+background-image: url(/images/menubackground.png);
+background-position: bottom;
+/*border: 1px solid white;*/
+background-position: bottom left;
+background-repeat: repeat-x;
+}
+.top .menu a:hover, #selected_item{
+background-image: none;
+background-color: white;
+}
+
+
+
+.top .login{
+	float: right;
+	margin: 0px;
+	padding: 0px;
+	position: absolute;
+	top: 13px;
+	right: 0px;
+	padding-right: 6px;
+	margin-right: 10px;
+}
+
+.top .login form{
+	margin: 0px;
+	padding: 0px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 2px;
+	padding-bottom: 1px;
+}
+
+.top .login input{
+	border: 1px solid #999999;
+	height: 1.5em;
+	font-size: 0.9em;
+	padding: 0em;
+}
+.top .login #login, .top .login #pass{
+	width: 9em;
+}
+.top .login #pass{
+	width: 8.1em;
+}
+
+.top .login #login
+{
+/*	background-image: url(../images/Logosmall.gif);*/
+	background-repeat: no-repeat;
+	padding-left: 1em;
+}
+
+.top .login .submit
+{
+	border: none;
+	vertical-align: middle;
+/*	background-color: transparent;*/
+/*	height: 14px;
+	width: 21px;*/
+}
+
+.header{
+	background-color: white;
+	background-image: url(/images/headerbackground.png);
+	background-position: bottom right;
+	background-repeat: repeat-x;
+padding-left: 5%;
+padding-right: 5%;
+padding-top: 20px;
+padding-bottom: 25px;
+/*	position: relative;
+	top: 0px;
+	left: 0px;*/
+z-index: 1;
+width: 90%;
+}
+.header * {
+	z-index: 2;
+}
+.header .logo{
+
+	width: 200px;
+	height: 100%;
+
+
+/*	background-image: url(../images/header_delimiter.png);*/
+
+	display: inline;
+	float: left;
+
+}
+.header .outernavigation{
+	float: right;
+
+}
+.header .navigation{
+	float: left;
+	padding-left: 20px;
+	padding-right: 10px;
+
+	border-left: 1px solid #9D9D9D;
+	border-right: 1px solid #9D9D9D;
+	width: 43%;
+
+}
+
+img.userpic{
+	padding-right: 4px;
+	padding-bottom: 4px;
+	background-image: url(/images/img_shadow.png);
+	background-position: right bottom;
+	float: left;
+	margin-right: 20px;
+}
+
+.header .navigation .info
+{
+/*border: 1px solid black;*/
+text-align: right;
+padding-right: 1em;
+}
+
+.header .navigation h2:first-letter {
+	text-transform: uppercase;
+}
+
+.header .navigation h2{
+	color: #848484;
+	font-size: 1.25em;
+	letter-spacing: .10em;
+	margin: 0px;
+}
+.header .navigation form{
+	clear: both;
+margin: 0px;
+}
+.header .navigation label{
+	font-size: 0.8em;
+}
+.header .navigation input[type=text]{
+	width: 85%;
+}
+.header .calendar{
+	float:right;
+	width: 8em;
+}
+
+.header .calendar .month{
+font-size: 0.85em;
+	color: #4C4C4C;
+}
+.header .calendar select{
+	font-size: 0.85em;
+}
+
+.header .calendar .month td{
+	padding: 0.14em;
+}
+
+.month .oldmonth{
+	color: #bbbbbb;
+}
+.month .DayName{
+	font-weight: bold;
+/*	font-style: italic;*/
+}
+.month .weekend{
+	background-color: #EFEFEF;
+}
+
+.middle{
+	padding-left: 5%;
+	padding-right: 2%;
+	padding-bottom: 2em;
+}
+.middle .main{
+	width: 65%;
+	float: left;
+	line-height: 150%;
+	padding-right: 5%;
+	text-align: justify;
+}
+
+.bottom{
+	clear: both;
+	height: 5em;
+color: white;
+	padding-top: 50px;
+	text-align: center;
+	background-color: #808080;
+   background-image: url(/images/bottombackground.png);
+	background-position: top;
+	background-repeat: repeat-x;
+}
+
+.sidebar{
+	width: 27%;
+	float: right;
+	font-size: 0.85em;
+	line-height: 150%;
+	text-align: justify;
+/*	border: 1px solid black;*/
+/*	padding-left: 3%;*/
+padding-top: 1em;
+padding: 1%;
+z-index: 0;
+}
+.sidebar * {
+	z-index: 0;
+	}
+.main{
+	margin-top: 1em;
+	padding-top: 1em;
+}
+
+
+

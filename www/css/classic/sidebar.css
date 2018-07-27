@@ -1,0 +1,64 @@
+.commonblogs{
+	padding: .5em;
+/*	border: 1px solid #808080;*/
+}
+.commonblogs ul{
+	/*margin: 0px;
+	padding: 0px;*/
+}
+
+.commonblogs li{
+/*	display: block;
+	list-style: none;
+	margin: 0px;
+	padding: 0px;*/
+/*	font-size: 1.3em;*/
+/*	line-height: 180%;*/
+/*	text-align: right;*/
+}
+
+.commonblogs a{
+/*color: white;*/
+/*	display: block;*/
+/*	border: 1px solid #EFEFEF;*/
+/*	background-color: #808080;*/
+/*	background-color: #AAAAAA;*/
+	padding-left: .5em;
+/*	margin: .15em;*/
+}
+.middle>.sidebar{
+
+}
+
+
+.friendlist{
+font-size: 0.95em;
+width: 100%;
+line-height: 110%;
+}
+
+.friendlist a{
+	/*font-weight: normal !important; */
+	}
+
+.friendlist tr:hover{
+	background-color: #EFEEEE;
+	}
+
+.friendlist .online{
+font-weight: bold;
+}
+
+.friendlist .separator{
+/*	display: block;*/
+/*	border-top: 1px solid #D4D4D4;*/
+		color: Gray;
+/*	font-size: 0.8em;*/
+	text-align: center;
+}
+
+.friendlist .login{
+}
+.friendlist .date{
+	text-align: right;
+}

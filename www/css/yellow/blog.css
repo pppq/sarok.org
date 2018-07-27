@@ -1,0 +1,112 @@
+/* ---------------------------- Here comes the blog part  --------- */
+.blog h1{
+color: #AD3B0F;
+font-size: 1.5em;
+text-align: center;
+	}
+.blog h2{
+
+	}
+
+
+.info_all{
+
+}
+
+.comments{
+	text-align: left;
+}
+fieldset{
+	border: none;
+	padding: 1em;
+	}
+
+#editEntry form{
+	margin-left: 2em;
+	margin-right: 2em;
+
+/*	width: 70%;*/
+}
+
+.entry #innereditable, .entry #innereditable_textarea, .entry  #editable iframe, .entry  #innereditable_preview{
+border: 1 px solid #EFEFEF !important;
+}
+
+/*
+.entry #editable *
+{
+
+	width: 50%;
+	}
+*/
+.entry  #innereditable_preview{
+	border: none;
+	overflow-x: auto;
+	overflow-y: auto;
+	overflow: none;
+	height: auto;
+	width: auto;
+	}
+
+.comment #innereditable, .comment #innereditable_textarea, .comment  #editable iframe, .comment  #innereditable_preview{
+	height: 200px !important;
+
+}
+
+.tags{
+	float: right;
+	width: 70%;
+	text-align: right;
+	font-size: 0.8em;
+	}
+
+.search{
+	background-color: yellow;
+	font-style: italic;
+	font-size: 1.5em;
+}
+
+.rssMsg{
+	background-image: url("/images/feed-icon.gif");
+	background-repeat:no-repeat;
+	background-position: 0px 0px;
+	font-size: 0.8em;
+/*	border: 1px dashed black;*/
+	font-style: italic;
+	padding-left: 2em;
+	margin: 1em;
+	color: #999999;
+	text-align: left;
+	}
+.comments img{
+/*float: left;*/
+	display: inline;
+	padding: 0px !important;
+	padding-right: 30px !important;
+	margin: 0px;
+	}
+
+	
+.comment .rate{
+	float:left;
+/*	width: 30px;*/
+	color: #999999;
+	text-align: center;
+
+	}
+.rate div{
+	border-bottom: 1px solid #EFEFEF;	
+	padding: 1px;
+	font-size: 0.8em;
+	}
+.rate span{
+	padding: 1px;
+	width: 50%;
+	cursor: pointer;
+	text-align:center;
+	color: #BBBBBB;
+	}
+.rate span:hover{
+	background-color: #999999;
+	color: white;
+	}

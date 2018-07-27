@@ -1,0 +1,67 @@
+<?php
+//database settings
+$db_host="localhost";
+$db_name="SECRET";
+$db_user="SECRET";
+$db_password="SECRET";
+$db_port=3306;
+
+$system_email="system@sarok.org";
+
+$day_range=1;
+$refreshTime=200;
+
+//logfile settings
+$logfile="../logs/sarok_".date("Y_m_d_G_i_s").".txt";
+$general_logfile="../logs/log.txt";
+$log_level=7;
+//mail settings
+$mail_secretWord="SECRET";
+
+$skinName="default";
+
+//tag settings
+$tagGrades=5;   //[1-5]
+
+//$tidy_cmd="D:/php/tidy -ashtml -q -utf8 -i";
+$tidy_cmd="/usr/bin/tidy -ashtml --char-encoding utf8 --alt-text sarok.org --doctype transitional --alt-text sarok.org -q  --force-output yes";
+//$tidy_cmd="D:/php/tidy --char-encoding utf8 --alt-text sarok.org --doctype transitional --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+//$tidy_cmd_xhtml="D:/php/tidy --char-encoding utf8 --doctype strict --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+$tidy_cmd_xhtml="/usr/bin/tidy --char-encoding utf8 --alt-text sarok.org --doctype transitional --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+$tidy_cmd_xhtml="/usr/bin/tidy -ashtml --char-encoding utf8 --alt-text sarok.org --doctype transitional --alt-text sarok.org -q --force-output yes";
+$tidy_check=false;
+
+
+$gen_hostname="www.sarok.org";
+$img_hostname="img.sarok.org";
+
+$appRoot="/var/www/sarok3";
+$cookiedomain="sarok.org";
+//echo $_SERVER["DOCUMENT_ROOT"];
+$gmap_key="SECRET";  //key for sarok
+//$gmap_key="SECRET";  //key for mysarok
+//$gmap_key="SECRET";  //key for lsarok
+//$gmap_key="SECRET";
+$honapok["0"]="Január";
+$honapok["1"]="Január";
+	$honapok["2"]="Február";
+	$honapok["3"]="Március";
+	$honapok["4"]="Április";
+	$honapok["5"]="Májús";
+	$honapok["6"]="Június";
+	$honapok["7"]="Július";
+	$honapok["8"]="Augusztus";
+	$honapok["9"]="Szeptember";
+	$honapok["10"]="Október";
+	$honapok["11"]="November";
+	$honapok["12"]="December";
+
+$dayofweek=array("H","K","Sz","Cs","P","Sz","V");
+
+//Image settings
+
+$imageMaxWidth=640;
+$imageMaxHeight=640;
+$imageQuality=80;
+$thumbWidth=80;
+?>
