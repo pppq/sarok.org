@@ -23,8 +23,8 @@ foreach($commentList as $item)
 if($canCommentIt)
 {
 
-global $gen_hostname;
-$params="<base href='http://$gen_hostname/'>" .
+global $protocol,$gen_hostname;
+$params="<base href='$protocol://$gen_hostname/'>" .
 		"<link rel='stylesheet' type='text/css' href='/css/$skinName/entry.css'>";
 	?>
 	<div class=comments>

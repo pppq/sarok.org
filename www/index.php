@@ -23,6 +23,12 @@ $log->debug2("starting application");
 $db = singletonloader :: getInstance("dbFacade");
 $sessionFacade = singletonloader :: getInstance("sessionfacade");
 
+if (isset($_SERVER["HTTPS"])) {
+  $protocol = "https";
+} else {
+  $protocol = "http";
+}
+
 /**
  * Session initialization fase
  */

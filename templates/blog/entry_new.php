@@ -35,8 +35,8 @@ function selectRadio(id)
 <a href="/users/<?=$userLogin;?>/"><?=$userLogin;?></a> irt a <input type=text name='diaryLogin' value='<?=$blogLogin;?>' size=30 maxlength=30 autocomplete="off" onfocus=dropdownInit(event,this,"getAvailableBlogs") > naplójába
 </div>
     <?
-global $gen_hostname;
-$params="<base href='http://$gen_hostname/'>" .
+global $protocol, $gen_hostname;
+$params="<base href='$protocol://$gen_hostname/'>" .
 		"<link rel='stylesheet' type='text/css' href='/css/$skinName/entry.css'>";
   	putEditable("body",$body,$params,"entry");
   ?>

@@ -18,8 +18,8 @@
 <input type='hidden' name='replyOn' value='<?=$replyOn;?>' />
 <h2>Tárgy:<br /><input type=text name=title value='<?=$title;?>' style='width:95%' ></h2>
 <?
-global $gen_hostname;
-$params="<base href='http://$gen_hostname/'>" .
+global $protocol, $gen_hostname;
+$params="<base href='$protocol://$gen_hostname/'>" .
 		"<link rel='stylesheet' type='text/css' href='/css/$skinName/mail.css'>";
 putEditable("body",stripslashes($body),$params,"mail");?>
 </td>

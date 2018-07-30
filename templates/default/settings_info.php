@@ -124,8 +124,8 @@ for($i=1;$i<=12;$i++)
 </tr>
 <tr>
 <?
-global $gen_hostname;
-$params="<base href='http://$gen_hostname/'>" .
+global $protocol, $gen_hostname;
+$params="<base href='$protocol://$gen_hostname/'>" .
 		"<link rel='stylesheet' type='text/css' href='/css/$skinName/entry.css'>";
 ?>
 <td class='value' colspan=2 style='height: 10em;'><? putEditable("description",$description,$params);?></td>
