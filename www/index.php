@@ -6,10 +6,10 @@
  //error_reporting(false);
 require_once "../config.php";
 try{
-require_once "../classes/utils.php";
-require_once "../classes/sarok/context.class.php";
-require_once "../classes/outputHandler.class.php";
-require_once "../classes/sarok/viewHandler.class.php";
+require_once "../src/utils.php";
+require_once "../src/context.class.php";
+require_once "../src/outputHandler.class.php";
+require_once "../src/viewHandler.class.php";
 
 /**
  * Initialization fase

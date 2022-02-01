@@ -6,7 +6,7 @@ require_once "../config.php";
 $log_level=1;
 $general_logfile="../logs/stats.txt";
 
-require_once "../classes/utils.php";
+require_once "../src/utils.php";
 /**
  * Initialization fase
  */

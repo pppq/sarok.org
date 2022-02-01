@@ -5,7 +5,7 @@ header("Content-Type: text/html; charset=utf-8\n\n");
  */
 require_once "../config.php";
 try{
-require_once "../classes/utils.php";
+require_once "../src/utils.php";
 /**
  * Initialization fase
  */
@@ -405,9 +405,9 @@ function removePrivate($ID) {
 function performAction($params) {
 	global $db_host, $cookiedomain;
 	global $log;
-	require_once "../classes/sarok/context.class.php";
-	require_once "../classes/outputHandler.class.php";
-	require_once "../classes/sarok/viewHandler.class.php";
+	require_once "../src/context.class.php";
+	require_once "../src/outputHandler.class.php";
+	require_once "../src/viewHandler.class.php";
 	$view = singletonloader :: getInstance("viewHandler");
 	$buf = singletonloader :: getInstance("outputHandler");
 	$context = singletonloader :: getInstance("contextClass");

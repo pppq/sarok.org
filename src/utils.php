@@ -1,14 +1,14 @@
 <?php
-require_once ("sarok/log.class.php");
-require_once ("sarok/context.class.php");
-require_once ("sarok/dbmodel/sessionclass.class.php");
+require_once ("log.class.php");
+require_once ("context.class.php");
+require_once ("dbmodel/sessionclass.class.php");
 require_once ("singletonloader.class.php");
-require_once ("sarok/exceptions/mysqlException.class.php");
-require_once ("sarok/dbmodel/sql.class.php");
-require_once ("sarok/dbmodel/dbfacade.class.php");
-require_once ("sarok/dbmodel/sessionfacade.class.php");
-require_once ("sarok/actionpages/ActionPage.class.php");
-require_once ("sarok/actionpages/action.class.php");
+require_once ("exceptions/mysqlException.class.php");
+require_once ("dbmodel/sql.class.php");
+require_once ("dbmodel/dbfacade.class.php");
+require_once ("dbmodel/sessionfacade.class.php");
+require_once ("actionpages/ActionPage.class.php");
+require_once ("actionpages/action.class.php");
 $log = singletonloader :: getInstance("log");
 function __autoload($class_name) {
 	$log = singletonloader :: getInstance("log");
@@ -35,7 +35,7 @@ function __autoload($class_name) {
 
 	if(isset($classPath[$class_name]))
 	{
-	$hint = "../classes/sarok/".$classPath[$class_name].".class.php";
+	$hint = "../src/".$classPath[$class_name].".class.php";
 
 	$log->debug("autoload: searching for $class_name");
 
@@ -45,25 +45,25 @@ function __autoload($class_name) {
 	if(strpos($class_name,"DAL"))
 	   {
 	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/dal/".$class_name.".class.php";
+	   	$hint="../src/dal/".$class_name.".class.php";
 	   	if(class_hint($hint)) return true;
 	   }
 
 	if(strpos($class_name,"AP"))
 	   {
 	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/actionpages/".$class_name.".class.php";
+	   	$hint="../src/actionpages/".$class_name.".class.php";
 	   	if(class_hint($hint)) return true;
 	   }
 	if(strpos($class_name,"Action"))
 	   {
 	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/actionpages/".$class_name.".class.php";
+	   	$hint="../src/actionpages/".$class_name.".class.php";
 	   	if(class_hint($hint)) return true;
 	   }
 
 	if (strpos($class_name, "Exception")) {
-		$hint = "../classes/sarok/exceptions/".$class_name.".class.php";
+		$hint = "../src/exceptions/".$class_name.".class.php";
 		if (class_hint($hint))
 			return true;
 	}
