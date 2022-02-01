@@ -15,7 +15,7 @@ $honapok["12"]="December";
 
 
 				<?
-				if(file_exists("../../www/userpics/<?=$blogName?>.jpg"))
+				if(file_exists("../../public/userpics/<?=$blogName?>.jpg"))
 				 {
 				 	?>
 				 <a href=/><img src="userpics/<?=$blogName?>.jpg" class=userpic border=0></a>

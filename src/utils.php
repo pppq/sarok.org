@@ -119,7 +119,7 @@ function putEditable3($name,$value,$params,$idStyle="entry")
 	global $xhtmlMode;
 	$xhtmlMode=false;
 	//$xhtmlMode=true;
-	require("../www/fckeditable/fck/fckeditor.php");
+	require("../public/fckeditable/fck/fckeditor.php");
 
 $ed=new FCKeditor($name);
 
