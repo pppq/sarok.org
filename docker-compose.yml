@@ -1,0 +1,22 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    image: sarok3
+    ports:
+      - 8080:80
+    volumes:
+      - .:/srv/app
+  mysql:
+    image: mysql:8.0
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_DATABASE: sarok
+      MYSQL_USER: sarok
+      MYSQL_PASSWORD: such_sec0re
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
