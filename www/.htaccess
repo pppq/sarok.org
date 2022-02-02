@@ -1,0 +1,6 @@
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+# Move the path portion of the request to query parameter "p"
+RewriteRule ^(.*)$ index.php?p=$1 [L,QSA]
