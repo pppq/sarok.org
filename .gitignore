@@ -1,1 +1,2 @@
-*.log
+# Application log files
+logs/sarok_*.txt
