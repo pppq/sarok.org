@@ -4,9 +4,11 @@ class ViewHandler {
     
     // tile name => array of actions
     private array $tiles = array();
-    // action name => key => value 
+    // action name => action data (as an associative array) 
     private array $data = array();
-
+    // tile name => tile content + any extra variables used in the main template (index.php)
+    private array $viewData = array();
+    
     private string $templateName;
     private TemplateRenderer $templateRenderer;
     private Logger $logger;
@@ -37,6 +39,14 @@ class ViewHandler {
         }
     }
 
+    public function setViewData(string $key, $value) {
+        $this->viewData[$key] = $value;        
+    }
+    
+    public function mergeViewData(array $viewData) {
+        array_merge($this->viewData, $viewData);
+    }
+    
     private function renderAction($action) : string {
         $templatePath = "../templates/{$this->templateName}/$action.php";
         if (file_exists($templatePath)) {
@@ -50,16 +60,15 @@ class ViewHandler {
     }
 
     public function render() : string {
-        $tileVariables = array();
-        
+        // Concatenate rendered output for each action in tile
         foreach ($this->tiles as $tile => $actions) {
-            $tileVariables[$tile] = "";
+            $this->viewData[$tile] = "";
             foreach ($actions as $action) {
-                $tileVariables[$tile] .= $this->renderAction($action);
+                $this->viewData[$tile] .= $this->renderAction($action);
             }
         }
 
         $templatePath = "../templates/{$this->templateName}/index.php";
-        return $this->templateRenderer->render($templatePath, $tileVariables);
+        return $this->templateRenderer->render($templatePath, $this->viewData);
     }
 }
