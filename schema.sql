@@ -20,14 +20,16 @@
 --
 -- Table structure for table `accesslist`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `accesslist`;
-CREATE TABLE `accesslist` (
-  `entryID` int(10) unsigned NOT NULL DEFAULT '0',
-  `userID`  int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entryID`),
-  KEY `accesslist_idx_1` (`userID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `accesslist`;
+-- CREATE TABLE `accesslist` (
+--   `entryID` int(10) unsigned NOT NULL DEFAULT '0',
+--   `userID`  int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`entryID`),
+--   KEY `accesslist_idx_1` (`userID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `accesslog`
@@ -52,42 +54,48 @@ CREATE TABLE `accesslog` (
 --
 -- Table structure for table `bannedip`
 --
+-- This table is currently unused; banned IP addresses are loaded from a text file.
+--
 
-DROP TABLE IF EXISTS `bannedip`;
-CREATE TABLE `bannedip` (
-  `IP`      char(255)        NOT NULL DEFAULT '',
-  `banCode` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`IP`),
-  KEY `bannedip_idx_1` (`banCode`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `bannedip`;
+-- CREATE TABLE `bannedip` (
+--   `IP`      char(255)        NOT NULL DEFAULT '',
+--   `banCode` int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`IP`),
+--   KEY `bannedip_idx_1` (`banCode`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `bans`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `bans`;
-CREATE TABLE `bans` (
-  `ID`        int(10) unsigned NOT NULL DEFAULT '0',
-  `userID`    int(10) unsigned NOT NULL DEFAULT '0',
-  `banDate`   datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `unbanDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `banType`   enum('Global','Account','ReadOnly') NOT NULL DEFAULT 'Global',
-  `reason`    varchar(255)     NOT NULL DEFAULT '',
-  PRIMARY KEY (`ID`),
-  KEY `bans_idx_1` (`userID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `bans`;
+-- CREATE TABLE `bans` (
+--   `ID`        int(10) unsigned NOT NULL DEFAULT '0',
+--   `userID`    int(10) unsigned NOT NULL DEFAULT '0',
+--   `banDate`   datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+--   `unbanDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+--   `banType`   enum('Global','Account','ReadOnly') NOT NULL DEFAULT 'Global',
+--   `reason`    varchar(255)     NOT NULL DEFAULT '',
+--   PRIMARY KEY (`ID`),
+--   KEY `bans_idx_1` (`userID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `bots`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `bots`;
-CREATE TABLE `bots` (
-  `ID`         int(6) unsigned NOT NULL DEFAULT '0',
-  `login`      char(30)        NOT NULL DEFAULT '',
-  `createDate` datetime        NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `loginDate`  datetime        NOT NULL DEFAULT '0000-00-00 00:00:00'
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `bots`;
+-- CREATE TABLE `bots` (
+--   `ID`         int(6) unsigned NOT NULL DEFAULT '0',
+--   `login`      char(30)        NOT NULL DEFAULT '',
+--   `createDate` datetime        NOT NULL DEFAULT '0000-00-00 00:00:00',
+--   `loginDate`  datetime        NOT NULL DEFAULT '0000-00-00 00:00:00'
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `cache_commentlist`
@@ -308,15 +316,17 @@ CREATE TABLE `friends` (
 --
 -- Table structure for table `lastvisits`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `lastvisits`;
-CREATE TABLE `lastvisits` (
-  `userID`    int(10) unsigned NOT NULL DEFAULT '0',
-  `entryID`   int(10) unsigned NOT NULL DEFAULT '0',
-  `visitDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`userID`),
-  KEY `lastvisits_idx_1` (`entryID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `lastvisits`;
+-- CREATE TABLE `lastvisits` (
+--   `userID`    int(10) unsigned NOT NULL DEFAULT '0',
+--   `entryID`   int(10) unsigned NOT NULL DEFAULT '0',
+--   `visitDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+--   PRIMARY KEY (`userID`),
+--   KEY `lastvisits_idx_1` (`entryID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `mail`
@@ -348,43 +358,49 @@ CREATE TABLE `mail` (
 --
 -- Table structure for table `pollanswers`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `pollanswers`;
-CREATE TABLE `pollanswers` (
-  `ID`       int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `pollID`   int(10) unsigned NOT NULL DEFAULT '0',
-  `answer`   char(255)        NOT NULL DEFAULT '',
-  `numVotes` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`),
-  KEY `pollanswers_idx_1` (`pollID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `pollanswers`;
+-- CREATE TABLE `pollanswers` (
+--   `ID`       int(10) unsigned NOT NULL AUTO_INCREMENT,
+--   `pollID`   int(10) unsigned NOT NULL DEFAULT '0',
+--   `answer`   char(255)        NOT NULL DEFAULT '',
+--   `numVotes` int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`ID`),
+--   KEY `pollanswers_idx_1` (`pollID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `polls`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `polls`;
-CREATE TABLE `polls` (
-  `ID`         int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `userID`     int(10) unsigned NOT NULL DEFAULT '0',
-  `entryID`    int(10) unsigned NOT NULL DEFAULT '0',
-  `question`   char(255)        NOT NULL DEFAULT '',
-  `numAnswers` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`),
-  KEY `polls_idx_1` (`userID`),
-  KEY `polls_idx_2` (`entryID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `polls`;
+-- CREATE TABLE `polls` (
+--   `ID`         int(10) unsigned NOT NULL AUTO_INCREMENT,
+--   `userID`     int(10) unsigned NOT NULL DEFAULT '0',
+--   `entryID`    int(10) unsigned NOT NULL DEFAULT '0',
+--   `question`   char(255)        NOT NULL DEFAULT '',
+--   `numAnswers` int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`ID`),
+--   KEY `polls_idx_1` (`userID`),
+--   KEY `polls_idx_2` (`entryID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `pollvotes`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `pollvotes`;
-CREATE TABLE `pollvotes` (
-  `AnswerID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `UserID`   int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`AnswerID`,`UserID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `pollvotes`;
+-- CREATE TABLE `pollvotes` (
+--   `AnswerID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+--   `UserID`   int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`AnswerID`,`UserID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `sessions`
@@ -406,30 +422,34 @@ CREATE TABLE `sessions` (
 --
 -- Table structure for table `statistics`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `statistics`;
-CREATE TABLE `statistics` (
-  `userID`   int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `date`     date             NOT NULL DEFAULT '0000-00-00',
-  `visitors` int(10) unsigned NOT NULL DEFAULT '0',
-  `reloads`  int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`userID`),
-  KEY `statistics_idx_1` (`date`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `statistics`;
+-- CREATE TABLE `statistics` (
+--   `userID`   int(10) unsigned NOT NULL AUTO_INCREMENT,
+--   `date`     date             NOT NULL DEFAULT '0000-00-00',
+--   `visitors` int(10) unsigned NOT NULL DEFAULT '0',
+--   `reloads`  int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`userID`),
+--   KEY `statistics_idx_1` (`date`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `statisticspages`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `statisticspages`;
-CREATE TABLE `statisticspages` (
-  `Action`         char(255)        NOT NULL DEFAULT '',
-  `Date`           date             NOT NULL DEFAULT '0000-00-00',
-  `visitors`       int(10) unsigned NOT NULL DEFAULT '0',
-  `unigueVisitors` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Action`),
-  KEY `statisticspages_idx_1` (`Date`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `statisticspages`;
+-- CREATE TABLE `statisticspages` (
+--   `Action`         char(255)        NOT NULL DEFAULT '',
+--   `Date`           date             NOT NULL DEFAULT '0000-00-00',
+--   `visitors`       int(10) unsigned NOT NULL DEFAULT '0',
+--   `unigueVisitors` int(10) unsigned NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`Action`),
+--   KEY `statisticspages_idx_1` (`Date`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `userdata`
@@ -468,16 +488,18 @@ CREATE TABLE `users` (
 --
 -- Table structure for table `usertrack`
 --
+-- This table is currently unused.
+--
 
-DROP TABLE IF EXISTS `usertrack`;
-CREATE TABLE `usertrack` (
-  `sessionID` char(30)  NOT NULL DEFAULT '',
-  `userID`    char(30)  NOT NULL DEFAULT '',
-  `Date`      datetime  NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `IP`        char(255) NOT NULL DEFAULT '',
-  `Action`    char(255) NOT NULL DEFAULT '',
-  PRIMARY KEY (`sessionID`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- DROP TABLE IF EXISTS `usertrack`;
+-- CREATE TABLE `usertrack` (
+--   `sessionID` char(30)  NOT NULL DEFAULT '',
+--   `userID`    char(30)  NOT NULL DEFAULT '',
+--   `Date`      datetime  NOT NULL DEFAULT '0000-00-00 00:00:00',
+--   `IP`        char(255) NOT NULL DEFAULT '',
+--   `Action`    char(255) NOT NULL DEFAULT '',
+--   PRIMARY KEY (`sessionID`)
+-- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /* Restore saved variables in reverse order */
 
