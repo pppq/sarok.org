@@ -18,15 +18,15 @@ class TextProcessor {
         'wrap' => 120, 
     );
     
-    private Logger $log;
+    private Logger $logger;
 
-    public function __construct(Logger $log) {
-        $this->log = $log;
-        $this->log->debug("TextProcessor initialized");
+    public function __construct(Logger $logger) {
+        $this->logger = $logger;
+        $this->logger->debug("TextProcessor initialized");
     }
 
     public function preFormat(string $text) : string {
-        $this->log->debug("Preformatting '$text'");
+        $this->logger->debug("Preformatting '$text'");
         
         if (isset($text) && strlen($text) > 0) {
             $text = strip_tags($text, self::ALLOWED_TAGS);
@@ -43,12 +43,12 @@ class TextProcessor {
             $text = str_replace('(tm)', '&trade;', $text);
         }
         
-        $this->log->debug("Done preformatting '$text'");
+        $this->logger->debug("Done preformatting '$text'");
         return $text;
     }
 
     public function postFormat(string $text, string $searchKeyword = '') : string {
-        $this->log->debug("Post-formatting '$text'");
+        $this->logger->debug("Post-formatting '$text'");
         
         if (isset($text) && strlen($text) > 0) {
             $text = str_replace(' -- ', ' &ndash; ', $text);
@@ -71,12 +71,12 @@ class TextProcessor {
             }
         }
         
-        $this->log->debug("Done post-formatting '$text'");
+        $this->logger->debug("Done post-formatting '$text'");
         return $text;
     }
 
     public function tidy(string $text, array $tidy_config = self::DEFAULT_TIDY_CONFIG) : string {
-        $this->log->debug("HTML Tidy-ing '$text'");
+        $this->logger->debug("HTML Tidy-ing '$text'");
         
         if (isset($text) && strlen($text) > 0) {
             $tidy = new tidy();
@@ -85,7 +85,7 @@ class TextProcessor {
             $text = tidy_get_output($tidy); 
         }
         
-        $this->log->debug("Done HTML Tidy-ing '$text'");
+        $this->logger->debug("Done HTML Tidy-ing '$text'");
         return $text;
     }
 }
