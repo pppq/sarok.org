@@ -76,8 +76,8 @@ class DB {
 	    
 	    $result = $stmt->get_result();
 	    if ($result === false) {
-    	    // We know that execute succeeded, so return true indicating success instead
-	        return true;
+    	    // We know that execute succeeded, so return the number of affected rows
+	        return $stmt->affected_rows;
 	    } else {
 	        return $result;
 	    }
@@ -88,14 +88,12 @@ class DB {
 	    return $this->queryOrExecute($query, $format, $params);
 	}
 	
-	public function execute(string $query, string $format = '', &...$params) : bool {
+	public function execute(string $query, string $format = '', &...$params) : int {
 	    $this->logger->debug("execute: $query");
 	    return $this->queryOrExecute($query, $format, $params);
 	}
 	
-	public function queryWithParams(string $query, array &$stringParams) : mysqli_result {
-	    $this->logger->debug("queryArray: $query");
-	    
+	private function queryOrExecuteWithParams(string $query, array &$stringParams) {
 	    $stmt = $this->conn->prepare($query);
 	    if ($stmt === false) {
 	        throw new DBException(
@@ -110,7 +108,23 @@ class DB {
 	    }
 	        
 	    $this->queryCount++;
-	    return $stmt->get_result();
+	    $result = $stmt->get_result();
+	    if ($result === false) {
+	        // We know that execute succeeded, so return the number of affected rows
+	        return $stmt->affected_rows;
+	    } else {
+	        return $result;
+	    }
+	}
+	
+	public function queryWithParams(string $query, array &$stringParams) : mysqli_result {
+	    $this->logger->debug("queryWithParams: $query");
+	    return $this->queryOrExecuteWithParams($query, $stringParams);
+	}
+	
+	public function executeWithParams(string $query, array &$stringParams) : int {
+	    $this->logger->debug("executeWithParams: $query");
+	    return $this->queryOrExecuteWithParams($query, $stringParams);
 	}
 
 	private function toObjects(mysqli_result $result, string $className) : array {

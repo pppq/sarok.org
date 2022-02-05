@@ -48,6 +48,7 @@ class AccessLogRepository extends AbstractRepository {
     }
     
     public function getUserActions(DateTime $fromDateTime, int $limit = 2500) : array {
+        // XXX: not all fields are populated
         $selectColumns = array(
             AccessLog::FIELD_DATUM,
             AccessLog::FIELD_SESSID,
@@ -67,7 +68,7 @@ class AccessLogRepository extends AbstractRepository {
         return $this->db->queryObjects($q, AccessLog::class, 'si', $fromDateTimeString, $limit);
     }
     
-    public function save(AccessLog $data) : bool {
+    public function insert(AccessLog $data) : int {
         $accesslog = self::TABLE_NAME;
         $insertColumns = $this->getColumnNames();
         $columnList = $this->toColumnList($insertColumns);
