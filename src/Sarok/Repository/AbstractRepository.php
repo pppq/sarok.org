@@ -14,13 +14,9 @@ abstract class AbstractRepository {
         return implode('`, `', $columns);
     }
     
-    protected function placeholderListFromValues(array $values) : string {
+    protected function toPlaceholderList(array $values) : string {
         // Produce the same number of question marks as there are values
-        return $this->placeholderListFromCount(count($values));
-    }
-    
-    protected function placeholderListFromCount(int $count) : string {
-        $placeholders = array_fill(0, $count, '?');
+        $placeholders = array_fill(0, count($values), '?');
         return implode(', ', $placeholders);
     }
 

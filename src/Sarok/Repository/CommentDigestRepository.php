@@ -74,8 +74,8 @@ class CommentDigestRepository extends AbstractRepository {
         $diaryID = CommentDigest::FIELD_DIARY_ID;
         $ID = CommentDigest::FIELD_ID;
 
-        // Introduce an alias after saving a copy of the original list count
-        $numIDs = count($IDs);
+        // Introduce an alias after saving placeholders based on the original list
+        $placeholderList = $this->toPlaceholderList($IDs);
         $values = &$IDs;
         
         // First two values in the UPDATE statement is the timestamp and the category
@@ -94,7 +94,6 @@ class CommentDigestRepository extends AbstractRepository {
             $friendsOnlyClause = '';
         }
 
-        $placeholderList = $this->placeholderListFromCount($numIDs);
         $q = "UPDATE `$cache_commentlist` SET `$lastUsedColumn` = ? WHERE `$categoryColumn` = ? $friendsOnlyClause AND `$ID` IN ($placeholderList)";
         return $this->db->executeWithParams($q, $values);
     }
@@ -104,7 +103,7 @@ class CommentDigestRepository extends AbstractRepository {
         $accessColumn = CommentDigest::FIELD_ACCESS;
         $entryIDColumn = CommentDigest::FIELD_ENTRY_ID;
         
-        $placeholderList = $this->placeholderListFromValues($entryIDs);
+        $placeholderList = $this->toPlaceholderList($entryIDs);
         $q = "UPDATE `$cache_commentlist` SET `$accessColumn` = ? WHERE `$entryIDColumn` IN ($placeholderList)";
         
         // Introduce an alias, we don't want to copy the array by assignment here
@@ -185,7 +184,7 @@ class CommentDigestRepository extends AbstractRepository {
          * your own comments even if you banned or got banned by the blog owner.
          */
         if ($category !== CommentDigest::CATEGORY_MY_COMMENTS && count($bannedIDs) > 0) {
-            $placeholderList = $this->placeholderListFromValues($bannedIDs);
+            $placeholderList = $this->toPlaceholderList($bannedIDs);
             $bannedClause = "AND `$userID` NOT IN ($placeholderList) AND `$diaryID` NOT IN ($placeholderList) ";
             
             // Parameters 4 and up (index 3) should be the banned ID list, but twice!
@@ -209,7 +208,7 @@ class CommentDigestRepository extends AbstractRepository {
         $lastUsed = CommentDigest::FIELD_LAST_USED;
         $insertColumns = $this->getColumnNames();
         $columnList = $this->toColumnList($insertColumns);
-        $placeholderList = $this->placeholderListFromValues($insertColumns);
+        $placeholderList = $this->toPlaceholderList($insertColumns);
         
         $values = $data->toArray();
         // Values for the ON DUPLICATE KEY parts are repeated
