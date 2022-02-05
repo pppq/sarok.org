@@ -1,5 +1,6 @@
 <?php namespace Sarok\Repository;
 
+use Sarok\Util;
 use Sarok\Models\AccessLog;
 use Sarok\Service\DB;
 use DateTime;
@@ -62,7 +63,7 @@ class AccessLogRepository extends AbstractRepository {
         $action = AccessLog::FIELD_ACTION;
         
         $q = "SELECT `$columnList` FROM `$accesslog` WHERE `$datum` >= ? AND `$action` LIKE 'users/_%' ORDER BY `$datum` LIMIT ?";
-        $fromDateTimeString = $fromDateTime->format('Y-m-d H:i:s');
+        $fromDateTimeString = Util::dateTimeToString($fromDateTime);
         return $this->db->queryObjects($q, AccessLog::class, 'si', $fromDateTimeString, $limit);
     }
     

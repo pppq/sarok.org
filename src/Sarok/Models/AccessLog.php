@@ -1,7 +1,7 @@
 <?php namespace Sarok\Models;
 
+use Sarok\Util;
 use DateTime;
-use DateTimeZone;
 
 class AccessLog {
 
@@ -31,14 +31,14 @@ class AccessLog {
     public function __construct() {
         // Initialize only if not already set by fetch_object()
         if (!isset($this->_datum)) {
-            $this->_datum = new DateTime('now', new DateTimeZone("UTC"));
+            $this->_datum = Util::utcDateTimeFromString();
         }
     }
     
     public function __set(string $name, $value) {
         // Support conversion from string for fetch_object()
         if ($name === self::FIELD_DATUM && is_string($value)) {
-            $this->setDatum(new DateTime($value, new DateTimeZone("UTC")));
+            $this->setDatum(Util::utcDateTimeFromString($value));
         }
     }
     
@@ -116,7 +116,7 @@ class AccessLog {
 
     public function toArray() : array {
         return array(
-            $this->_datum->format('Y-m-d H:i:s'),
+            Util::dateTimeToString($this->_datum),
             $this->micros,
             $this->sessid,
             $this->action,
