@@ -20,7 +20,7 @@ abstract class AbstractRepository {
         return implode(', ', $placeholders);
     }
 
-    public abstract function getTableName() : string;
+    protected abstract function getTableName() : string;
     
-    public abstract function getColumnNames() : array;
+    protected abstract function getColumnNames() : array;
 }

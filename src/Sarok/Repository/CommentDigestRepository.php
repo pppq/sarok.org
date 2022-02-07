@@ -9,48 +9,52 @@ class CommentDigestRepository extends AbstractRepository {
 
     const TABLE_NAME = 'cache_commentlist';
     
+    private const COLUMN_NAMES = array(
+        CommentDigest::FIELD_CATEGORY,
+        CommentDigest::FIELD_ID,
+        CommentDigest::FIELD_OWNER_ID,
+        CommentDigest::FIELD_USER_ID,
+        CommentDigest::FIELD_DIARY_ID,
+        CommentDigest::FIELD_ENTRY_ID,
+        CommentDigest::FIELD_CREATE_DATE,
+        CommentDigest::FIELD_ACCESS,
+        CommentDigest::FIELD_BODY,
+        CommentDigest::FIELD_LAST_USED,
+    );
+    
     public function __construct(DB $db) {
         parent::__construct($db);
     }
     
-    public function getTableName() : string {
+    protected function getTableName() : string {
         return self::TABLE_NAME;
     }
     
-    public function getColumnNames() : array {
-        return array(
-            CommentDigest::FIELD_CATEGORY,
-            CommentDigest::FIELD_ID,
-            CommentDigest::FIELD_OWNER_ID,
-            CommentDigest::FIELD_USER_ID,
-            CommentDigest::FIELD_DIARY_ID,
-            CommentDigest::FIELD_ENTRY_ID,
-            CommentDigest::FIELD_CREATE_DATE,
-            CommentDigest::FIELD_ACCESS,
-            CommentDigest::FIELD_BODY,
-            CommentDigest::FIELD_LAST_USED,
-        );
+    protected function getColumnNames() : array {
+        return self::COLUMN_NAMES;
     }
     
-    private function deleteByColumn(string $cache_commentlist, string $column, int $value) : int {
+    private function deleteByColumn(string $column, int $value) : int {
+        $cache_commentlist = $this->getTableName();
+        
         $q = "DELETE FROM `$cache_commentlist` WHERE `$column` = ?";
         return $this->db->execute($q, 'i', $value);
     }
     
     public function deleteById(int $ID) : int {
-        return $this->deleteByColumn(self::TABLE_NAME, CommentDigest::FIELD_ID, $ID);
+        return $this->deleteByColumn(CommentDigest::FIELD_ID, $ID);
     }
     
     public function deleteByEntryId(int $entryID) : int {
-        return $this->deleteByColumn(self::TABLE_NAME, CommentDigest::FIELD_ENTRY_ID, $entryID);
+        return $this->deleteByColumn(CommentDigest::FIELD_ENTRY_ID, $entryID);
     }
     
     public function deleteByOwnerId(int $ownerID) : int {
-        return $this->deleteByColumn(self::TABLE_NAME, CommentDigest::FIELD_OWNER_ID, $ownerID);
+        return $this->deleteByColumn(CommentDigest::FIELD_OWNER_ID, $ownerID);
     }
     
     public function deleteByCategoryAndOwnerId(string $category, int $ownerID) : int {
-        $cache_commentlist = self::TABLE_NAME;
+        $cache_commentlist = $this->getTableName();
         $categoryColumn = CommentDigest::FIELD_CATEGORY;
         $ownerIDColumn = CommentDigest::FIELD_OWNER_ID;
         
@@ -59,7 +63,7 @@ class CommentDigestRepository extends AbstractRepository {
     }
     
     public function deleteLastUsedBefore(DateTime $lastUsed) : int {
-        $cache_commentlist = self::TABLE_NAME;
+        $cache_commentlist = $this->getTableName();
         $lastUsedColumn = CommentDigest::FIELD_LAST_USED;
         
         $q = "DELETE FROM `$cache_commentlist` WHERE `$lastUsedColumn` < ?";
@@ -68,12 +72,6 @@ class CommentDigestRepository extends AbstractRepository {
     }
     
     public function updateLastUsed(DateTime $lastUsed, string $category, array $IDs, string $friendsOfId = '') : int {
-        $cache_commentlist = self::TABLE_NAME;
-        $lastUsedColumn = CommentDigest::FIELD_LAST_USED;
-        $categoryColumn = CommentDigest::FIELD_CATEGORY;
-        $diaryID = CommentDigest::FIELD_DIARY_ID;
-        $ID = CommentDigest::FIELD_ID;
-
         // Introduce an alias after saving placeholders based on the original list
         $placeholderList = $this->toPlaceholderList($IDs);
         $values = &$IDs;
@@ -83,10 +81,12 @@ class CommentDigestRepository extends AbstractRepository {
         
         // If last parameter is set, the "all comments" section is restricted to comments made by friends of the user
         if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && strlen($friendsOfId) > 0) {
-            // FIXME: replace table and field names with constants from Friend and User model repositories
+            // FIXME: replace table and field names with constants from Friend and User models and repositories
             // FIXME: all lists (friends, bans, follows) were consulted here, shouldn't that be restricted to friends only?
-            $friendsQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
-            $friendsOnlyClause = "AND `$diaryID` IN ($friendsQuery)";
+            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
+            
+            $diaryID = CommentDigest::FIELD_DIARY_ID;
+            $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery)";
             
             // Optional third value (at index 2) is the user ID when given
             array_splice($values, 2, 0, $friendsOfId);
@@ -94,16 +94,21 @@ class CommentDigestRepository extends AbstractRepository {
             $friendsOnlyClause = '';
         }
 
+        $cache_commentlist = $this->getTableName();
+        $lastUsedColumn = CommentDigest::FIELD_LAST_USED;
+        $categoryColumn = CommentDigest::FIELD_CATEGORY;
+        $ID = CommentDigest::FIELD_ID;
+        
         $q = "UPDATE `$cache_commentlist` SET `$lastUsedColumn` = ? WHERE `$categoryColumn` = ? $friendsOnlyClause AND `$ID` IN ($placeholderList)";
         return $this->db->executeWithParams($q, $values);
     }
     
     public function updateAccess(string $access, array $entryIDs) : int {
-        $cache_commentlist = self::TABLE_NAME;
+        $cache_commentlist = $this->getTableName();
         $accessColumn = CommentDigest::FIELD_ACCESS;
         $entryIDColumn = CommentDigest::FIELD_ENTRY_ID;
-        
         $placeholderList = $this->toPlaceholderList($entryIDs);
+        
         $q = "UPDATE `$cache_commentlist` SET `$accessColumn` = ? WHERE `$entryIDColumn` IN ($placeholderList)";
         
         // Introduce an alias, we don't want to copy the array by assignment here
@@ -138,6 +143,45 @@ class CommentDigestRepository extends AbstractRepository {
         array $bannedIDs = array(),
         int $limit = 30) : array {
         
+        // Get the shared comment digests as well for the "all comments" section (ownerID is 0 in that case)
+        $ownerIDColumn = CommentDigest::FIELD_OWNER_ID;
+        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS) {
+            $ownerClause = "`$ownerIDColumn` IN (0, ?)";
+        } else {
+            $ownerClause = "`$ownerIDColumn` = ?";
+        }
+
+        $values = array($ownerID, $category, Util::dateTimeToString($createDate));
+        
+        // If "friendsOnly" is set, the "all comments" section is restricted to comments made by friends of the user
+        $diaryID = CommentDigest::FIELD_DIARY_ID;
+        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && $friendsOnly === true) {
+            // FIXME: replace table and field names with constants from Friend and User model repositories
+            // FIXME: all lists (friends, bans, reads) are consulted here
+            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
+            $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery) ";
+            
+            // Parameter 4 (index 3) should be the ownerID again
+            $values[] = $ownerID;
+        } else {
+            $friendsOnlyClause = '';
+        }
+        
+        /* 
+         * Remove banned people from the output, unless the category is "my comments"; you should be able to see 
+         * your own comments even if you banned or got banned by the blog owner.
+         */
+        $userID = CommentDigest::FIELD_USER_ID;
+        if ($category !== CommentDigest::CATEGORY_MY_COMMENTS && count($bannedIDs) > 0) {
+            $placeholderList = $this->toPlaceholderList($bannedIDs);
+            $bannedClause = "AND `$userID` NOT IN ($placeholderList) AND `$diaryID` NOT IN ($placeholderList) ";
+            
+            // Parameters 5 and up (index 4+) should be the banned ID list, but twice!
+            array_push($values, ...$bannedIDs, ...$bannedIDs);
+        } else {
+            $bannedClause = '';
+        }
+        
         // XXX: not all fields are populated
         $selectColumns = array(
             CommentDigest::FIELD_ID,
@@ -150,48 +194,9 @@ class CommentDigestRepository extends AbstractRepository {
         );
         
         $columnList = $this->toColumnList($selectColumns);
-        $cache_commentlist = self::TABLE_NAME;
+        $cache_commentlist = $this->getTableName();
         $categoryColumn = CommentDigest::FIELD_CATEGORY;
         $createDateColumn = CommentDigest::FIELD_CREATE_DATE;
-        $diaryID = CommentDigest::FIELD_DIARY_ID;
-        $userID = CommentDigest::FIELD_USER_ID;
-        $ownerIDColumn = CommentDigest::FIELD_OWNER_ID;
-        
-        // Get the shared comment digests as well for the "all comments" section (ownerID is 0 in that case)
-        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS) {
-            $ownerClause = "`$ownerIDColumn` IN (0, ?)";
-        } else {
-            $ownerClause = "`$ownerIDColumn` = ?";
-        }
-
-        $values = array($ownerID, $category, Util::dateTimeToString($createDate));
-        
-        // If "friendsOnly" is set, the "all comments" section is restricted to comments made by friends of the user
-        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && $friendsOnly === true) {
-            // FIXME: replace table and field names with constants from Friend and User model repositories
-            // FIXME: all lists (friends, bans, reads) are consulted here
-            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
-            $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery) ";
-            
-            // Parameter 3 (index 2) should be the ownerID again
-            $values[] = $ownerID;
-        } else {
-            $friendsOnlyClause = '';
-        }
-        
-        /* 
-         * Remove banned people from the output, unless the category is "my comments"; you should be able to see 
-         * your own comments even if you banned or got banned by the blog owner.
-         */
-        if ($category !== CommentDigest::CATEGORY_MY_COMMENTS && count($bannedIDs) > 0) {
-            $placeholderList = $this->toPlaceholderList($bannedIDs);
-            $bannedClause = "AND `$userID` NOT IN ($placeholderList) AND `$diaryID` NOT IN ($placeholderList) ";
-            
-            // Parameters 4 and up (index 3) should be the banned ID list, but twice!
-            array_push($values, ...$bannedIDs, ...$bannedIDs);
-        } else {
-            $bannedClause = '';
-        }
         
         $q = "SELECT `$columnList` FROM `$cache_commentlist` ".
              "WHERE $ownerClause AND `$categoryColumn` = ? AND `$createDateColumn` <= ? {$friendsOnlyClause}{$bannedClause}" .
@@ -203,17 +208,17 @@ class CommentDigestRepository extends AbstractRepository {
     }
     
     public function upsert(CommentDigest $data) : int {
-        $cache_commentlist = self::TABLE_NAME;
-        $body = CommentDigest::FIELD_BODY;
-        $lastUsed = CommentDigest::FIELD_LAST_USED;
-        $insertColumns = $this->getColumnNames();
-        $columnList = $this->toColumnList($insertColumns);
-        $placeholderList = $this->toPlaceholderList($insertColumns);
-        
         $values = $data->toArray();
         // Values for the ON DUPLICATE KEY parts are repeated
         $values[] = $data->getBody();
         $values[] = Util::dateTimeToString($data->getLastUsed());
+
+        $cache_commentlist = $this->getTableName();
+        $insertColumns = $this->getColumnNames();
+        $columnList = $this->toColumnList($insertColumns);
+        $placeholderList = $this->toPlaceholderList($insertColumns);
+        $body = CommentDigest::FIELD_BODY;
+        $lastUsed = CommentDigest::FIELD_LAST_USED;
         
         $q = "INSERT INTO `$cache_commentlist`(`$columnList`) VALUES ($placeholderList) ON DUPLICATE KEY UPDATE `$body` = ?, `$lastUsed` = ?";
         // Last two 's' stand for body and lastUsed, see above!
