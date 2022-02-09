@@ -148,6 +148,13 @@ class DB {
 	    return $this->toObjects($result, $className);
 	}
 	
+	/**
+	 * @return int|string
+	 */
+	public function getLastInsertID() {
+	    return $this->conn->insert_id;
+	}
+	
 // 	public function mquery($query) {
 // 		$this->logger->debug("mquery: ".$query);
 // 		$result = mysql_query($query);
