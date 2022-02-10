@@ -4,6 +4,7 @@ use Sarok\Util;
 use Sarok\Models\EntryDigest;
 use Sarok\Service\DB;
 use DateTime;
+use Sarok\Models\Friend;
 
 class EntryDigestRepository extends AbstractRepository {
 
@@ -20,8 +21,11 @@ class EntryDigestRepository extends AbstractRepository {
         EntryDigest::FIELD_LAST_USED,
     );
     
-    public function __construct(DB $db) {
+    private FriendRepository $friendRepository;
+    
+    public function __construct(DB $db, FriendRepository $friendRepository) {
         parent::__construct($db);
+        $this->friendRepository = $friendRepository;
     }
     
     protected function getTableName() : string {
@@ -115,13 +119,12 @@ class EntryDigestRepository extends AbstractRepository {
         // If "friendsOnly" is set, the section is restricted to entries made by friends of the user
         $diaryID = EntryDigest::FIELD_DIARY_ID;
         if ($friendsOnly === true) {
-            // FIXME: replace table and field names with constants from Friend and User models and repositories
-            // FIXME: all lists (friends, bans, reads) are consulted here
-            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
+            $friendsSubQuery = $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery) ";
             
-            // Parameter 3 (index 2) should be the ownerID again
+            // Parameter 3 (index 2) should be the ownerID again, followed by the association type
             $values[] = $ownerID;
+            $values[] = Friend::TYPE_FRIEND;
         } else {
             $friendsOnlyClause = '';
         }

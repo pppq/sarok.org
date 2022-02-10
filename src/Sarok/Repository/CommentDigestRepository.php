@@ -4,6 +4,7 @@ use Sarok\Util;
 use Sarok\Models\CommentDigest;
 use Sarok\Service\DB;
 use DateTime;
+use Sarok\Models\Friend;
 
 class CommentDigestRepository extends AbstractRepository {
 
@@ -22,8 +23,11 @@ class CommentDigestRepository extends AbstractRepository {
         CommentDigest::FIELD_LAST_USED,
     );
     
-    public function __construct(DB $db) {
+    private FriendRepository $friendRepository;
+    
+    public function __construct(DB $db, FriendRepository $friendRepository) {
         parent::__construct($db);
+        $this->friendRepository = $friendRepository;
     }
     
     protected function getTableName() : string {
@@ -81,15 +85,12 @@ class CommentDigestRepository extends AbstractRepository {
         
         // If last parameter is set, the "all comments" section is restricted to comments made by friends of the user
         if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && strlen($friendsOfId) > 0) {
-            // FIXME: replace table and field names with constants from Friend and User models and repositories
-            // FIXME: all lists (friends, bans, follows) were consulted here, shouldn't that be restricted to friends only?
-            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
-            
+            $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $diaryID = CommentDigest::FIELD_DIARY_ID;
             $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery)";
             
-            // Optional third value (at index 2) is the user ID when given
-            array_splice($values, 2, 0, $friendsOfId);
+            // Optional third value (at index 2) is the user ID when given and the association type
+            array_splice($values, 2, 0, array($friendsOfId, Friend::TYPE_FRIEND));
         } else {
             $friendsOnlyClause = '';
         }
@@ -156,13 +157,12 @@ class CommentDigestRepository extends AbstractRepository {
         // If "friendsOnly" is set, the "all comments" section is restricted to comments made by friends of the user
         $diaryID = CommentDigest::FIELD_DIARY_ID;
         if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && $friendsOnly === true) {
-            // FIXME: replace table and field names with constants from Friend and User model repositories
-            // FIXME: all lists (friends, bans, reads) are consulted here
-            $friendsSubQuery = "SELECT `login` FROM `friends` LEFT JOIN `users` ON `friends`.`userID` = `users`.`ID` WHERE `friendOf` = ?";
+            $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery) ";
             
-            // Parameter 4 (index 3) should be the ownerID again
+            // Parameter 4 (index 3) should be the ownerID again, followed by the association type
             $values[] = $ownerID;
+            $values[] = Friend::TYPE_FRIEND;
         } else {
             $friendsOnlyClause = '';
         }
