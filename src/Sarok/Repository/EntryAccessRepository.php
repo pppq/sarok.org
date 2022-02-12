@@ -2,6 +2,8 @@
 
 use Sarok\Models\EntryAccess;
 use Sarok\Service\DB;
+use DateTime;
+use Sarok\Util;
 
 class EntryAccessRepository extends AbstractRepository {
 
@@ -12,8 +14,11 @@ class EntryAccessRepository extends AbstractRepository {
         EntryAccess::FIELD_USER_ID,
     );
     
-    public function __construct(DB $db) {
+    private SessionRepository $sessionRepository;
+    
+    public function __construct(DB $db, SessionRepository $sessionRepository) {
         parent::__construct($db);
+        $this->sessionRepository = $sessionRepository;
     }
     
     protected function getTableName() : string {
@@ -24,16 +29,16 @@ class EntryAccessRepository extends AbstractRepository {
         return self::COLUMN_NAMES;
     }
     
-    public function getActiveUsersWithAccess(string $entryID) : array {
+    public function getActiveUsersWithAccess(string $entryID, DateTime $lastActivityAfter) : array {
         $userIDColumn = EntryAccess::FIELD_USER_ID;
         $entryaccess = $this->getTableName();
         $entryIDColumn = EntryAccess::FIELD_ENTRY_ID;
         
-        // FIXME: Move query to SessionRepository
-        $activeUsersSubquery = "SELECT `userID` from `sessions` WHERE `activationDate` > NOW() - INTERVAL 1 HOUR";
-        
-        $q = "SELECT DISTINCT `$userIDColumn` FROM `$entryaccess` WHERE `$entryIDColumn` = ? AND `$userIDColumn` IN ($activeUsersSubquery)";
-        $result = $this->db->execute($q, 'i', $entryID);
+        $activeUserIdsQuery = $this->sessionRepository->getActiveUserIdsQuery();
+        $q = "SELECT DISTINCT `$userIDColumn` FROM `$entryaccess` WHERE `$entryIDColumn` = ? AND `$userIDColumn` IN ($activeUserIdsQuery)";
+
+        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
+        $result = $this->db->execute($q, 'is', $entryID, $lastActivityString);
         
         $userIDList = array();
         while ($userID = $result->fetch_row()) {
