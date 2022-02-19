@@ -6,9 +6,9 @@ use Sarok\Service\DB;
 use DateTime;
 use Sarok\Models\Friend;
 
-class SessionRepository extends AbstractRepository {
-
-    const TABLE_NAME = 'feeds';
+class SessionRepository extends AbstractRepository
+{
+    const TABLE_NAME = 'sessions';
     
     private const COLUMN_NAMES = array(
         Session::FIELD_ID,
@@ -21,20 +21,24 @@ class SessionRepository extends AbstractRepository {
     
     private FriendRepository $friendRepository;
     
-    public function __construct(DB $db, FriendRepository $friendRepository) {
+    public function __construct(DB $db, FriendRepository $friendRepository)
+    {
         parent::__construct($db);
         $this->friendRepository = $friendRepository;
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::COLUMN_NAMES;
     }
     
-    public function getActiveUserIdsQuery() : string {
+    public function getActiveUserIdsQuery() : string
+    {
         $userID = Session::FIELD_USER_ID;
         $sessions = $this->getTableName();
         $activationDate = Session::FIELD_ACTIVATION_DATE;
@@ -42,7 +46,8 @@ class SessionRepository extends AbstractRepository {
         return "SELECT DISTINCT `$userID` from `$sessions` WHERE `$activationDate` > ?";
     }
 
-    public function getActiveRelatedUserIds(int $userID, DateTime $lastActivityAfter, string $friendType) : array {
+    public function getActiveRelatedUserIds(int $userID, DateTime $lastActivityAfter, string $friendType) : array
+    {
         $userIDColumn = Session::FIELD_USER_ID;
         $activeUserIdsQuery = $this->getActiveUserIdsQuery();
         $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
@@ -59,7 +64,8 @@ class SessionRepository extends AbstractRepository {
         return $activeUserIDs;
     }
     
-    public function getFriendsActivity(int $userID, DateTime $lastActivityAfter) : array {
+    public function getFriendsActivity(int $userID, DateTime $lastActivityAfter) : array
+    {
         $userIDColumn = Session::FIELD_USER_ID;
         $activationDate = Session::FIELD_ACTIVATION_DATE;
         $sessions = $this->getTableName();
@@ -84,7 +90,8 @@ class SessionRepository extends AbstractRepository {
         return $friendsActivity;
     }
     
-    public function getActiveSessions(int $userID, DateTime $lastActivityAfter) : int {
+    public function getActiveSessions(int $userID, DateTime $lastActivityAfter) : int
+    {
         $ID = Session::FIELD_ID;
         $sessions = $this->getTableName();
         $userIDColumn = Session::FIELD_USER_ID;
@@ -101,7 +108,8 @@ class SessionRepository extends AbstractRepository {
         return 0;
     }
     
-    public function getUserIdIfActive(string $ID, DateTime $lastActivityAfter) : int {
+    public function getUserIdIfActive(string $ID, DateTime $lastActivityAfter) : int
+    {
         $userID = Session::FIELD_USER_ID;
         $sessions = $this->getTableName();
         $IDColumn = Session::FIELD_ID;
@@ -117,7 +125,8 @@ class SessionRepository extends AbstractRepository {
         return 0;
     }
 
-    public function updateActivity(string $ID, DateTime $lastActivity) : int {
+    public function updateActivity(string $ID, DateTime $lastActivity) : int
+    {
         $sessions = $this->getTableName();
         $activationDate = Session::FIELD_ACTIVATION_DATE;
         $IDColumn = Session::FIELD_ID;
@@ -127,7 +136,8 @@ class SessionRepository extends AbstractRepository {
         return $this->db->execute($q, "ss", $lastActivityString, $ID);
     }
 
-    public function updateUserID(string $ID, int $userID, DateTime $loginDate) : int {
+    public function updateUserID(string $ID, int $userID, DateTime $loginDate) : int
+    {
         $sessions = $this->getTableName();
         $userIDColumn = Session::FIELD_USER_ID;
         $loginDateColumn = Session::FIELD_LOGIN_DATE;
@@ -141,7 +151,8 @@ class SessionRepository extends AbstractRepository {
         return $this->db->execute($q, "isss", $userID, $loginDateString, $loginDateString, $ID);
     }
     
-    public function deleteInactive(DateTime $lastActivityBefore) : int {
+    public function deleteInactive(DateTime $lastActivityBefore) : int
+    {
         $sessions = $this->getTableName();
         $activationDate = Session::FIELD_ACTIVATION_DATE;
         
@@ -150,7 +161,8 @@ class SessionRepository extends AbstractRepository {
         return $this->db->execute($q, 's', $lastActivityString);
     }
     
-    public function deleteByIP(string $IP) : int {
+    public function deleteByIP(string $IP) : int
+    {
         $sessions = $this->getTableName();
         $IPColumn = Session::FIELD_IP;
         
@@ -158,14 +170,16 @@ class SessionRepository extends AbstractRepository {
         return $this->db->execute($q, 's', $IP);
     }
     
-    public function insert(Session $data) : int {
+    public function insert(Session $data) : int
+    {
         $sessions = $this->getTableName();
-        $insertColumns = $this->getColumnNames();
+        $sessionArray = $data->toArray();
+        $insertColumns = array_keys($sessionArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
         $q = "INSERT INTO `$sessions`(`$columnList`) VALUES ($placeholderList)";
-        $values = $data->toArray();
+        $values = array_values($sessionArray);
         return $this->db->execute($q, 'sissss', ...$values);
     }
 }
