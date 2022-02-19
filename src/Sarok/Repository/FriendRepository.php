@@ -1,10 +1,12 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Models\Friend;
+use Sarok\Models\FriendType;
+use Sarok\Models\User;
 use Sarok\Service\DB;
 
-class FriendRepository extends AbstractRepository {
-
+class FriendRepository extends AbstractRepository
+{
     const TABLE_NAME = 'friends';
     
     private const COLUMN_NAMES = array(
@@ -13,41 +15,47 @@ class FriendRepository extends AbstractRepository {
         Friend::FIELD_FRIEND_TYPE,
     );
     
-    public function __construct(DB $db) {
+    public function __construct(DB $db)
+    {
         parent::__construct($db);
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::COLUMN_NAMES;
     }
     
-    public function getSourceUserIdsQuery() {
+    public function getSourceUserIdsQuery()
+    {
         $friends = $this->getTableName();
         $friendOf = Friend::FIELD_FRIEND_OF;
         $userID = Friend::FIELD_USER_ID;
         $friendType = Friend::FIELD_FRIEND_TYPE;
         
-        // Return the ID of users who chose "userID" as their friend/enemy/reader 
+        // Return the ID of users who chose "userID" as their friend/enemy/reader
         return "SELECT `$friendOf` FROM `$friends` AS `f` " .
             "WHERE `f`.`$userID` = ? AND `f`.`$friendType` = ?";
     }
     
-    public function getDestinationUserIdsQuery() {
+    public function getDestinationUserIdsQuery()
+    {
         $friends = $this->getTableName();
         $userID = Friend::FIELD_USER_ID;
         $friendOf = Friend::FIELD_FRIEND_OF;
         $friendType = Friend::FIELD_FRIEND_TYPE;
         
-        // Return the ID of users who were chosen by "friendOf" as their friend/enemy/reader 
+        // Return the ID of users who were chosen by "friendOf" as their friend/enemy/reader
         return "SELECT `$userID` FROM `$friends` AS `f` " .
             "WHERE `f`.`$friendOf` = ? AND `f`.`$friendType` = ?";
     }
     
-    public function getAssociationExistsQuery() {
+    public function getAssociationExistsQuery()
+    {
         $friends = $this->getTableName();
         $userID = Friend::FIELD_USER_ID;
         $friendOf = Friend::FIELD_FRIEND_OF;
@@ -58,16 +66,15 @@ class FriendRepository extends AbstractRepository {
             "WHERE `f`.`$friendOf` = ? AND `f`.`$userID` = ? AND `f`.`$friendType` = ? LIMIT 1";
     }
     
-    public function getDestinationLoginsQuery() {
+    public function getDestinationLoginsQuery()
+    {
+        $login = User::FIELD_LOGIN;
         $friends = $this->getTableName();
+        $users = UserRepository::TABLE_NAME;
         $userID = Friend::FIELD_USER_ID;
+        $ID = User::FIELD_ID;
         $friendOf = Friend::FIELD_FRIEND_OF;
         $friendType = Friend::FIELD_FRIEND_TYPE;
-        
-        // FIXME: Get field and table constants for "users"
-        $login = 'login';
-        $users = 'users';
-        $ID = 'ID';
         
         // Return the login name of users who where chosen by "friendOf" as their friend/enemy/reader
         return "SELECT `u`.`$login` FROM `$friends` AS `f` LEFT JOIN `$users` AS `u` " .
@@ -75,56 +82,56 @@ class FriendRepository extends AbstractRepository {
             "WHERE `$friendOf` = ? AND `$friendType` = ?";
     }
     
-    public function getSourceUserIds(int $userID, string $friendType) : array {
-        $q = $this->getSourceUserIdsQuery();
-        
-        $result = $this->db->query($q, 'is', $userID, $friendType);
-        $friendOfList = array();
-        while ($entryID = $result->fetch_row()) {
-            $friendOfList[] = $entryID[0];
-        }
-        
-        return $friendOfList;
-    }
-    
-    public function getDestinationUserIds(int $friendOf, string $friendType) : array {
-        $q = $this->getDestinationUserIdsQuery();
-        
+    private function getUserIds(string $q, int $userID, string $friendType) : array
+    {
         $result = $this->db->query($q, 'is', $friendOf, $friendType);
-        $userIDList = array();
+        $userIds = array();
         while ($entryID = $result->fetch_row()) {
-            $userIDList[] = $entryID[0];
+            $userIds[] = $entryID[0];
         }
         
-        return $userIDList;
+        return $userIds;
+    }
+
+    public function getSourceUserIds(int $userID, string $friendType) : array
+    {
+        return $this->getUserIds($this->getSourceUserIdsQuery(), $userID, $friendType);
     }
     
-    public function deleteByDestinationId(int $userID, string $friendType) : int {
+    public function getDestinationUserIds(int $friendOf, string $friendType) : array
+    {
+        return $this->getUserIds($this->getDestinationUserIdsQuery(), $userID, $friendType);
+    }
+    
+    private function deleteById(string $IDColumn, int $userID, string $friendType) : int
+    {
         $friends = $this->getTableName();
-        $userIDColumn = Friend::FIELD_USER_ID;
         $friendTypeColumn = Friend::FIELD_FRIEND_TYPE;
         
-        $q = "DELETE FROM `$friends` WHERE `$userIDColumn` = ? AND `$friendTypeColumn` = ?";
+        $q = "DELETE FROM `$friends` WHERE `$IDColumn` = ? AND `$friendTypeColumn` = ?";
         return $this->db->execute($q, 'is', $userID, $friendType);
     }
-    
-    public function deleteBySourceId(int $friendOf, string $friendType) : int {
-        $friends = $this->getTableName();
-        $friendOfColumn = Friend::FIELD_FRIEND_OF;
-        $friendTypeColumn = Friend::FIELD_FRIEND_TYPE;
-        
-        $q = "DELETE FROM `$friends` WHERE `$friendOfColumn` = ? AND `$friendTypeColumn` = ?";
-        return $this->db->execute($q, 'is', $friendOf, $friendType);
+
+    public function deleteByDestinationUserId(int $userID, string $friendType) : int
+    {
+        return $this->deleteById(Friend::FIELD_USER_ID, $userID, $friendType);
     }
     
-    public function insert(Friend $data) : int {
+    public function deleteBySourceUserId(int $friendOf, string $friendType) : int
+    {
+        return $this->deleteById(Friend::FIELD_FRIEND_OF, $userID, $friendType);
+    }
+    
+    public function insert(Friend $data) : int
+    {
         $friends = $this->getTableName();
-        $insertColumns = $this->getColumnNames();
+        $friendArray = $data->toArray();
+        $insertColumns = array_keys($friendArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
         $q = "INSERT INTO `$friends`(`$columnList`) VALUES ($placeholderList)";
-        $values = $data->toArray();
+        $values = array_values($friendArray);
         return $this->db->execute($q, 'iis', ...$values);
     }
 }

@@ -1,18 +1,21 @@
 <?php namespace Sarok\Models;
 
+class FriendType
+{
+    const FRIEND = 'friend';
+    const BANNED = 'banned';
+    const READER = 'banned';
+};
+
 class Friend {
 
-    const TYPE_FRIEND = 'friend';
-    const TYPE_BANNED = 'banned';
-    const TYPE_READER = 'banned';
-    
     const FIELD_FRIEND_OF = 'friendOf';
     const FIELD_USER_ID = 'userID';
     const FIELD_FRIEND_TYPE = 'friendType';
     
     private int $friendOf = 0;
     private int $userID = 0;
-    private string $friendType = self::TYPE_FRIEND;
+    private string $friendType = FriendType::FRIEND;
 
     public function getFriendOf() : int {
         return $this->friendOf;
@@ -40,9 +43,9 @@ class Friend {
 
     public function toArray() : array {
         return array(
-            $this->sourceID,
-            $this->destinationID,
-            $this->friendType,
+            self::FIELD_FRIEND_OF   => $this->friendOf,
+            self::FIELD_USER_ID     => $this->userID,
+            self::FIELD_FRIEND_TYPE => $this->friendType,
         );
     }
 }
