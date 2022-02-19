@@ -2,11 +2,12 @@
 
 use Sarok\Util;
 use Sarok\Models\Feed;
+use Sarok\Models\FeedStatus;
 use Sarok\Service\DB;
 use DateTime;
 
-class FeedRepository extends AbstractRepository {
-
+class FeedRepository extends AbstractRepository
+{
     const TABLE_NAME = 'feeds';
     
     private const COLUMN_NAMES = array(
@@ -21,19 +22,23 @@ class FeedRepository extends AbstractRepository {
         Feed::FIELD_COMMENT,
     );
     
-    public function __construct(DB $db) {
+    public function __construct(DB $db)
+    {
         parent::__construct($db);
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::COLUMN_NAMES;
     }
     
-    public function getFeedsRequiringUpdate(DateTime $nextUpdateBefore) : array {
+    public function getFeedsRequiringUpdate(DateTime $nextUpdateBefore) : array
+    {
         $feeds = $this->getTableName();
         $selectColumns = $this->getColumnNames();
         $statusColumn = Feed::FIELD_STATUS;
@@ -41,12 +46,13 @@ class FeedRepository extends AbstractRepository {
         
         $q = "SELECT (`$selectColumns`) FROM `$feeds` WHERE `$statusColumn` <> ? AND `$nextUpdate` <= ? ORDER BY `$nextUpdate`";
         
-        $statusIsNot = Feed::STATUS_BANNED;
+        $statusIsNot = FeedStatus::BANNED;
         $nextUpdateBeforeString = Util::dateTimeToString($nextUpdateBefore);
         return $this->db->queryObjects($q, Feed::class, 'ss', $statusIsNot, $nextUpdateBeforeString);
     }
 
-    public function update(DateTime $lastUpdate, DateTime $nextUpdate, string $lastEntry, int $ID) : int {
+    public function update(DateTime $lastUpdate, DateTime $nextUpdate, string $lastEntry, int $ID) : int
+    {
         $feeds = $this->getTableName();
         $lastUpdateColumn = Feed::FIELD_LAST_UPDATE;
         $nextUpdateColumn = Feed::FIELD_NEXT_UPDATE;
@@ -61,7 +67,8 @@ class FeedRepository extends AbstractRepository {
         return $this->db->execute($q, 'sssi', $lastUpdateString, $nextUpdateString, $lastEntry, $ID);
     }
     
-    public function delete(int $blogID) : int {
+    public function delete(int $blogID) : int
+    {
         $feeds = $this->getTableName();
         $blogIDColumn = Feed::FIELD_BLOG_ID;
         
@@ -69,14 +76,16 @@ class FeedRepository extends AbstractRepository {
         return $this->db->execute($q, 'i', $blogID);
     }
     
-    public function insert(Feed $data) : int {
+    public function insert(Feed $data) : int
+    {
         $feeds = $this->getTableName();
-        $insertColumns = $this->getColumnNames();
+        $feedArray = $data->toArray();
+        $insertColumns = array_keys($feedArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
         $q = "INSERT INTO `$feeds`(`$columnList`) VALUES ($placeholderList)";
-        $values = $data->toArray();
+        $values = array_values($feedArray);
         
         if ($data->getID() < 0) {
             // Need auto-generated ID - don't send in the negative value
