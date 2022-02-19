@@ -5,6 +5,7 @@ use Sarok\Models\Session;
 use Sarok\Service\DB;
 use DateTime;
 use Sarok\Models\Friend;
+use Sarok\Models\FriendType;
 
 class SessionRepository extends AbstractRepository
 {
@@ -76,7 +77,7 @@ class SessionRepository extends AbstractRepository
             "ORDER BY `$activationDate` DESC";
         
         $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $friendType = Friend::TYPE_FRIEND;
+        $friendType = FriendType::FRIEND;
         $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
         
         $friendsActivity = array();

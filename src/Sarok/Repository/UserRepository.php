@@ -2,6 +2,7 @@
 
 use Sarok\Util;
 use Sarok\Models\Friend;
+use Sarok\Models\FriendType;
 use Sarok\Models\User;
 use Sarok\Service\DB;
 use DateTime;
@@ -83,7 +84,7 @@ class UserRepository extends AbstractRepository
         } else {
             $lastActivityString = Util::dateTimeToString($lastActivityAfter);
         }
-        $friendType = Friend::TYPE_FRIEND;
+        $friendType = FriendType::FRIEND;
         $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
         
         $friendsActivity = array();
@@ -312,7 +313,7 @@ class UserRepository extends AbstractRepository
         $blogAccess = 'blogAccess';
         $registered = 'registered';
         $friends = 'friends';
-        $friendType = Friend::TYPE_FRIEND;
+        $friendType = FriendType::FRIEND;
 
         $result = $this->db->execute($q, 'ssssssisi',
             $diaryPrefix,
@@ -322,7 +323,7 @@ class UserRepository extends AbstractRepository
             $blogAccess,
             $friends,
             $userID,
-            Friend::TYPE_FRIEND,
+            FriendType::FRIEND,
             $limit);
 
         $diaries = array();

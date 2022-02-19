@@ -5,6 +5,7 @@ use Sarok\Models\EntryDigest;
 use Sarok\Service\DB;
 use DateTime;
 use Sarok\Models\Friend;
+use Sarok\Models\FriendType;
 
 class EntryDigestRepository extends AbstractRepository {
 
@@ -124,7 +125,7 @@ class EntryDigestRepository extends AbstractRepository {
             
             // Parameter 3 (index 2) should be the ownerID again, followed by the association type
             $values[] = $ownerID;
-            $values[] = Friend::TYPE_FRIEND;
+            $values[] = FriendType::FRIEND;
         } else {
             $friendsOnlyClause = '';
         }

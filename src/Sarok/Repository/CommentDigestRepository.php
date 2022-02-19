@@ -5,6 +5,7 @@ use Sarok\Models\CommentDigest;
 use Sarok\Service\DB;
 use DateTime;
 use Sarok\Models\Friend;
+use Sarok\Models\FriendType;
 
 class CommentDigestRepository extends AbstractRepository {
 
@@ -90,7 +91,7 @@ class CommentDigestRepository extends AbstractRepository {
             $friendsOnlyClause = "AND `$diaryID` IN ($friendsSubQuery)";
             
             // Optional third value (at index 2) is the user ID when given and the association type
-            array_splice($values, 2, 0, array($friendsOfId, Friend::TYPE_FRIEND));
+            array_splice($values, 2, 0, array($friendsOfId, FriendType::FRIEND));
         } else {
             $friendsOnlyClause = '';
         }
@@ -162,7 +163,7 @@ class CommentDigestRepository extends AbstractRepository {
             
             // Parameter 4 (index 3) should be the ownerID again, followed by the association type
             $values[] = $ownerID;
-            $values[] = Friend::TYPE_FRIEND;
+            $values[] = FriendType::FRIEND;
         } else {
             $friendsOnlyClause = '';
         }
