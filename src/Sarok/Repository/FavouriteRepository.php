@@ -1,9 +1,9 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Models\EntryAccess;
-use Sarok\Models\Favourite;
-use Sarok\Service\DB;
 use Sarok\Util;
+use Sarok\Service\DB;
+use Sarok\Models\Favourite;
+use Sarok\Models\EntryAccess;
 use DateTime;
 
 class FavouriteRepository extends AbstractRepository
@@ -32,12 +32,12 @@ class FavouriteRepository extends AbstractRepository
         return self::COLUMN_NAMES;
     }
     
-    public function getFavouritedEntries(string $userID, bool $commentedAfterLastVisit) : array
+    public function getFavouritedEntries(int $userID, bool $commentedAfterLastVisit) : array
     {
-        $favourites = $this->getTableName();
-        $entryIDColumn = Favourite::FIELD_ENTRY_ID;
-        $userIDColumn = Favourite::FIELD_USER_ID;
-        $lastVisited = Favourite::FIELD_LAST_VISITED;
+        $t_favourites = $this->getTableName();
+        $c_entryID = Favourite::FIELD_ENTRY_ID;
+        $c_userID = Favourite::FIELD_USER_ID;
+        $c_lastVisited = Favourite::FIELD_LAST_VISITED;
         
         if ($commentedAfterLastVisit) {
             $op = '>=';
@@ -46,53 +46,45 @@ class FavouriteRepository extends AbstractRepository
         }
         
         // FIXME: Move query to EntryRepository?
-        $commentedSubquery = "SELECT `ID` from `entries` WHERE `ID` = `f`.`$entryIDColumn` AND `isTerminated` = 'N' AND `lastComment` $op `f`.`$lastVisited`";
-        $q="SELECT `$entryIDColumn` FROM `$favourites` AS `f` WHERE `$userIDColumn` = ? AND EXISTS ($commentedSubquery)";
-        $result = $this->db->execute($q, 'i', $userID);
-        
-        $entryIDList = array();
-        while ($entryID = $result->fetch_row()) {
-            $entryIDList[] = $entryID[0];
-        }
-        
-        return $entryIDList;
+        $commentedSubquery = "SELECT `ID` FROM `entries` WHERE `ID` = `f`.`$c_entryID` AND `isTerminated` = 'N' AND `lastComment` $op `f`.`$c_lastVisited`";
+        $q = "SELECT `$c_entryID` FROM `$t_favourites` AS `f` WHERE `$c_userID` = ? AND EXISTS ($commentedSubquery)";
+        return $this->db->queryArray($q, 'i', $userID);
     }
 
     public function updateLastVisited(int $userID, int $entryID, DateTime $lastVisited) : int
     {
-        $favourites = $this->getTableName();
-        $lastVisitedColumn = Favourite::FIELD_LAST_VISITED;
-        $userIDColumn = Favourite::FIELD_USER_ID;
-        $entryIDColumn = Favourite::FIELD_ENTRY_ID;
+        $t_favourites = $this->getTableName();
+        $c_lastVisited = Favourite::FIELD_LAST_VISITED;
+        $c_userID = Favourite::FIELD_USER_ID;
+        $c_entryID = Favourite::FIELD_ENTRY_ID;
         
-        $q = "UPDATE `$favourites` SET `$lastVisitedColumn` = ? WHERE `$userIDColumn` = ? AND `$entryIDColumn` = ? LIMIT 1";
-        $lastVisitedString = Util::dateTimeToString($lastVisited);
-        return $this->db->execute($q, 'sii', $lastVisitedString, $userID, $entryID);
+        $q = "UPDATE `$t_favourites` SET `$c_lastVisited` = ? WHERE `$c_userID` = ? AND `$c_entryID` = ? LIMIT 1";
+        return $this->db->execute($q, 'sii', Util::dateTimeToString($lastVisited), $userID, $entryID);
     }
     
     public function delete(int $userID, int $entryID) : int
     {
-        $favourites = $this->getTableName();
-        $userIDColumn = Favourite::FIELD_USER_ID;
-        $entryIDColumn = Favourite::FIELD_ENTRY_ID;
+        $t_favourites = $this->getTableName();
+        $c_userID = Favourite::FIELD_USER_ID;
+        $c_entryID = Favourite::FIELD_ENTRY_ID;
         
-        $q = "DELETE FROM `$favourites` WHERE `$userIDColumn` = ? AND `$entryIDColumn` = ? LIMIT 1";
+        $q = "DELETE FROM `$t_favourites` WHERE `$c_userID` = ? AND `$c_entryID` = ? LIMIT 1";
         return $this->db->execute($q, 'ii', $userID, $entryID);
     }
     
-    public function insert(Favourite $data) : int
+    public function save(Favourite $favourite) : int
     {
-        $favourites = $this->getTableName();
-        $favouriteArray = $data->toArray();
+        $t_favourites = $this->getTableName();
+        $favouriteArray = $favourite->toArray();
         $insertColumns = array_keys($favouriteArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
-        $lastVisited = Favourite::FIELD_LAST_VISITED;
+        $c_lastVisited = Favourite::FIELD_LAST_VISITED;
         
-        $q = "INSERT INTO `$favourites`(`$columnList`) VALUES ($placeholderList) ON DUPLICATE KEY UPDATE `$lastVisited` = ?";
+        $q = "INSERT INTO `$t_favourites` (`$columnList`) VALUES ($placeholderList) ON DUPLICATE KEY UPDATE `$c_lastVisited` = ?";
         $values = array_values($favouriteArray);
         // Add extra datetime value and 's' parameter type for ON DUPLICATE KEY UPDATE
-        $values[] = Util::dateTimeToString($data->getLastVisited());
+        $values[] = Util::dateTimeToString($favourite->getLastVisited());
         return $this->db->execute($q, 'iisis', ...$values);
     }
 }

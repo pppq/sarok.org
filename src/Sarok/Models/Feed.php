@@ -40,7 +40,7 @@ class Feed
     private string $lastEntry = '';
     private string $contactEmail = '';
     private string $status = FeedStatus::DEFAULT;
-    private string $comment;
+    private string $comment = '';
     
     public function __construct()
     {

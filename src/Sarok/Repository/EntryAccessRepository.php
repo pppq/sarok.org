@@ -1,12 +1,14 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Models\EntryAccess;
-use Sarok\Service\DB;
 use DateTime;
 use Sarok\Util;
+use Sarok\Service\DB;
+use Sarok\Models\EntryAccess;
+use Sarok\Repository\SessionRepository;
+use Sarok\Repository\AbstractRepository;
 
-class EntryAccessRepository extends AbstractRepository {
-
+class EntryAccessRepository extends AbstractRepository
+{
     const TABLE_NAME = 'entryaccess';
     
     private const COLUMN_NAMES = array(
@@ -14,66 +16,69 @@ class EntryAccessRepository extends AbstractRepository {
         EntryAccess::FIELD_USER_ID,
     );
     
+    /* @var SessionRepository */
     private SessionRepository $sessionRepository;
     
-    public function __construct(DB $db, SessionRepository $sessionRepository) {
+    public function __construct(DB $db, SessionRepository $sessionRepository)
+    {
         parent::__construct($db);
         $this->sessionRepository = $sessionRepository;
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::COLUMN_NAMES;
     }
     
-    public function getActiveUsersWithAccess(string $entryID, DateTime $lastActivityAfter) : array {
-        $userIDColumn = EntryAccess::FIELD_USER_ID;
-        $entryaccess = $this->getTableName();
-        $entryIDColumn = EntryAccess::FIELD_ENTRY_ID;
+    public function getActiveUsersWithAccess(string $entryID, DateTime $lastActivityAfter) : array
+    {
+        $c_userID = EntryAccess::FIELD_USER_ID;
+        $t_entryaccess = $this->getTableName();
+        $c_entryID = EntryAccess::FIELD_ENTRY_ID;
         
         $activeUserIdsQuery = $this->sessionRepository->getActiveUserIdsQuery();
-        $q = "SELECT DISTINCT `$userIDColumn` FROM `$entryaccess` WHERE `$entryIDColumn` = ? AND `$userIDColumn` IN ($activeUserIdsQuery)";
+        $q = "SELECT DISTINCT `$c_userID` FROM `$t_entryaccess` WHERE `$c_entryID` = ? AND `$c_userID` IN ($activeUserIdsQuery)";
 
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->execute($q, 'is', $entryID, $lastActivityString);
-        
-        $userIDList = array();
-        while ($userID = $result->fetch_row()) {
-            $userIDList[] = $userID[0];
-        }
-        
-        return $userIDList;
+        return $this->db->queryArray($q, 'is', 
+            $entryID,
+            Util::dateTimeToString($lastActivityAfter));
     }
 
-    public function getExistsQuery(string $entryAlias = 'e') : string {
-        $entryaccess = $this->getTableName();
-        $userID = EntryAccess::FIELD_USER_ID;
-        $entryID = EntryAccess::FIELD_ENTRY_ID;
+    public function getExistsQuery(string $entryAlias = 'e') : string
+    {
+        $t_entryaccess = $this->getTableName();
+        $c_userID = EntryAccess::FIELD_USER_ID;
+        $c_entryID = EntryAccess::FIELD_ENTRY_ID;
         
         // FIXME: Use Entry::FIELD_ID for the field name
-        return "SELECT 1 FROM `$entryaccess` WHERE `$entryaccess`.`$userID` = ? AND `$entryaccess`.`$entryID` = `$entryAlias`.`ID` LIMIT 1";
+        return "SELECT 1 FROM `$t_entryaccess` AS `ea` WHERE `ea`.`$c_userID` = ? AND `ea`.`$c_entryID` = `$entryAlias`.`ID` LIMIT 1";
     }
     
-    public function deleteByEntryIDs(array $entryIDs) : int {
-        $entryaccess = $this->getTableName();
-        $entryID = EntryAccess::FIELD_ENTRY_ID;
+    public function deleteByEntryIDs(array $entryIDs) : int
+    {
+        $t_entryaccess = $this->getTableName();
+        $c_entryID = EntryAccess::FIELD_ENTRY_ID;
         $placeholderList = $this->toPlaceholderList($entryIDs);
         
-        $q = "DELETE FROM `$entryaccess` WHERE `$entryID` IN ($placeholderList)";
+        $q = "DELETE FROM `$t_entryaccess` WHERE `$c_entryID` IN ($placeholderList)";
         return $this->db->executeWithParams($q, $entryIDs);
     }
     
-    public function insert(EntryAccess $data) : int {
-        $entryaccess = $this->getTableName();
-        $insertColumns = $this->getColumnNames();
+    public function save(EntryAccess $entryAccess) : int
+    {
+        $t_entryaccess = $this->getTableName();
+        $entryAccessArray = $entryAccess->toArray();
+        $insertColumns = array_keys($entryAccessArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT INTO `$entryaccess`(`$columnList`) VALUES ($placeholderList)";
-        $values = $data->toArray();
+        $q = "INSERT INTO `$t_entryaccess` (`$columnList`) VALUES ($placeholderList)";
+        $values = array_values($entryAccessArray);
         return $this->db->execute($q, 'ii', ...$values);
     }
 }

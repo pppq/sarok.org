@@ -1,11 +1,14 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Models\Session;
 use Sarok\Service\DB;
-use DateTime;
-use Sarok\Models\Friend;
+use Sarok\Repository\FriendRepository;
+use Sarok\Repository\AbstractRepository;
+use Sarok\Models\Session;
 use Sarok\Models\FriendType;
+use Sarok\Models\FriendActivity;
+use Sarok\Models\Friend;
+use DateTime;
 
 class SessionRepository extends AbstractRepository
 {
@@ -20,6 +23,7 @@ class SessionRepository extends AbstractRepository
         Session::FIELD_IP,
     );
     
+    /** @var FriendRepository */
     private FriendRepository $friendRepository;
     
     public function __construct(DB $db, FriendRepository $friendRepository)
@@ -40,113 +44,85 @@ class SessionRepository extends AbstractRepository
     
     public function getActiveUserIdsQuery() : string
     {
-        $userID = Session::FIELD_USER_ID;
-        $sessions = $this->getTableName();
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
+        $c_userID = Session::FIELD_USER_ID;
+        $t_sessions = $this->getTableName();
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
         
-        return "SELECT DISTINCT `$userID` from `$sessions` WHERE `$activationDate` > ?";
+        return "SELECT DISTINCT `$c_userID` from `$t_sessions` WHERE `$c_activationDate` > ?";
     }
 
     public function getActiveRelatedUserIds(int $userID, DateTime $lastActivityAfter, string $friendType) : array
     {
-        $userIDColumn = Session::FIELD_USER_ID;
+        $c_userID = Session::FIELD_USER_ID;
         $activeUserIdsQuery = $this->getActiveUserIdsQuery();
         $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
         
-        $q = "$activeUserIdsQuery AND `$userIDColumn` IN ($destinationIdsQuery)";
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
-        
-        $activeUserIDs = array();
-        while ($row = $result->fetch_row()) {
-            $activeUserIDs[] = $row[0];
-        }
-        
-        return $activeUserIDs;
+        $q = "$activeUserIdsQuery AND `$c_userID` IN ($destinationIdsQuery)";
+        return $this->db->queryArray($q, 'sis', 
+            Util::dateTimeToString($lastActivityAfter), 
+            $userID, 
+            $friendType);
     }
     
     public function getFriendsActivity(int $userID, DateTime $lastActivityAfter) : array
     {
-        $userIDColumn = Session::FIELD_USER_ID;
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
-        $sessions = $this->getTableName();
+        $c_userID = Session::FIELD_USER_ID;
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
+        $t_sessions = $this->getTableName();
         $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
         
-        $q = "SELECT DISTINCT `$userIDColumn`, `$activationDate` FROM `$sessions` " .
-            "WHERE `$activationDate` > ? AND `$userIDColumn` IN ($destinationIdsQuery) " .
-            "ORDER BY `$activationDate` DESC";
+        $q = "SELECT DISTINCT `$c_userID`, `$c_activationDate` FROM `$t_sessions` " .
+            "WHERE `$c_activationDate` > ? AND `$c_userID` IN ($destinationIdsQuery) " .
+            "ORDER BY `$c_activationDate` DESC";
         
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $friendType = FriendType::FRIEND;
-        $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
-        
-        $friendsActivity = array();
-        while ($row = $result->fetch_row()) {
-            $friendsActivity[] = array(
-                'userID' => $row[0],
-                'lastActivity' => Util::utcDateTimeFromString($row[1])
-            );
-        }
-        
-        return $friendsActivity;
+        return $this->db->queryObjects($q, FriendActivity::class, 'sis', 
+            Util::dateTimeToString($lastActivityAfter), 
+            $userID, 
+            FriendType::FRIEND);
     }
     
     public function getActiveSessions(int $userID, DateTime $lastActivityAfter) : int
     {
-        $ID = Session::FIELD_ID;
-        $sessions = $this->getTableName();
-        $userIDColumn = Session::FIELD_USER_ID;
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
+        $c_ID = Session::FIELD_ID;
+        $t_sessions = $this->getTableName();
+        $c_userID = Session::FIELD_USER_ID;
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
         
-        $q = "SELECT COUNT(`$ID`) FROM `$sessions` WHERE `$userIDColumn` = ? AND `$activationDate` > ?";
-        
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->execute($q, 'is', $userID, $lastActivityString);
-        if ($sessionCount = $result->fetch_row()) {
-            return $sessionCount[0];
-        }
-        
-        return 0;
+        $q = "SELECT COUNT(`$c_ID`) FROM `$t_sessions` WHERE `$c_userID` = ? AND `$c_activationDate` > ?";
+        return $this->db->queryInt($q, 0, 'is', $userID, Util::dateTimeToString($lastActivityAfter));
     }
     
     public function getUserIdIfActive(string $ID, DateTime $lastActivityAfter) : int
     {
-        $userID = Session::FIELD_USER_ID;
-        $sessions = $this->getTableName();
-        $IDColumn = Session::FIELD_ID;
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
+        $c_userID = Session::FIELD_USER_ID;
+        $t_sessions = $this->getTableName();
+        $c_ID = Session::FIELD_ID;
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
         
-        $q = "SELECT `$userID` FROM `$sessions` WHERE `$IDColumn` = ? AND `$activationDate` > ? LIMIT 1";
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->execute($q, 'ss', $ID, $lastActivityString);
-        if ($row = $result->fetch_row()) {
-            return (int) $row[0];
-        }
-        
-        return 0;
+        $q = "SELECT `$c_userID` FROM `$t_sessions` WHERE `$c_ID` = ? AND `$c_activationDate` > ? LIMIT 1";
+        return $this->db->queryInt($q, 0, 'ss', $ID, Util::dateTimeToString($lastActivityAfter));
     }
 
     public function updateActivity(string $ID, DateTime $lastActivity) : int
     {
-        $sessions = $this->getTableName();
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
-        $IDColumn = Session::FIELD_ID;
+        $t_sessions = $this->getTableName();
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
+        $c_ID = Session::FIELD_ID;
         
-        $q = "UPDATE `$sessions` SET `$activationDate` = ? WHERE `$IDColumn` = ? LIMIT 1";
-        $lastActivityString = Util::dateTimeToString($lastActivity);
-        return $this->db->execute($q, "ss", $lastActivityString, $ID);
+        $q = "UPDATE `$t_sessions` SET `$c_activationDate` = ? WHERE `$c_ID` = ? LIMIT 1";
+        return $this->db->execute($q, "ss", Util::dateTimeToString($lastActivity), $ID);
     }
 
     public function updateUserID(string $ID, int $userID, DateTime $loginDate) : int
     {
-        $sessions = $this->getTableName();
-        $userIDColumn = Session::FIELD_USER_ID;
-        $loginDateColumn = Session::FIELD_LOGIN_DATE;
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
-        $IDColumn = Session::FIELD_ID;
+        $t_sessions = $this->getTableName();
+        $c_userID = Session::FIELD_USER_ID;
+        $c_loginDate = Session::FIELD_LOGIN_DATE;
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
+        $c_ID = Session::FIELD_ID;
         
-        $q = "UPDATE `$sessions` SET `$userIDColumn` = ?, `$loginDateColumn` = ?, `$activationDate` = ? " .
-            "WHERE `$IDColumn` = ? LIMIT 1";
+        $q = "UPDATE `$t_sessions` SET `$c_userID` = ?, `$c_loginDate` = ?, `$c_activationDate` = ? " .
+            "WHERE `$c_ID` = ? LIMIT 1";
         
         $loginDateString = Util::dateTimeToString($loginDate);
         return $this->db->execute($q, "isss", $userID, $loginDateString, $loginDateString, $ID);
@@ -154,32 +130,31 @@ class SessionRepository extends AbstractRepository
     
     public function deleteInactive(DateTime $lastActivityBefore) : int
     {
-        $sessions = $this->getTableName();
-        $activationDate = Session::FIELD_ACTIVATION_DATE;
+        $t_sessions = $this->getTableName();
+        $c_activationDate = Session::FIELD_ACTIVATION_DATE;
         
-        $q = "DELETE FROM `$sessions` WHERE `$activationDate` <= ?";
-        $lastActivityString = Util::dateTimeToString($lastActivityBefore);
-        return $this->db->execute($q, 's', $lastActivityString);
+        $q = "DELETE FROM `$t_sessions` WHERE `$c_activationDate` <= ?";
+        return $this->db->execute($q, 's', Util::dateTimeToString($lastActivityBefore));
     }
     
     public function deleteByIP(string $IP) : int
     {
-        $sessions = $this->getTableName();
-        $IPColumn = Session::FIELD_IP;
+        $t_sessions = $this->getTableName();
+        $c_IP = Session::FIELD_IP;
         
-        $q = "DELETE FROM `$sessions` WHERE `$IPColumn` = ?";
+        $q = "DELETE FROM `$t_sessions` WHERE `$c_IP` = ?";
         return $this->db->execute($q, 's', $IP);
     }
     
-    public function insert(Session $data) : int
+    public function save(Session $session) : int
     {
-        $sessions = $this->getTableName();
-        $sessionArray = $data->toArray();
+        $t_sessions = $this->getTableName();
+        $sessionArray = $session->toArray();
         $insertColumns = array_keys($sessionArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT INTO `$sessions`(`$columnList`) VALUES ($placeholderList)";
+        $q = "INSERT INTO `$t_sessions` (`$columnList`) VALUES ($placeholderList)";
         $values = array_values($sessionArray);
         return $this->db->execute($q, 'sissss', ...$values);
     }

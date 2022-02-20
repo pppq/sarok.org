@@ -1,161 +1,216 @@
 <?php namespace Sarok\Service;
 
-use Sarok\Logger;
-use Sarok\Exceptions\DBException;
 use mysqli;
+use Sarok\Logger;
 use mysqli_result;
+use Sarok\Exceptions\DBException;
 
-class DB {
-	private Logger $logger;
+class DB
+{
+    private Logger $logger;
     private int $queryCount = 0;
-	private mysqli $conn;
-	
-	public function __construct(
-	    Logger $logger, 
-	    string $db_host, 
-	    string $db_name, 
-	    string $db_user, 
-	    string $db_password,
-	    int $db_port = 3306) {
-	    
-		$this->logger = $logger;
-		$this->logger->debug("Connecting to $db_host:$db_port ($db_name) with user $db_user");
-		
-		mysqli_report(MYSQLI_REPORT_OFF);
-		
-		$this->conn = new mysqli($db_host, $db_user, $db_password, $db_name, $db_port);
-		if ($this->conn->connect_errno) {
-		    throw new DBException(
-		        'Database connection failed. Error: ' . $this->conn->connect_error,
-		        $this->conn->connect_errno);
+    private mysqli $conn;
+    
+    public function __construct(
+        Logger $logger,
+        string $db_host,
+        string $db_name,
+        string $db_user,
+        string $db_password,
+        int $db_port = 3306
+    )
+    {
+        $this->logger = $logger;
+        $this->logger->debug("Connecting to $db_host:$db_port ($db_name) with user $db_user");
+        
+        mysqli_report(MYSQLI_REPORT_OFF);
+        
+        $this->conn = new mysqli($db_host, $db_user, $db_password, $db_name, $db_port);
+        if ($this->conn->connect_errno) {
+            throw new DBException(
+                'Database connection failed. Error: ' . $this->conn->connect_error,
+                $this->conn->connect_errno
+            );
+        }
+        
+        $this->conn->set_charset('utf8mb4');
+        if ($this->conn->errno) {
+            throw new DBException(
+                'Failed to set character set for database connection. Error: ' . $this->conn->error,
+                $this->conn->errno
+            );
+        }
+        
+        $this->conn->autocommit(true);
+        $this->logger->debug("Database connected");
+    }
+
+    public function close()
+    {
+        $this->logger->debug("Closing database connection after $this->queryCount queries");
+        $this->conn->close();
+    }
+    
+    public function __destruct()
+    {
+        $this->close();
+    }
+    
+    private function queryOrExecute(string $query, string $format, array $params)
+    {
+        $stmt = $this->conn->prepare($query);
+        if ($stmt === false) {
+            throw new DBException(
+                "Failed to prepare statement for query '$query'. Error: " . $this->conn->error,
+                $this->conn->errno
+            );
+        }
+
+        if (strlen($format) > 0) {
+            if ($stmt->bind_param($format, ...$params) === false) {
+                throw new DBException(
+                    "Failed to bind parameters for query '$query'. Error: " . $this->conn->error,
+                    $this->conn->errno
+                );
+            }
+        }
+        
+        if ($stmt->execute() === false) {
+            throw new DBException(
+                "Failed to execute statement for query '$query'. Error: " . $this->conn->error,
+                $this->conn->errno
+            );
+        }
+            
+        $this->queryCount++;
+        
+        $result = $stmt->get_result();
+        if ($result === false) {
+            // We know that execute succeeded, so return the number of affected rows
+            return $stmt->affected_rows;
+        } else {
+            return $result;
+        }
+    }
+    
+    public function query(string $query, string $format = '', ...$params) : mysqli_result
+    {
+        $this->logger->debug("query: $query");
+        return $this->queryOrExecute($query, $format, $params);
+    }
+    
+    public function execute(string $query, string $format = '', ...$params) : int
+    {
+        $this->logger->debug("execute: $query");
+        return $this->queryOrExecute($query, $format, $params);
+    }
+    
+    private function queryOrExecuteWithParams(string $query, array $stringParams)
+    {
+        $stmt = $this->conn->prepare($query);
+        if ($stmt === false) {
+            throw new DBException(
+                "Failed to prepare statement for query '$query'. Error: " . $this->conn->error,
+                $this->conn->errno
+            );
+        }
+        
+        if ($stmt->execute($stringParams) === false) {
+            throw new DBException(
+                "Failed to execute statement for query '$query'. Error: " . $this->conn->error,
+                $this->conn->errno
+            );
+        }
+            
+        $this->queryCount++;
+        $result = $stmt->get_result();
+        if ($result === false) {
+            // We know that execute succeeded, so return the number of affected rows
+            return $stmt->affected_rows;
+        } else {
+            return $result;
+        }
+    }
+    
+    public function queryWithParams(string $query, array $stringParams) : mysqli_result
+    {
+        $this->logger->debug("queryWithParams: $query");
+        return $this->queryOrExecuteWithParams($query, $stringParams);
+    }
+    
+    public function executeWithParams(string $query, array $stringParams) : int
+    {
+        $this->logger->debug("executeWithParams: $query");
+        return $this->queryOrExecuteWithParams($query, $stringParams);
+    }
+
+    private function toObjects(mysqli_result $result, string $className) : array
+    {
+        $rows = array();
+        while ($row = $result->fetch_object($className)) {
+            $rows[] = $row;
+        }
+        
+        $numObjects = count($rows);
+        $this->logger->debug("toObjects: returning $numObjects objects");
+        return $rows;
+    }
+    
+    public function queryObjects(string $query, string $className, string $format = '', ...$params) : array
+    {
+        $result = $this->query($query, $format, ...$params);
+        return $this->toObjects($result, $className);
+    }
+    
+    public function queryObjectsWithParams(string $query, string $className, array $stringParams) : array
+    {
+        $result = $this->queryWithParams($query, $stringParams);
+        return $this->toObjects($result, $className);
+    }
+
+    private function toArray(mysqli_result $result) : array
+    {
+		$values = array();
+		while ($row = $result->fetch_row()) {
+			$values[] = $row[0];
 		}
-		
-		$this->conn->set_charset('utf8mb4');
-		if ($this->conn->errno) {
-		    throw new DBException(
-		        'Failed to set character set for database connection. Error: ' . $this->conn->error,
-		        $this->conn->errno);
-		}
-		
-		$this->conn->autocommit(true);
-    	$this->logger->debug("Database connected");
-	}
 
-	public function close() {
-		$this->logger->debug("Closing database connection after $this->queryCount queries");
-		$this->conn->close();
-	}
-	
-	public function __destruct() {
-	    $this->close();
-	}
-	
-	private function queryOrExecute(string $query, string $format, array &$params) {
-	    $stmt = $this->conn->prepare($query);
-	    if ($stmt === false) {
-	        throw new DBException(
-	            "Failed to prepare statement for query '$query'. Error: " . $this->conn->error,
-	            $this->conn->errno);
-	    }
+		$numValues = count($values);
+        $this->logger->debug("toArray: returning $numValues values");
+        return $values;
+    }
 
-	    if (strlen($format) > 0) {
-	        if ($stmt->bind_param($format, ...$params) === false) {
-	            throw new DBException(
-	                "Failed to bind parameters for query '$query'. Error: " . $this->conn->error,
-	                $this->conn->errno);
-	        }
-	    }
-	    
-	    if ($stmt->execute() === false) {
-	        throw new DBException(
-	            "Failed to execute statement for query '$query'. Error: " . $this->conn->error,
-	            $this->conn->errno);
-	    }
-	        
-	    $this->queryCount++;
-	    
-	    $result = $stmt->get_result();
-	    if ($result === false) {
-    	    // We know that execute succeeded, so return the number of affected rows
-	        return $stmt->affected_rows;
-	    } else {
-	        return $result;
-	    }
-	}
-	
-	public function query(string $query, string $format = '', &...$params) : mysqli_result {
-	    $this->logger->debug("query: $query");
-	    return $this->queryOrExecute($query, $format, $params);
-	}
-	
-	public function execute(string $query, string $format = '', &...$params) : int {
-	    $this->logger->debug("execute: $query");
-	    return $this->queryOrExecute($query, $format, $params);
-	}
-	
-	private function queryOrExecuteWithParams(string $query, array &$stringParams) {
-	    $stmt = $this->conn->prepare($query);
-	    if ($stmt === false) {
-	        throw new DBException(
-	            "Failed to prepare statement for query '$query'. Error: " . $this->conn->error,
-	            $this->conn->errno);
-	    }
-	    
-	    if ($stmt->execute($stringParams) === false) {
-	        throw new DBException(
-	            "Failed to execute statement for query '$query'. Error: " . $this->conn->error,
-	            $this->conn->errno);
-	    }
-	        
-	    $this->queryCount++;
-	    $result = $stmt->get_result();
-	    if ($result === false) {
-	        // We know that execute succeeded, so return the number of affected rows
-	        return $stmt->affected_rows;
-	    } else {
-	        return $result;
-	    }
-	}
-	
-	public function queryWithParams(string $query, array &$stringParams) : mysqli_result {
-	    $this->logger->debug("queryWithParams: $query");
-	    return $this->queryOrExecuteWithParams($query, $stringParams);
-	}
-	
-	public function executeWithParams(string $query, array &$stringParams) : int {
-	    $this->logger->debug("executeWithParams: $query");
-	    return $this->queryOrExecuteWithParams($query, $stringParams);
-	}
+    public function queryArray(string $query, string $format = '', ...$params) : array
+    {
+        $result = $this->query($query, $format, ...$params);
+        return $this->toArray($result);
+    }
+    
+    public function queryArrayWithParams(string $query, array $stringParams) : array
+    {
+        $result = $this->queryWithParams($query, $stringParams);
+        return $this->toArray($result);
+    }
 
-	private function toObjects(mysqli_result $result, string $className) : array {
-	    $rows = array();
-	    while ($row = $result->fetch_object($className)) {
-	        $rows[] = $row;
-	    }
-	    
-	    $numObjects = count($rows);
-	    $this->logger->debug("queryObjectArray: returning $numObjects objects");
-	    return $rows;
-	}
-	
-	public function queryObjects(string $query, string $className, string $format = '', &...$params) : array {
-	    $result = $this->query($query, $format, ...$params);
-	    return $this->toObjects($result, $className);
-	}
-	
-	public function queryObjectsWithParams(string $query, string $className, array &$stringParams) : array {
-	    $result = $this->queryWithParams($query, $stringParams);
-	    return $this->toObjects($result, $className);
-	}
-	
-	/**
-	 * @return int|string
-	 */
-	public function getLastInsertID() {
-	    return $this->conn->insert_id;
-	}
-	
-// 	public function mquery($query) {
+    public function queryInt(string $query, int $defaultValue, string $format = '', ...$params) : int
+    {
+        $result = $this->query($query, $format, ...$params);
+        if ($row = $result->fetch_row()) {
+            return (int) $row[0];
+        }
+
+        return $defaultValue;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getLastInsertID()
+    {
+        return $this->conn->insert_id;
+    }
+    
+    // 	public function mquery($query) {
 // 		$this->logger->debug("mquery: ".$query);
 // 		$result = mysql_query($query);
 // 		if (mysql_errno()) {

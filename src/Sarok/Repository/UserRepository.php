@@ -1,15 +1,19 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Models\Friend;
-use Sarok\Models\FriendType;
-use Sarok\Models\User;
 use Sarok\Service\DB;
+use Sarok\Repository\FriendRepository;
+use Sarok\Repository\AbstractRepository;
+use Sarok\Models\User;
+use Sarok\Models\FriendType;
+use Sarok\Models\FriendActivity;
+use Sarok\Models\Friend;
+use Sarok\Models\AccessType;
 use DateTime;
 
 class UserRepository extends AbstractRepository
 {
-    const TABLE_NAME = 'users';
+    const USER_TABLE_NAME = 'users';
     const DATA_TABLE_NAME = 'userdata';
     
     private const COLUMN_NAMES = array(
@@ -22,6 +26,7 @@ class UserRepository extends AbstractRepository
         User::FIELD_IS_TERMINATED,
     );
 
+    /** @var FriendRepository */
     private FriendRepository $friendRepository;
     
     public function __construct(DB $db, FriendRepository $friendRepository)
@@ -32,7 +37,7 @@ class UserRepository extends AbstractRepository
     
     protected function getTableName() : string
     {
-        return self::TABLE_NAME;
+        return self::USER_TABLE_NAME;
     }
     
     protected function getColumnNames() : array
@@ -42,71 +47,58 @@ class UserRepository extends AbstractRepository
     
     public function getActiveUserIdsQuery() : string
     {
-        $userID = User::FIELD_USER_ID;
-        $users = $this->getTableName();
-        $activationDate = User::FIELD_ACTIVATION_DATE;
+        $c_userID = User::FIELD_USER_ID;
+        $t_users = $this->getTableName();
+        $c_activationDate = User::FIELD_ACTIVATION_DATE;
         
-        return "SELECT DISTINCT `$userID` from `$users` WHERE `$activationDate` > ?";
+        return "SELECT DISTINCT `$c_userID` from `$t_users` WHERE `$c_activationDate` > ?";
     }
 
     public function getActiveRelatedUserIds(int $userID, DateTime $lastActivityAfter, string $friendType) : array
     {
-        $userIDColumn = User::FIELD_USER_ID;
+        $c_userID = User::FIELD_USER_ID;
         $activeUserIdsQuery = $this->getActiveUserIdsQuery();
         $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
         
-        $q = "$activeUserIdsQuery AND `$userIDColumn` IN ($destinationIdsQuery)";
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
-        
-        $activeUserIDs = array();
-        while ($row = $result->fetch_row()) {
-            $activeUserIDs[] = $row[0];
-        }
-        
-        return $activeUserIDs;
+        $q = "$activeUserIdsQuery AND `$c_userID` IN ($destinationIdsQuery)";
+        return $this->db->queryArray($q, 'sis', 
+            Util::dateTimeToString($lastActivityAfter), 
+            $userID, 
+            $friendType);
     }
     
     public function getFriendsActivity(int $userID, DateTime $lastActivityAfter = null) : array
     {
-        $userIDColumn = User::FIELD_USER_ID;
-        $login = User::FIELD_LOGIN;
-        $activationDate = User::FIELD_ACTIVATION_DATE;
-        $users = $this->getTableName();
+        $c_userID = User::FIELD_USER_ID;
+        $c_login = User::FIELD_LOGIN;
+        $c_activationDate = User::FIELD_ACTIVATION_DATE;
+        $t_users = $this->getTableName();
         $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
         
-        $q = "SELECT DISTINCT `$userIDColumn`, `$login`, `$activationDate` FROM `$users` " .
-            "WHERE `$activationDate` > ? AND `$userIDColumn` IN ($destinationIdsQuery) " .
-            "ORDER BY `$activationDate` DESC";
+        $q = "SELECT DISTINCT `$c_userID`, `$c_login`, `$c_activationDate` FROM `$t_users` " .
+            "WHERE `$c_activationDate` > ? AND `$c_userID` IN ($destinationIdsQuery) " .
+            "ORDER BY `$c_activationDate` DESC";
         
         if ($lastActivityAfter === null) {
-            $lastAcitvityString = Util::zeroDateTime();
+            $lastActivityString = Util::zeroDateTime();
         } else {
             $lastActivityString = Util::dateTimeToString($lastActivityAfter);
         }
-        $friendType = FriendType::FRIEND;
-        $result = $this->db->query($q, 'sis', $lastActivityString, $userID, $friendType);
-        
-        $friendsActivity = array();
-        while ($row = $result->fetch_row()) {
-            $friendsActivity[] = array(
-                'userID' => $row[0],
-                'login' => $row[1],
-                'lastActivity' => Util::utcDateTimeFromString($row[2]),
-            );
-        }
-        
-        return $friendsActivity;
+
+        return $this->db->queryObjects($q, FriendActivity::class, 'sis', 
+            $lastActivityString, 
+            $userID, 
+            FriendType::FRIEND);
     }
     
     public function getActiveUsers(int $userID, DateTime $lastActivityAfter = null) : int
     {
-        $ID = User::FIELD_ID;
-        $users = $this->getTableName();
-        $userIDColumn = User::FIELD_USER_ID;
-        $activationDate = User::FIELD_ACTIVATION_DATE;
+        $c_ID = User::FIELD_ID;
+        $t_users = $this->getTableName();
+        $c_userID = User::FIELD_USER_ID;
+        $c_activationDate = User::FIELD_ACTIVATION_DATE;
         
-        $q = "SELECT COUNT(`$ID`) FROM `$users` WHERE `$userIDColumn` = ? AND `$activationDate` > ?";
+        $q = "SELECT COUNT(`$c_ID`) FROM `$t_users` WHERE `$c_userID` = ? AND `$c_activationDate` > ?";
         
         if ($lastActivityAfter === null) {
             $lastActivityString = Util::zeroDateTime();
@@ -114,46 +106,28 @@ class UserRepository extends AbstractRepository
             $lastActivityString = Util::dateTimeToString($lastActivityAfter);
         }
         
-        $result = $this->db->execute($q, 'is', $userID, $lastActivityString);
-        if ($userCount = $result->fetch_row()) {
-            return $userCount[0];
-        }
-        
-        return 0;
+        return $this->db->queryInt($q, 0, 'is', $userID, $lastActivityString);
     }
     
     public function getUserIdIfActive(string $ID, DateTime $lastActivityAfter) : int
     {
-        $userID = User::FIELD_USER_ID;
-        $users = $this->getTableName();
-        $IDColumn = User::FIELD_ID;
-        $activationDate = User::FIELD_ACTIVATION_DATE;
+        $c_userID = User::FIELD_USER_ID;
+        $t_users = $this->getTableName();
+        $c_ID = User::FIELD_ID;
+        $c_activationDate = User::FIELD_ACTIVATION_DATE;
         
-        $q = "SELECT `$userID` FROM `$users` WHERE `$IDColumn` = ? AND `$activationDate` > ? LIMIT 1";
-        $lastActivityString = Util::dateTimeToString($lastActivityAfter);
-        $result = $this->db->execute($q, 'ss', $ID, $lastActivityString);
-        if ($row = $result->fetch_row()) {
-            return (int) $row[0];
-        }
-        
-        return 0;
+        $q = "SELECT `$c_userID` FROM `$t_users` WHERE `$c_ID` = ? AND `$c_activationDate` > ? LIMIT 1";
+        $result = $this->db->queryInt($q, 0, 'ss', $ID, Util::dateTimeToString($lastActivityAfter));
     }
     
     public function getLoginsByPrefix(string $loginPrefix, int $limit = 10) : array
     {
-        $login = User::FIELD_LOGIN;
-        $users = $this->getTableName();
+        $c_login = User::FIELD_LOGIN;
+        $t_users = $this->getTableName();
         
-        $q = "SELECT `$login` FROM `$users` WHERE `$login` LIKE ? ORDER BY `$login` LIMIT ?";
+        $q = "SELECT `$c_login` FROM `$t_users` WHERE `$c_login` LIKE ? ORDER BY `$c_login` LIMIT ?";
         $loginPrefix .= '%';
-        $result = $this->db->execute($q, "si", $loginPrefix, $limit);
-        
-        $logins = array();
-        while ($row = $result->fetch_row()) {
-            $logins[] = $row[0];
-        }
-        
-        return $logins;
+        return $this->db->queryArray($q, "si", $loginPrefix, $limit);
     }
 
     public function userExists(string $login) : bool
@@ -163,75 +137,61 @@ class UserRepository extends AbstractRepository
 
     public function getUserID(string $login) : int
     {
-        $id = User::FIELD_ID;
-        $loginColumn = User::FIELD_LOGIN;
-        $users = $this->getTableName();
+        $c_id = User::FIELD_ID;
+        $c_login = User::FIELD_LOGIN;
+        $t_users = $this->getTableName();
         
-        $q = "SELECT `$id` FROM `$users` WHERE `$loginColumn` = ? LIMIT 1";
-        $result = $this->db->execute($q, "s", $login);
-        if ($row = $result->fetch_row()) {
-            return ((int) $row[0]);
-        }
-        
-        return -1;
+        $q = "SELECT `$c_id` FROM `$t_users` WHERE `$c_login` = ? LIMIT 1";
+        return $this->db->queryInt($q, -1, "s", $login);
     }
 
+    private function updateStringField(string $column, int $userID, string $value) : int
+    {
+        $t_users = $this->getTableName();
+        $c_ID = User::FIELD_ID;
+        
+        $q = "UPDATE `$t_users` SET `$column` = ? WHERE `$c_ID` = ? LIMIT 1";
+        return $this->db->execute($q, "si", $value, $userID);
+    }
+
+    private function updateDateField(string $column, int $userID, DateTime $dateTime) : int
+    {
+        return $this->updateStringField($column, $userID, Util::dateTimeToString($dateTime));
+    }
+    
     public function updateLoginDate(int $userID, DateTime $loginDate) : int
     {
-        $users = $this->getTableName();
-        $loginDate = User::FIELD_LOGIN_DATE;
-        $ID = User::FIELD_ID;
-        
-        $q = "UPDATE `$users` SET `$loginDate` = ? WHERE `$ID` = ? LIMIT 1";
-        $loginDateString = Util::dateTimeToString($loginDate);
-        return $this->db->execute($q, "si", $loginDateString, $userID);
+        return $this->updateDateField(User::FIELD_LOGIN_DATE, $userID, $loginDate);
     }
 
     public function updateActivity(int $userID, DateTime $lastActivity) : int
     {
-        $users = $this->getTableName();
-        $activationDate = User::FIELD_ACTIVATION_DATE;
-        $ID = User::FIELD_ID;
-        
-        $q = "UPDATE `$users` SET `$activationDate` = ? WHERE `$ID` = ? LIMIT 1";
-        $lastActivityString = Util::dateTimeToString($lastActivity);
-        return $this->db->execute($q, "si", $lastActivityString, $userID);
+        return $this->updateDateField(User::FIELD_ACTIVATION_DATE, $userID, $loginDate);
     }
 
     public function updateTerminated(int $userID, bool $isTerminated) : int
     {
-        $users = $this->getTableName();
-        $isTerminatedColumn = User::FIELD_IS_TERMINATED;
-        $ID = User::FIELD_ID;
-        
-        $q = "UPDATE `$users` SET `$isTerminatedColumn` = ? WHERE `$ID` = ? LIMIT 1";
-        $isTerminatedString = Util::boolToYesNo($isTerminated);
-        return $this->db->execute($q, "si", $isTerminatedString, $userID);
+        return $this->updateStringField(User::FIELD_IS_TERMINATED, $userID, Util::boolToYesNo($isTerminated));
     }
     
     public function updatePassword(int $userID, string $password) : int
     {
-        $users = $this->getTableName();
-        $passwordColumn = User::FIELD_PASS;
-        $ID = User::FIELD_ID;
-        
-        $q = "UPDATE `$users` SET `$passwordColumn` = ? WHERE `$ID` = ?";
-        return $this->db->execute($q, "ssssi", $password, $userID);
+        return $this->updateStringField(User::FIELD_PASS, $userID, $password);
     }
     
     public function getUserData(string $userID) : array
     {
-        $userdata = self::DATA_TABLE_NAME;
+        $t_userdata = self::DATA_TABLE_NAME;
         $selectColumns = array(
             User::FIELD_NAME,
             User::FIELD_VALUE,
         );
 
         $columnList = $this->toColumnList($selectColumns);
-        $userIDColumn = User::FIELD_USER_ID;
-        $name = User::FIELD_NAME;
+        $c_userID = User::FIELD_USER_ID;
+        $c_name = User::FIELD_NAME;
 
-        $q = "SELECT (`$columnList`) FROM `$userdata` WHERE `$userIDColumn` = ? ORDER BY `$name`";
+        $q = "SELECT (`$columnList`) FROM `$t_userdata` WHERE `$c_userID` = ? ORDER BY `$c_name`";
         $result = $this->db->execute($q, 'i', $userID);
 
         $properties = array();
@@ -244,7 +204,7 @@ class UserRepository extends AbstractRepository
 
     public function updateUserData(int $userID, array $changedValues)
     {
-        $userdata = self::DATA_TABLE_NAME;
+        $t_userdata = self::DATA_TABLE_NAME;
         $insertColumns = array(
             User::FIELD_USER_ID,
             User::FIELD_NAME,
@@ -253,10 +213,10 @@ class UserRepository extends AbstractRepository
         
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
-        $valueColumn = User::FIELD_VALUE;
+        $c_value = User::FIELD_VALUE;
         
-        $q = "INSERT INTO `$userdata` (`$columnList`) VALUES ($placeholderList) " .
-            "ON DUPLICATE KEY UPDATE `$valueColumn` = ?";
+        $q = "INSERT INTO `$t_userdata` (`$columnList`) VALUES ($placeholderList) " .
+            "ON DUPLICATE KEY UPDATE `$c_value` = ?";
         
         foreach ($changedValues as $key => $value) {
             // "value" appears twice due to the ON DUPLICATE KEY UPDATE
@@ -266,83 +226,61 @@ class UserRepository extends AbstractRepository
 
     public function getCitiesByPrefix(string $cityPrefix, int $limit = 10) : array
     {
-        $value = User::FIELD_VALUE;
-        $userdata = self::DATA_TABLE_NAME;
-        $nameColumn = User::FIELD_NAME;
+        $c_value = User::FIELD_VALUE;
+        $t_userdata = self::DATA_TABLE_NAME;
+        $c_nameColumn = User::FIELD_NAME;
 
-        $q = "SELECT DISTINCT `$value` FROM `$userdata` WHERE `$value` LIKE ? AND `$nameColumn` = ? ORDER BY `$value` LIMIT ?";
+        $q = "SELECT DISTINCT `$c_value` FROM `$t_userdata` WHERE `$c_value` LIKE ? AND `$c_nameColumn` = ? ORDER BY `$c_value` LIMIT ?";
         $cityPrefix .= '%';
-        $name = 'city';
-        $result = $this->db->execute($q, "ssi", $cityPrefix, $name, $limit);
-
-        $cities = array();
-        while ($row = $result->fetch_row()) {
-            $cities[] = $row[0];
-        }
-
-        return $cities;
+        return $this->db->queryArray($q, "ssi", $cityPrefix, User::KEY_CITY, $limit);
     }
 
     public function getDiariesByPrefix(int $userID, string $userLogin, string $diaryPrefix, int $limit = 10) : array
     {
         // Returns the login names of users who allow the current user to create entries
-        $loginColumn = User::FIELD_LOGIN;
-        $users = self::TABLE_NAME;
-        $ID = User::FIELD_ID;
-        $userIDColumn = User::FIELD_USER_ID;
-        $userdata = self::DATA_TABLE_NAME;
-        $name = User::FIELD_NAME;
-        $value = User::FIELD_VALUE;
+        $c_login = User::FIELD_LOGIN;
+        $t_users = $this->getTableName();
+        $c_ID = User::FIELD_ID;
+        $c_userID = User::FIELD_USER_ID;
+        $t_userdata = self::DATA_TABLE_NAME;
+        $c_name = User::FIELD_NAME;
+        $c_value = User::FIELD_VALUE;
 
         // "The user themselves" (duh)
-        $ownAccessClause = "`$loginColumn` = ?";
+        $ownAccessClause = "`$c_login` = ?";
 
         // "People who allow any registered user to write to their diary"
-        $userAllowsAccess = "SELECT `$userIDColumn` FROM `$userdata` WHERE `$name` = ? AND `$value` = ?";
+        $userAllowsAccess = "SELECT `$c_userID` FROM `$t_userdata` WHERE `$c_name` = ? AND `$c_value` = ?";
         $registeredAccessClause = "`$ID` IN ($userAllowsAccess)";
 
         // "People who made <current user> their friends and allow friends to write to their diary"
         $sourceUserIds = $this->friendRepository->getSourceUserIdsQuery();
-        $friendAccessClause = "`$ID` IN ($userAllowsAccess AND `$userIDColumn` IN ($sourceUserIds))";
+        $friendAccessClause = "`$ID` IN ($userAllowsAccess AND `$c_userID` IN ($sourceUserIds))";
 
-        $q = "SELECT `$loginColumn` FROM `$users` " .
-            "WHERE `$loginColumn` LIKE ? AND ($ownAccessClause OR $registeredAccessClause OR $friendAccessClause) " .
-            "ORDER BY `$loginColumn` LIMIT ?";
+        $q = "SELECT `$c_login` FROM `$users` " .
+            "WHERE `$c_login` LIKE ? AND ($ownAccessClause OR $registeredAccessClause OR $friendAccessClause) " .
+            "ORDER BY `$c_login` LIMIT ?";
 
         $diaryPrefix .= '%';
-        $blogAccess = 'blogAccess';
-        $registered = 'registered';
-        $friends = 'friends';
-        $friendType = FriendType::FRIEND;
-
-        $result = $this->db->execute($q, 'ssssssisi',
+        return $this->db->queryArray($q, 'ssssssisi',
             $diaryPrefix,
             $userLogin,
-            $blogAccess,
-            $registered,
-            $blogAccess,
-            $friends,
+            User::KEY_BLOG_ACCESS, AccessType::REGISTERED,
+            User::KEY_BLOG_ACCESS, AccessType::FRIENDS,
             $userID,
             FriendType::FRIEND,
             $limit);
-
-        $diaries = array();
-        while ($row = $result->fetch_row()) {
-            $diaries[] = $row[0];
-        }
-
-        return $diaries;
     }
     
-    public function insert(User $user) : int
+    public function save(User $user) : int
     {
-        $users = $this->getTableName();
+        $t_users = $this->getTableName();
         $userArray = $user->toArray();
-        $keys = array_keys($userArray);
-        $columnList = $this->toColumnList($keys);
-        $placeholderList = $this->toPlaceholderList($keys);
+        $insertColumns = array_keys($userArray);
+        $columnList = $this->toColumnList($insertColumns);
+        $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT INTO `$users`(`$columnList`) VALUES ($placeholderList)";
+        $q = "INSERT INTO `$t_users` (`$columnList`) VALUES ($placeholderList)";
         
         $values = array_values($userArray);
         if ($user->getID() < 0) {

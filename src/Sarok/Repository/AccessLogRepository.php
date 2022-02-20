@@ -1,12 +1,13 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Util;
-use Sarok\Models\AccessLog;
-use Sarok\Service\DB;
 use DateTime;
+use Sarok\Util;
+use Sarok\Service\DB;
+use Sarok\Models\AccessLog;
+use Sarok\Repository\AbstractRepository;
 
-class AccessLogRepository extends AbstractRepository {
-
+class AccessLogRepository extends AbstractRepository
+{
     const TABLE_NAME = 'accesslog';
     
     private const COLUMN_NAMES = array(
@@ -21,35 +22,33 @@ class AccessLogRepository extends AbstractRepository {
         AccessLog::FIELD_NUM_QUERIES,
     );
     
-    public function __construct(DB $db) {
+    public function __construct(DB $db)
+    {
         parent::__construct($db);
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::$COLUMN_NAMES;
     }
     
-    public function getIpAddressesOfUser(int $userCode) : array {
-        $ip = AccessLog::FIELD_IP;
-        $accesslog = $this->getTableName();
-        $userCodeColumn = AccessLog::FIELD_USER_CODE;
+    public function getIpAddressesOfUser(int $userCode) : array
+    {
+        $c_ip = AccessLog::FIELD_IP;
+        $t_accesslog = $this->getTableName();
+        $c_userCode = AccessLog::FIELD_USER_CODE;
         
-        $q = "SELECT DISTINCT `$ip` FROM `$accesslog` WHERE `$userCodeColumn` = ?";
-        $result = $this->db->query($q, 'i', $userCode);
-        
-        $ipAddressList = array();
-        while ($ipAddress = $result->fetch_row()) {
-            $ipAddressList[] = $ipAddress[0];
-        }
-        
-        return $ipAddressList;
+        $q = "SELECT DISTINCT `$c_ip` FROM `$t_accesslog` WHERE `$c_userCode` = ?";
+        return $this->db->queryArray($q, 'i', $userCode);
     }
     
-    public function getUserActionsFromDate(DateTime $datum, int $limit = 2500) : array {
+    public function getUserActionsFromDate(DateTime $datum, int $limit = 2500) : array
+    {
         // XXX: not all fields are populated
         $selectColumns = array(
             AccessLog::FIELD_DATUM,
@@ -61,22 +60,29 @@ class AccessLogRepository extends AbstractRepository {
         );
         
         $columnList = $this->toColumnList($selectColumns);
-        $accesslog = $this->getTableName();
-        $datumColumn = AccessLog::FIELD_DATUM;
-        $action = AccessLog::FIELD_ACTION;
+        $t_accesslog = $this->getTableName();
+        $c_datum = AccessLog::FIELD_DATUM;
+        $c_action = AccessLog::FIELD_ACTION;
         
-        $q = "SELECT `$columnList` FROM `$accesslog` WHERE `$datumColumn` >= ? AND `$action` LIKE 'users/_%' ORDER BY `$datumColumn` LIMIT ?";
-        $datumString = Util::dateTimeToString($datum);
-        return $this->db->queryObjects($q, AccessLog::class, 'si', $datumString, $limit);
+        $q = "SELECT `$columnList` FROM `$t_accesslog` " .
+            "WHERE `$c_datum` >= ? AND `$c_action` LIKE 'users/_%' " .
+            "ORDER BY `$c_datum` LIMIT ?";
+        
+        return $this->db->queryObjects($q, AccessLog::class, 'si', 
+            Util::dateTimeToString($datum), 
+            $limit);
     }
     
-    public function insert(AccessLog $data) : int {
-        $accesslog = $this->getTableName();
-        $insertColumns = $this->getColumnNames();
+    public function save(AccessLog $accessLog) : int
+    {
+        $t_accesslog = $this->getTableName();
+        $accessLogArray = $data->toArray();
+        $insertColumns = array_keys($accessLogArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT INTO `$accesslog`(`$columnList`) VALUES ($placeholderList)";
-        return $this->db->execute($q, 'siisssiii', ...$data->toArray());
+        $q = "INSERT INTO `$t_accesslog` (`$columnList`) VALUES ($placeholderList)";
+        $values = array_values($accessLogArray);
+        return $this->db->execute($q, 'siisssiii', ...$values);
     }
 }

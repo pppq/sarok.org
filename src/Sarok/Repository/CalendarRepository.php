@@ -1,11 +1,14 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Models\Calendar;
-use Sarok\Service\DB;
 use DateTime;
+use Sarok\Service\DB;
+use Sarok\Models\Calendar;
+use Sarok\Models\FriendType;
+use Sarok\Repository\FriendRepository;
+use Sarok\Repository\AbstractRepository;
 
-class CalendarRepository extends AbstractRepository {
-
+class CalendarRepository extends AbstractRepository
+{
     const TABLE_NAME = 'calendar';
     
     private const COLUMN_NAMES = array(
@@ -21,22 +24,30 @@ class CalendarRepository extends AbstractRepository {
         Calendar::FIELD_NUM_MAILS_SENT,
     );
     
-    public function __construct(DB $db) {
+    /** @var FriendRepository */
+    private FriendRepository $friendRepository;
+
+    public function __construct(DB $db, FriendRepository $friendRepository)
+    {
         parent::__construct($db);
+        $this->friendRepository = $friendRepository;
     }
     
-    protected function getTableName() : string {
+    protected function getTableName() : string
+    {
         return self::TABLE_NAME;
     }
     
-    protected function getColumnNames() : array {
+    protected function getColumnNames() : array
+    {
         return self::COLUMN_NAMES;
     }
     
-    public function getBlogMonthsBefore(int $userID, DateTime $calendarYear, bool $publicOnly) : array {
+    public function getBlogMonthsBefore(int $userID, int $year, bool $publicOnly) : array
+    {
         if ($publicOnly === true) {
-            $numPublic = Calendar::FIELD_NUM_PUBLIC;
-            $filterClause = "AND `$numPublic` > 0 ";
+            $c_numPublic = Calendar::FIELD_NUM_PUBLIC;
+            $filterClause = "AND `$c_numPublic` > 0 ";
         } else {
             $filterClause = '';
         }
@@ -48,77 +59,65 @@ class CalendarRepository extends AbstractRepository {
         );
         
         $columnList = $this->toColumnList($selectColumns);
-        $calendar = $this->getTableName();
-        $userIDColumn = Calendar::FIELD_USER_ID;
-        $y = Calendar::FIELD_Y;
-        $m = Calendar::FIELD_M;
+        $t_calendar = $this->getTableName();
+        $c_userID = Calendar::FIELD_USER_ID;
+        $c_y = Calendar::FIELD_Y;
+        $c_m = Calendar::FIELD_M;
         
-        $q = "SELECT DISTINCT `$columnList` FROM `$calendar` " .
-            "WHERE `$userIDColumn` = ? AND `$y` BETWEEN 1900 AND ? {$filterClause}" .
-            "ORDER BY `$y` DESC, `$m` DESC";
+        $q = "SELECT DISTINCT `$columnList` FROM `$t_calendar` " .
+            "WHERE `$c_userID` = ? AND `$c_y` BETWEEN 1900 AND ? {$filterClause}" .
+            "ORDER BY `$c_y` DESC, `$c_m` DESC";
         
-        return $this->db->queryObjects($q, Calendar::class, 'ii', 
-            $userID, 
-            (int) $calendarYear->format('Y'));
+        return $this->db->queryObjects($q, Calendar::class, 'ii', $userID, $year);
     }
 
-    public function getCalendarEntries(int $userID, DateTime $calendarMonth) : array {
-        $columnList = $this->toColumnList($this->getColumnNames());
-        $calendar = $this->getTableName();
-        $userIDColumn = Calendar::FIELD_USER_ID;
-        $y = Calendar::FIELD_Y;
-        $m = Calendar::FIELD_M;
+    public function getCalendarEntries(int $userID, int $year, int $month) : array
+    {
+        $selectColumns = $this->getColumnNames();
+        $columnList = $this->toColumnList($selectColumns);
+        $t_calendar = $this->getTableName();
+        $c_userID = Calendar::FIELD_USER_ID;
+        $c_y = Calendar::FIELD_Y;
+        $c_m = Calendar::FIELD_M;
         
-        $q = "SELECT `$columnList` FROM `$calendar` " .
-            "WHERE `$userIDColumn` = ? AND `$y` = ? AND `$m` = ? " .
-            "ORDER BY `$y` DESC, `$m` DESC";
+        $q = "SELECT `$columnList` FROM `$t_calendar` " .
+            "WHERE `$c_userID` = ? AND `$c_y` = ? AND `$c_m` = ? " .
+            "ORDER BY `$c_y` DESC, `$c_m` DESC";
         
-        return $this->db->queryObjects($q, Calendar::class, 'iii',
-            $userID,
-            (int) $calendarMonth->format('Y'),
-            (int) $calendarMonth->format('m'));
+        return $this->db->queryObjects($q, Calendar::class, 'iii', $userID, $year, $month);
     }
 
-    public function getCalendarEntriesOfFriends(int $userID, DateTime $calendarMonth) : array {
-        $y = Calendar::FIELD_Y;
-        $m = Calendar::FIELD_M;
-        $d = Calendar::FIELD_D;
-        $numAll = Calendar::FIELD_NUM_ALL;
-
+    public function getCalendarEntriesOfFriends(int $userID, int $year, int $month) : array
+    {
         // numAll will contain the sum of the entry count of all friends
-        $columnList = $this->toColumnList(array($y, $m, $d, "SUM($numAll)"));
+        $c_y = Calendar::FIELD_Y;
+        $c_m = Calendar::FIELD_M;
+        $c_d = Calendar::FIELD_D;
+        $c_numAll = Calendar::FIELD_NUM_ALL;
+        $t_calendar = $this->getTableName();
+        $c_userID = Calendar::FIELD_USER_ID;
         
-        $calendar = $this->getTableName();
-        $userIDColumn = Calendar::FIELD_USER_ID;
-        
-        // FIXME: replace table and field names with constants from the user list model/repository
-        $friendsSubQuery = "SELECT `userID` FROM `friends` WHERE `friendOf` = ? AND `friendType` = 'friend'";
+        $friendsSubQuery = $this->friendRepository->getDestinationUserIdsQuery();
             
-        $q = "SELECT `$columnList` FROM `$calendar` " .
-            "WHERE `$y` = ? AND `$m` = ? AND `$userIDColumn` IN ($friendsSubQuery) " .
-            "GROUP BY `$y`, `$m`, `$d`";
+        $q = "SELECT `$c_y`, `$c_m`, `$c_d`, SUM(`$c_numAll`) FROM `$t_calendar` " .
+            "WHERE `$c_y` = ? AND `$c_m` = ? AND `$c_userID` IN ($friendsSubQuery) " .
+            "GROUP BY `$c_y`, `$c_m`, `$c_d`";
         
-        return $this->db->queryObjects($q, Calendar::class, 'iii',
-            (int) $calendarMonth->format('Y'),
-            (int) $calendarMonth->format('m'),
-            $userID);
+        return $this->db->queryObjects($q, Calendar::class, 'iiis', $year, $month, $userID, FriendType::FRIEND);
     }
     
-    public function updateCalendar(int $userID, DateTime $calendarDay) : int {
-        $calendar = $this->getTableName();
-        $userIDColumn = Calendar::FIELD_USER_ID;
-        $y = Calendar::FIELD_Y;
-        $m = Calendar::FIELD_M;
-        $d = Calendar::FIELD_D;
-        $insertColumns = array($userIDColumn, $y, $m, $d);
+    public function update(int $userID, int $year, int $month, int $day) : int
+    {
+        $t_calendar = $this->getTableName();
+        $c_userID = Calendar::FIELD_USER_ID;
+        $c_y = Calendar::FIELD_Y;
+        $c_m = Calendar::FIELD_M;
+        $c_d = Calendar::FIELD_D;
+        $insertColumns = array($c_userID, $c_y, $c_m, $c_d);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $insertQuery = "INSERT IGNORE INTO `$calendar` (`$insertColumns`) VALUES ($placeholderList)";
-        $this->db->execute($insertQuery, 'iiii',
-            $userID,
-            (int) $calendarDay->format('Y'),
-            (int) $calendarDay->format('m'),
-            (int) $calendarDay->format('d'));
+        $insertQuery = "INSERT IGNORE INTO `$t_calendar` (`$insertColumns`) VALUES ($placeholderList)";
+        $this->db->execute($insertQuery, 'iiii', $userID, $year, $month, $day);
 
         // FIXME: replace table and field names with constants from Entry model and repository
         $allEntriesQuery = "SELECT COUNT(*) FROM `entries` AS `e` " .
@@ -129,22 +128,18 @@ class CalendarRepository extends AbstractRepository {
         $registeredOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`access` = 'REGISTERED'";
         $friendsOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`access` = 'FRIENDS'";
         
-        $numAll = Calendar::FIELD_NUM_ALL;
-        $numPublic = Calendar::FIELD_NUM_PUBLIC;
-        $numRegistered = Calendar::FIELD_NUM_REGISTERED;
-        $numFriends = Calendar::FIELD_NUM_FRIENDS;
+        $c_numAll = Calendar::FIELD_NUM_ALL;
+        $c_numPublic = Calendar::FIELD_NUM_PUBLIC;
+        $c_numRegistered = Calendar::FIELD_NUM_REGISTERED;
+        $c_numFriends = Calendar::FIELD_NUM_FRIENDS;
         
-        $updateQuery = "UPDATE `$calendar` AS `c` SET " .
-            "`$numAll` = ($allEntriesQuery), " .
-            "`$numPublic` = ($publicEntriesQuery), " .
-            "`$numRegistered` = ($registeredOnlyEntriesQuery), " .
-            "`$numFriends` = ($friendsOnlyEntriesQuery) " .
-            "WHERE `c`.`$userIDColumn` = ? AND `c`.`$y` = ? AND `c`.`$m` = ? AND `c`.`$d` = ?";
+        $updateQuery = "UPDATE `$t_calendar` AS `c` SET " .
+            "`$c_numAll` = ($allEntriesQuery), " .
+            "`$c_numPublic` = ($publicEntriesQuery), " .
+            "`$c_numRegistered` = ($registeredOnlyEntriesQuery), " .
+            "`$c_numFriends` = ($friendsOnlyEntriesQuery) " .
+            "WHERE `c`.`$c_userID` = ? AND `c`.`$c_y` = ? AND `c`.`$c_m` = ? AND `c`.`$c_d` = ?";
         
-        return $this->db->execute($updateQuery, 'iiii', 
-            $userID, 
-            (int) $calendarDay->format('Y'),
-            (int) $calendarDay->format('m'),
-            (int) $calendarDay->format('d'));
+        return $this->db->execute($updateQuery, 'iiii', $userID, $year, $month, $day);
     }
 }
