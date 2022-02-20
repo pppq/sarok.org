@@ -1,7 +1,21 @@
 <?php namespace Sarok\Models;
 
-class Calendar {
-
+/*
+ * Table structure for `calendar`:
+ * 
+ * `userID`           int(10) unsigned NOT NULL DEFAULT '0',
+ * `y`                int(10) unsigned NOT NULL DEFAULT '0',
+ * `m`                int(10) unsigned NOT NULL DEFAULT '0',
+ * `d`                int(10) unsigned NOT NULL DEFAULT '0',
+ * `numPublic`        int(10) unsigned NOT NULL DEFAULT '0',
+ * `numRegistered`    int(10) unsigned NOT NULL DEFAULT '0',
+ * `numFriends`       int(10) unsigned NOT NULL DEFAULT '0',
+ * `numAll`           int(10) unsigned NOT NULL DEFAULT '0',
+ * `numMailsReceived` int(10) unsigned NOT NULL DEFAULT '0',
+ * `numMailsSent`     int(10) unsigned NOT NULL DEFAULT '0',
+ */
+class Calendar
+{
     const FIELD_USER_ID = 'userID';
     const FIELD_Y = 'y';
     const FIELD_M = 'm';
@@ -24,98 +38,119 @@ class Calendar {
     private int $numMailsReceived = 0;
     private int $numMailsSent = 0;
     
-    public function getUserID() : int {
+    public function getUserID() : int
+    {
         return $this->userID;
     }
 
-    public function setUserID(int $userID) {
+    public function setUserID(int $userID)
+    {
         $this->userID = $userID;
     }
 
-    public function getY() : int {
+    public function getY() : int
+    {
         return $this->y;
     }
 
-    public function setY(int $y) {
+    public function setY(int $y)
+    {
         $this->y = $y;
     }
 
-    public function getM() : int {
+    public function getM() : int
+    {
         return $this->m;
     }
 
-    public function setM(int $m) {
+    public function setM(int $m)
+    {
         $this->m = $m;
     }
 
-    public function getD() : int {
+    public function getD() : int
+    {
         return $this->d;
     }
 
-    public function setD(int $d) {
+    public function setD(int $d)
+    {
         $this->d = $d;
     }
 
-    public function getNumPublic() : int {
+    public function getNumPublic() : int
+    {
         return $this->numPublic;
     }
 
-    public function setNumPublic(int $numPublic) {
+    public function setNumPublic(int $numPublic)
+    {
         $this->numPublic = $numPublic;
     }
 
-    public function getNumRegistered() : int {
+    public function getNumRegistered() : int
+    {
         return $this->numRegistered;
     }
 
-    public function setNumRegistered(int $numRegistered) {
+    public function setNumRegistered(int $numRegistered)
+    {
         $this->numRegistered = $numRegistered;
     }
 
-    public function getNumFriends() : int {
+    public function getNumFriends() : int
+    {
         return $this->numFriends;
     }
 
-    public function setNumFriends(int $numFriends) {
+    public function setNumFriends(int $numFriends)
+    {
         $this->numFriends = $numFriends;
     }
 
-    public function getNumAll() : int {
+    public function getNumAll() : int
+    {
         return $this->numAll;
     }
 
-    public function setNumAll(int $numAll) {
+    public function setNumAll(int $numAll)
+    {
         $this->numAll = $numAll;
     }
 
-    public function getNumMailsReceived() : int {
+    public function getNumMailsReceived() : int
+    {
         return $this->numMailsReceived;
     }
 
-    public function setNumMailsReceived(int $numMailsReceived) {
+    public function setNumMailsReceived(int $numMailsReceived)
+    {
         $this->numMailsReceived = $numMailsReceived;
     }
 
-    public function getNumMailsSent() : int {
+    public function getNumMailsSent() : int
+    {
         return $this->numMailsSent;
     }
 
-    public function setNumMailsSent(int $numMailsSent) {
+    public function setNumMailsSent(int $numMailsSent)
+    {
         $this->numMailsSent = $numMailsSent;
     }
 
-    public function toArray() : array {
+    public function toArray() : array
+    {
         return array(
-            $this->userID,
-            $this->y,
-            $this->m,
-            $this->d,
-            $this->numPublic,
-            $this->numRegistered,
-            $this->numFriends,
-            $this->numAll,
-            $this->numMailsReceived,
-            $this->numMailsSent,
+            self::FIELD_USER_ID            => $this->userID,
+            self::FIELD_Y                  => $this->y,
+            self::FIELD_M                  => $this->m,
+            self::FIELD_D                  => $this->d,
+            self::FIELD_NUM_PUBLIC         => $this->numPublic,
+            self::FIELD_NUM_REGISTERED     => $this->numRegistered,
+            self::FIELD_NUM_FRIENDS        => $this->numFriends,
+            self::FIELD_NUM_ALL            => $this->numAll,
+            self::FIELD_NUM_MAILS_RECEIVED => $this->numMailsReceived,
+            self::FIELD_NUM_MAILS_SENT     => $this->numMailsSent,
         );
     }
 }

@@ -1,7 +1,7 @@
 <?php namespace Sarok\Models;
 
-use Sarok\Util;
 use DateTime;
+use Sarok\Util;
 
 /*
  * Table structure for `favourites`:

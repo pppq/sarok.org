@@ -2,21 +2,25 @@
 
 use DateTime;
 use Sarok\Util;
+use Sarok\Models\AccessType;
+use Sarok\Models\CommentDigestCategory;
 
-class CommentDigest {
-
-    // Allowed values for 'category'
-    const CATEGORY_ALL_COMMENTS = 'comments';
-    const CATEGORY_COMMENTS_OF_ENTRIES = 'commentsOfEntries';
-    const CATEGORY_MY_COMMENTS = 'myComments';
-    
-    // Allowed values for 'access'
-    const ACCESS_ALL = 'ALL';
-    const ACCESS_REGISTERED = 'REGISTERED';
-    const ACCESS_FRIENDS = 'FRIENDS';
-    const ACCESS_PRIVATE = 'PRIVATE';
-    const ACCESS_LIST = 'LIST';
-    
+/*
+ * Table structure for `cache_commentlist`:
+ * 
+ * `category`   enum('comments','commentsOfEntries','myComments') NOT NULL DEFAULT 'comments',
+ * `ID`         int(11)          NOT NULL DEFAULT '0',
+ * `ownerID`    int(10) unsigned NOT NULL DEFAULT '0',
+ * `userID`     char(30)         NOT NULL DEFAULT '',
+ * `diaryID`    char(30)         NOT NULL DEFAULT '',
+ * `entryID`    int(11)          NOT NULL DEFAULT '0',
+ * `createDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `access`     enum('ALL','REGISTERED','FRIENDS','PRIVATE','LIST') NOT NULL DEFAULT 'ALL',
+ * `body`       char(60)         NOT NULL DEFAULT '',
+ * `lastUsed`   datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ */
+class CommentDigest
+{
     const FIELD_CATEGORY = 'category';
     const FIELD_ID = 'ID';
     const FIELD_OWNER_ID = 'ownerID';
@@ -33,16 +37,17 @@ class CommentDigest {
     private DateTime $_lastUsed;
     
     // Assignment from string directly supported
-    private string $category = self::CATEGORY_ALL_COMMENTS;
+    private string $category = CommentDigestCategory::COMMENTS;
     private int $ID = 0; // int(11)
     private int $ownerID = 0; // int(10) unsigned, but we'll probably not see 2 billion+ users
     private string $userID = '';
     private string $diaryID = '';
     private int $entryID = 0; // int(11)
-    private string $access = self::ACCESS_ALL;
+    private string $access = AccessType::ALL;
     private string $body = '';
 
-    public function __construct() {
+    public function __construct()
+    {
         // Initialize only if not already set by fetch_object()
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::zeroDateTime();
@@ -53,7 +58,8 @@ class CommentDigest {
         }
     }
     
-    public function __set(string $name, $value) {
+    public function __set(string $name, $value)
+    {
         // Support conversion from string for fetch_object()
         if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
@@ -64,98 +70,119 @@ class CommentDigest {
         }
     }
     
-    public function getCategory() : string {
+    public function getCategory() : string
+    {
         return $this->category;
     }
 
-    public function setCategory(string $category) {
+    public function setCategory(string $category)
+    {
         $this->category = $category;
     }
 
-    public function getID() : int {
+    public function getID() : int
+    {
         return $this->ID;
     }
 
-    public function setID(int $ID) {
+    public function setID(int $ID)
+    {
         $this->ID = $ID;
     }
 
-    public function getOwnerID() : int {
+    public function getOwnerID() : int
+    {
         return $this->ownerID;
     }
 
-    public function setOwnerID(int $ownerID) {
+    public function setOwnerID(int $ownerID)
+    {
         $this->ownerID = $ownerID;
     }
 
-    public function getUserID() : string {
+    public function getUserID() : string
+    {
         return $this->userID;
     }
 
-    public function setUserID(string $userID) {
+    public function setUserID(string $userID)
+    {
         $this->userID = $userID;
     }
 
-    public function getDiaryID() : string {
+    public function getDiaryID() : string
+    {
         return $this->diaryID;
     }
 
-    public function setDiaryID(string $diaryID) {
+    public function setDiaryID(string $diaryID)
+    {
         $this->diaryID = $diaryID;
     }
 
-    public function getEntryID() : int {
+    public function getEntryID() : int
+    {
         return $this->entryID;
     }
 
-    public function setEntryID(int $entryID) {
+    public function setEntryID(int $entryID)
+    {
         $this->entryID = $entryID;
     }
 
-    public function getCreateDate() : DateTime {
+    public function getCreateDate() : DateTime
+    {
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate) {
+    public function setCreateDate(DateTime $createDate)
+    {
         $this->_createDate = $createDate;
     }
 
-    public function getAccess() : string {
+    public function getAccess() : string
+    {
         return $this->access;
     }
 
-    public function setAccess(string $access) {
+    public function setAccess(string $access)
+    {
         $this->access = $access;
     }
 
-    public function getBody() : string {
+    public function getBody() : string
+    {
         return $this->body;
     }
 
-    public function setBody(string $body) {
+    public function setBody(string $body)
+    {
         $this->body = $body;
     }
 
-    public function getLastUsed() : DateTime {
+    public function getLastUsed() : DateTime
+    {
         return $this->_lastUsed;
     }
 
-    public function setLastUsed(DateTime $lastUsed) {
+    public function setLastUsed(DateTime $lastUsed)
+    {
         $this->_lastUsed = $lastUsed;
     }
     
-    public function toArray() : array {
+    public function toArray() : array
+    {
         return array(
-            $this->category,
-            $this->ID,
-            $this->ownerID,
-            $this->userID,
-            $this->diaryID,
-            $this->entryID,
-            Util::dateTimeToString($this->_createDate),
-            $this->access,
-            $this->body,
-            Util::dateTimeToString($this->_lastUsed),
+            self::FIELD_CATEGORY    => $this->category,
+            self::FIELD_ID          => $this->ID,
+            self::FIELD_OWNER_ID    => $this->ownerID,
+            self::FIELD_USER_ID     => $this->userID,
+            self::FIELD_DIARY_ID    => $this->diaryID,
+            self::FIELD_ENTRY_ID    => $this->entryID,
+            self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
+            self::FIELD_ACCESS      => $this->access,
+            self::FIELD_BODY        => $this->body,
+            self::FIELD_LAST_USED   => Util::dateTimeToString($this->_lastUsed),
         );
     }
 }

@@ -1,12 +1,5 @@
 <?php namespace Sarok\Models;
 
-class FriendType
-{
-    const FRIEND = 'friend';
-    const BANNED = 'banned';
-    const READER = 'banned';
-}
-
 /*
  * Table structure for `friends`:
  *

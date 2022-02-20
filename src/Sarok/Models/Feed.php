@@ -1,14 +1,8 @@
 <?php namespace Sarok\Models;
 
-use Sarok\Util;
 use DateTime;
-
-class FeedStatus
-{
-    const ALLOWED = 'allowed';
-    const BANNED = 'banned';
-    const DEFAULT = '-';
-}
+use Sarok\Util;
+use Sarok\Models\FeedStatus;
 
 /*
  * Table structure for `feeds`:

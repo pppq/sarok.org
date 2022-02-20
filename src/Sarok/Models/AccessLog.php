@@ -1,10 +1,23 @@
 <?php namespace Sarok\Models;
 
-use Sarok\Util;
 use DateTime;
+use Sarok\Util;
 
-class AccessLog {
-
+/*
+ * Table structure for `accesslog`:
+ *
+ * `datum`      datetime     NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `micros`     int(3)       NOT NULL DEFAULT '0',
+ * `sessid`     bigint(15)   NOT NULL DEFAULT '0',
+ * `action`     varchar(64)  NOT NULL DEFAULT '',
+ * `referrer`   varchar(120) NOT NULL DEFAULT '',
+ * `ip`         varchar(16)  NOT NULL DEFAULT '',
+ * `userCode`   int(11)      NOT NULL DEFAULT '0',
+ * `runTime`    int(7)       NOT NULL DEFAULT '0',
+ * `numQueries` int(6)       NOT NULL DEFAULT '0',
+ */
+class AccessLog
+{
     const FIELD_DATUM = 'datum';
     const FIELD_MICROS = 'micros';
     const FIELD_SESSID = 'sessid';
@@ -28,103 +41,124 @@ class AccessLog {
     private int $runTime = 0;
     private int $numQueries = 0;
     
-    public function __construct() {
+    public function __construct()
+    {
         // Initialize only if not already set by fetch_object()
         if (!isset($this->_datum)) {
             $this->_datum = Util::utcDateTimeFromString();
         }
     }
     
-    public function __set(string $name, $value) {
+    public function __set(string $name, $value)
+    {
         // Support conversion from string for fetch_object()
         if ($name === self::FIELD_DATUM && is_string($value)) {
             $this->setDatum(Util::utcDateTimeFromString($value));
         }
     }
     
-    public function getDatum() : DateTime {
+    public function getDatum() : DateTime
+    {
         return $this->_datum;
     }
 
-    public function setDatum(DateTime $datum) {
+    public function setDatum(DateTime $datum)
+    {
         $this->_datum = $datum;
     }
 
-    public function getMicros() : int {
+    public function getMicros() : int
+    {
         return $this->micros;
     }
 
-    public function setMicros(int $micros) {
+    public function setMicros(int $micros)
+    {
         $this->micros = $micros;
     }
 
-    public function getSessid() : string {
+    public function getSessid() : string
+    {
         return $this->sessid;
     }
 
-    public function setSessid(string $sessid) {
+    public function setSessid(string $sessid)
+    {
         $this->sessid = $sessid;
     }
 
-    public function getAction() : string {
+    public function getAction() : string
+    {
         return $this->action;
     }
 
-    public function setAction(string $action) {
+    public function setAction(string $action)
+    {
         $this->action = $action;
     }
 
-    public function getReferrer() : string {
+    public function getReferrer() : string
+    {
         return $this->referrer;
     }
 
-    public function setReferrer(string $referrer) {
+    public function setReferrer(string $referrer)
+    {
         $this->referrer = $referrer;
     }
 
-    public function getIp() {
+    public function getIp()
+    {
         return $this->ip;
     }
 
-    public function setIp($ip) {
+    public function setIp($ip)
+    {
         $this->ip = $ip;
     }
 
-    public function getUserCode() : int {
+    public function getUserCode() : int
+    {
         return $this->userCode;
     }
 
-    public function setUserCode(int $userCode) {
+    public function setUserCode(int $userCode)
+    {
         $this->userCode = $userCode;
     }
 
-    public function getRunTime() : int {
+    public function getRunTime() : int
+    {
         return $this->runTime;
     }
 
-    public function setRunTime(int $runTime) {
+    public function setRunTime(int $runTime)
+    {
         $this->runTime = $runTime;
     }
 
-    public function getNumQueries() : int {
+    public function getNumQueries() : int
+    {
         return $this->numQueries;
     }
 
-    public function setNumQueries(int $numQueries) {
+    public function setNumQueries(int $numQueries)
+    {
         $this->numQueries = $numQueries;
     }
 
-    public function toArray() : array {
+    public function toArray() : array
+    {
         return array(
-            Util::dateTimeToString($this->_datum),
-            $this->micros,
-            $this->sessid,
-            $this->action,
-            $this->referrer,
-            $this->ip,
-            $this->userCode,
-            $this->runTime,
-            $this->numQueries,
+            self::FIELD_DATUM       => Util::dateTimeToString($this->_datum),
+            self::FIELD_MICROS      => $this->micros,
+            self::FIELD_SESSID      => $this->sessid,
+            self::FIELD_ACTION      => $this->action,
+            self::FIELD_REFERRER    => $this->referrer,
+            self::FIELD_IP          => $this->ip,
+            self::FIELD_USER_CODE   => $this->userCode,
+            self::FIELD_RUNTIME     => $this->runTime,
+            self::FIELD_NUM_QUERIES => $this->numQueries,
         );
     }
 }

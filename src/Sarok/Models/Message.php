@@ -1,7 +1,7 @@
 <?php namespace Sarok\Models;
 
-use Sarok\Util;
 use DateTime;
+use Sarok\Util;
 
 /*
  * Table structure for `mail`:
@@ -183,7 +183,7 @@ class Message
             self::FIELD_BODY      => $this->body,
             self::FIELD_IS_READ   => Util::boolToYesNo($this->read),
             self::FIELD_IS_DELETED_BY_RECIPIENT => Util::boolToYesNo($this->deletedByRecipient),
-            self::FIELD_IS_DELETED_BY_SENDER => Util::boolToYesNo($this->deletedBySender),
+            self::FIELD_IS_DELETED_BY_SENDER    => Util::boolToYesNo($this->deletedBySender),
             self::FIELD_REPLY_ON  => $this->replyOn,
         );
     }
