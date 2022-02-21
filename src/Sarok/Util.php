@@ -1,8 +1,8 @@
 <?php namespace Sarok;
 
-use DateTime;
-use DateTimeZone;
 use InvalidArgumentException;
+use DateTimeZone;
+use DateTime;
 
 final class Util {
 
@@ -38,6 +38,12 @@ final class Util {
     
     public static function dateToString(DateTime $dt) : string {
         return $dt->format(self::DATE_FORMAT);
+    }
+
+    public static function dateTimeToDate(DateTime $dt) : DateTime {
+        $dayDate = clone $dt;
+        $dayDate->setTime(0, 0);
+        return $dayDate;
     }
     
     public static function yesNoToBool(string $yesNo) : bool {

@@ -1,8 +1,8 @@
 <?php namespace Sarok\Service;
 
+use mysqli_result;
 use mysqli;
 use Sarok\Logger;
-use mysqli_result;
 use Sarok\Exceptions\DBException;
 
 class DB
@@ -168,6 +168,16 @@ class DB
         return $this->toObjects($result, $className);
     }
 
+    public function querySingleObject(string $query, string $className, string $format = '', ...$params) : ?object
+    {
+        $result = $this->query($query, $format, ...$params);
+        if ($row = $result->fetch_object($className)) {
+            return $row;
+        } else {
+            return null;
+        }
+    }
+
     private function toArray(mysqli_result $result) : array
     {
 		$values = array();
@@ -192,14 +202,19 @@ class DB
         return $this->toArray($result);
     }
 
-    public function queryInt(string $query, int $defaultValue, string $format = '', ...$params) : int
+    public function queryString(string $query, string $defaultValue, string $format = '', ...$params) : string
     {
         $result = $this->query($query, $format, ...$params);
         if ($row = $result->fetch_row()) {
-            return (int) $row[0];
+            return $row[0];
+        } else {
+            return $defaultValue;
         }
+    }
 
-        return $defaultValue;
+    public function queryInt(string $query, int $defaultValue, string $format = '', ...$params) : int
+    {
+        return (int) $this->queryString($query, $defaultValue, $format, ...$params);
     }
 
     /**
