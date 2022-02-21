@@ -1,0 +1,359 @@
+<?php namespace Sarok\Models;
+
+use Sarok\Util;
+use Sarok\Models\AccessType;
+use DateTime;
+
+/*
+ * Table structure for `entries`:
+ *
+ * `ID`               int(10) unsigned NOT NULL AUTO_INCREMENT,
+ * `diaryID`          int(10) unsigned NOT NULL DEFAULT '0',
+ * `userID`           int(10) unsigned NOT NULL DEFAULT '0',
+ * `createDate`       datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `modifyDate`       datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `access`           enum('ALL','REGISTERED','FRIENDS','PRIVATE','LIST') NOT NULL DEFAULT 'ALL',
+ * `comments`         enum('ALL','REGISTERED','FRIENDS','PRIVATE','LIST') NOT NULL DEFAULT 'ALL',
+ * `title`            varchar(255)     NOT NULL DEFAULT '',
+ * `body`             longtext         NOT NULL DEFAULT '',
+ * `body2`            longtext         NOT NULL DEFAULT '',
+ * `numComments`      int(10) unsigned NOT NULL DEFAULT '0',
+ * `lastComment`      datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `lastVisit`        datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * `isTerminated`     enum('Y','N')    NOT NULL DEFAULT 'N',
+ * `moderatorComment` varchar(255)     NOT NULL DEFAULT '',
+ * `category`         int(10) unsigned NOT NULL DEFAULT '0',
+ * `dayDate`          date             NOT NULL DEFAULT '0000-00-00',
+ * `rssURL`           varchar(255)     NOT NULL DEFAULT '',
+ * `posX`             double                    DEFAULT NULL,
+ * `posY`             double                    DEFAULT NULL,
+ */
+class Entry
+{
+    const FIELD_ID = 'ID';
+    const FIELD_DIARY_ID = 'diaryID';
+    const FIELD_USER_ID = 'userID';
+    const FIELD_CREATE_DATE = 'createDate';
+    const FIELD_MODIFY_DATE = 'modifyDate';
+    const FIELD_ACCESS = 'access';
+    const FIELD_COMMENTS = 'comments';
+    const FIELD_TITLE = 'title';
+    const FIELD_BODY_1 = 'body';
+    const FIELD_BODY_2 = 'body2';
+    const FIELD_NUM_COMMENTS = 'numComments';
+    const FIELD_LAST_COMMENT = 'lastComment';
+    const FIELD_LAST_VISIT = 'lastVisit';
+    const FIELD_IS_TERMINATED = 'isTerminated';
+    const FIELD_MODERATOR_COMMENT = 'moderatorComment';
+    const FIELD_CATEGORY = 'category';
+    const FIELD_DAY_DATE = 'dayDate';
+    const FIELD_RSS_URL = 'rssURL';
+    const FIELD_POS_X = 'posX';
+    const FIELD_POS_Y = 'posY';
+
+    // Assignment requires conversion via magic method (__set)
+    private DateTime $_createDate;
+    private DateTime $_modifyDate;
+    private DateTime $_lastComment;
+    private DateTime $_lastVisit;
+    private bool $_isTerminated;
+    private DateTime $_dayDate;
+
+    // Assignment from string directly supported
+    private int $ID = -1;
+    private int $diaryID = 0;
+    private int $userID = 0;
+    private string $access = AccessType::ALL;
+    private string $comments = AccessType::ALL;
+    private string $title = '';
+    private string $body = '';
+    private string $body2 = '';
+    private int $numComments = 0;
+    private string $moderatorComment = '';
+    private int $category = 0;
+    private string $rssURL = '';
+    private ?float $posX = null;
+    private ?float $posY = null;
+
+    public function __construct()
+    {
+        // Initialize only if not already set by fetch_object()
+        if (!isset($this->_createDate)) {
+            $this->_createDate = Util::utcDateTimeFromString();
+        }
+
+        if (!isset($this->_modifyDate)) {
+            $this->_modifyDate = Util::zeroDateTime();
+        }
+
+        if (!isset($this->_lastComment)) {
+            $this->_lastComment = Util::zeroDateTime();
+        }
+
+        if (!isset($this->_lastVisit)) {
+            $this->_lastVisit = Util::zeroDateTime();
+        }
+
+        if (!isset($this->_isTerminated)) {
+            $this->_isTerminated = false;
+        }
+
+        if (!isset($this->_dayDate)) {
+            $this->_dayDate = Util::dateTimeToDate($this->_createDate);
+        }
+    }
+    
+    public function __set(string $name, $value)
+    {
+        // Support conversion from string for fetch_object()
+        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+            $this->setCreateDate(Util::utcDateTimeFromString($value));
+        }
+
+        if ($name === self::FIELD_MODIFY_DATE && is_string($value)) {
+            $this->setModifyDate(Util::utcDateTimeFromString($value));
+        }
+
+        if ($name === self::FIELD_LAST_COMMENT && is_string($value)) {
+            $this->setLastComment(Util::utcDateTimeFromString($value));
+        }
+
+        if ($name === self::FIELD_LAST_VISIT && is_string($value)) {
+            $this->setLastVisit(Util::utcDateTimeFromString($value));
+        }
+        
+        if ($name === self::FIELD_IS_TERMINATED && is_string($value)) {
+            $this->setTerminated(Util::yesNoToBool($value));
+        }
+        
+        if ($name === self::FIELD_DAY_DATE && is_string($value)) {
+            $this->setDayDate(Util::utcDateTimeFromString($value));
+        }
+    }
+
+    public function getID() : int
+    {
+        return $this->ID;
+    }
+
+    public function setID(int $ID)
+    {
+        $this->ID = $ID;
+    }
+
+    public function getDiaryID() : int
+    {
+        return $this->diaryID;
+    }
+
+    public function setDiaryID(int $diaryID)
+    {
+        $this->diaryID = $diaryID;
+    }
+    
+    public function getUserID() : int
+    {
+        return $this->userID;
+    }
+
+    public function setUserID(int $userID)
+    {
+        $this->userID = $userID;
+    }
+    
+    public function getCreateDate() : DateTime
+    {
+        return $this->_createDate;
+    }
+
+    public function setCreateDate(DateTime $createDate)
+    {
+        $this->_createDate = $createDate;
+    }
+    
+    public function getModifyDate() : DateTime
+    {
+        return $this->_modifyDate;
+    }
+
+    public function setModifyDate(DateTime $modifyDate)
+    {
+        $this->_modifyDate = $modifyDate;
+    }
+
+    public function getAccess() : string
+    {
+        return $this->access;
+    }
+
+    public function setAccess(string $access)
+    {
+        $this->access = $access;
+    }
+
+    public function getComments() : string
+    {
+        return $this->comments;
+    }
+
+    public function setComments(string $comments)
+    {
+        $this->comments = $comments;
+    }
+
+    public function getTitle() : string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title)
+    {
+        $this->title = $title;
+    }
+
+    public function getBody() : string
+    {
+        return $this->body;
+    }
+
+    public function setBody(string $body)
+    {
+        $this->body = $body;
+    }
+
+    public function getBody2() : string
+    {
+        return $this->body2;
+    }
+
+    public function setBody2(string $body2)
+    {
+        $this->body2 = $body2;
+    }
+
+    public function getNumComments() : int
+    {
+        return $this->numComments;
+    }
+
+    public function setNumComments(int $numComments)
+    {
+        $this->numComments = $numComments;
+    }
+
+    public function getLastComment() : DateTime
+    {
+        return $this->_lastComment;
+    }
+
+    public function setLastComment(DateTime $lastComment)
+    {
+        $this->_lastComment = $lastComment;
+    }
+    
+    public function getLastVisit() : DateTime
+    {
+        return $this->_lastVisit;
+    }
+
+    public function setLastVisit(DateTime $lastVisit)
+    {
+        $this->_lastVisit = $lastVisit;
+    }
+
+    public function isTerminated() : bool
+    {
+        return $this->_isTerminated;
+    }
+
+    public function setTerminated(bool $terminated)
+    {
+        $this->_isTerminated = $terminated;
+    }
+
+    public function getModeratorComment() : string
+    {
+        return $this->moderatorComment;
+    }
+
+    public function setModeratorComment(string $moderatorComment)
+    {
+        $this->moderatorComment = $moderatorComment;
+    }
+
+    public function getCategory() : int
+    {
+        return $this->category;
+    }
+
+    public function setCategory(int $category)
+    {
+        $this->category = $category;
+    }
+
+    public function getDayDate() : DateTime
+    {
+        return $this->_dayDate;
+    }
+
+    public function setDayDate(DateTime $dayDate)
+    {
+        $this->_dayDate = Util::dateTimeToDate($dayDate);
+    }
+
+    public function getRssURL() : string
+    {
+        return $this->rssURL;
+    }
+
+    public function setRssURL(string $rssURL)
+    {
+        $this->rssURL = $rssURL;
+    }
+
+    public function getPosX() : ?float
+    {
+        return $this->posX;
+    }
+
+    public function setPosX(?float $posX)
+    {
+        $this->posX = $posX;
+    }
+
+    public function getPosY() : ?float
+    {
+        return $this->posY;
+    }
+
+    public function setPosY(?float $posY)
+    {
+        $this->posY = $posY;
+    }
+
+    public function toArray() : array
+    {
+        return array(
+            self::FIELD_ID => $this->ID,
+            self::FIELD_DIARY_ID => $this->diaryID,
+            self::FIELD_USER_ID => $this->userID,
+            self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
+            self::FIELD_MODIFY_DATE => Util::dateTimeToString($this->_modifyDate),
+            self::FIELD_ACCESS => $this->access,
+            self::FIELD_COMMENTS => $this->comments,
+            self::FIELD_TITLE => $this->title,
+            self::FIELD_BODY_1 => $this->body,
+            self::FIELD_BODY_2 => $this->body2,
+            self::FIELD_NUM_COMMENTS => $this->numComments,
+            self::FIELD_LAST_COMMENT => Util::dateTimeToString($this->_lastComment),
+            self::FIELD_LAST_VISIT => Util::dateTimeToString($this->_lastVisit),
+            self::FIELD_IS_TERMINATED => Util::boolToYesNo($this->_isTerminated),
+            self::FIELD_MODERATOR_COMMENT => $this->moderatorComment,
+            self::FIELD_CATEGORY => $this->category,
+            self::FIELD_DAY_DATE => Util::dateToString($this->_dayDate),
+            self::FIELD_RSS_URL => $this->rssURL,
+            self::FIELD_POS_X => $this->posX,
+            self::FIELD_POS_Y => $this->posY,
+        );
+    }
+}
