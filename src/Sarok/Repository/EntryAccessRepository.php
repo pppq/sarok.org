@@ -1,11 +1,12 @@
 <?php namespace Sarok\Repository;
 
-use DateTime;
 use Sarok\Util;
 use Sarok\Service\DB;
-use Sarok\Models\EntryAccess;
 use Sarok\Repository\SessionRepository;
 use Sarok\Repository\AbstractRepository;
+use Sarok\Models\EntryAccess;
+use Sarok\Models\Entry;
+use DateTime;
 
 class EntryAccessRepository extends AbstractRepository
 {
@@ -52,11 +53,12 @@ class EntryAccessRepository extends AbstractRepository
     public function getExistsQuery(string $entryAlias = 'e') : string
     {
         $t_entryaccess = $this->getTableName();
-        $c_userID = EntryAccess::FIELD_USER_ID;
-        $c_entryID = EntryAccess::FIELD_ENTRY_ID;
+        $c_access_userID = EntryAccess::FIELD_USER_ID;
+        $c_access_entryID = EntryAccess::FIELD_ENTRY_ID;
+        $c_entry_ID = Entry::FIELD_ID;
         
-        // FIXME: Use Entry::FIELD_ID for the field name
-        return "SELECT 1 FROM `$t_entryaccess` AS `ea` WHERE `ea`.`$c_userID` = ? AND `ea`.`$c_entryID` = `$entryAlias`.`ID` LIMIT 1";
+        return "SELECT 1 FROM `$t_entryaccess` AS `ea` " .
+            "WHERE `ea`.`$c_access_userID` = ? AND `ea`.`$c_access_entryID` = `$entryAlias`.`$c_entry_ID` LIMIT 1";
     }
     
     public function deleteByEntryIDs(array $entryIDs) : int

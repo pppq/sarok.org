@@ -4,11 +4,15 @@ use mysqli_result;
 use Sarok\Util;
 use Sarok\Service\DB;
 use Sarok\Repository\FriendRepository;
+use Sarok\Repository\EntryAccessRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\FriendType;
 use Sarok\Models\Friend;
 use Sarok\Models\Entry;
+use Sarok\Models\CommentListType;
 use Sarok\Models\Comment;
+use Sarok\Models\AccessType;
+use InvalidArgumentException;
 use DateTime;
 
 class CommentRepository extends AbstractRepository
@@ -28,9 +32,20 @@ class CommentRepository extends AbstractRepository
         Comment::FIELD_RATE,
     );
     
-    public function __construct(DB $db)
+    /** @var FriendRepository */
+    private FriendRepository $friendRepository;
+    
+    /** @var EntryAccessRepository */
+    private EntryAccessRepository $entryAccessRepository;
+
+    public function __construct(
+        DB $db, 
+        FriendRepository $friendRepository,
+        EntryAccessRepository $entryAccessRepository)
     {
         parent::__construct($db);
+        $this->friendRepository = $friendRepository;
+        $this->entryAccessRepository = $entryAccessRepository;
     }
     
     protected function getTableName() : string
@@ -268,13 +283,136 @@ class CommentRepository extends AbstractRepository
         return $this->toCommentCount($result);
     }
 
-    /* 
-     * TODO: Implement queries in sessionfacade used for populating the main page:
-     * 
-     * - all comments
-     * - comments to my entries and diary
-     * - my comments
-     */
+    private function getFriendEntriesClause(string $userID, /*out*/ array &$values) : string
+    {
+        $c_entry_access = Entry::FIELD_ACCESS;
+        $c_entry_diaryID = Entry::FIELD_DIARY_ID;
+
+        $destinationIdsQuery = $this->friendRepository->getDestinationUserIdsQuery();
+        $friendClause = "`e`.`$c_entry_access` = ? AND `e`.`$c_entry_diaryID` IN ($destinationIdsQuery)";
+        $values[] = AccessType::FRIENDS;
+        $values[] = $userID;
+        $values[] = FriendType::FRIEND;
+
+        return $friendClause;
+    }
+
+    private function getOwnEntriesClause(string $userID, /*out*/ array &$values) : string
+    {
+        $c_entry_userID = Entry::FIELD_USER_ID;
+        $c_entry_diaryID = Entry::FIELD_DIARY_ID;
+
+        $ownClause = "`e`.`$c_entry_userID` = ? OR `e`.`$c_entry_diaryID` = ?";
+        array_push($values, $userID, $userID);
+        return $ownClause;
+    }
+
+    private function getAllOrRegisteredEntriesClause(string $userID, /*out*/ array &$values) : string
+    {
+        $c_entry_access = Entry::FIELD_ACCESS;
+        
+        $allOrRegisteredClause = "`e`.`$c_entry_access` = ? OR `e`.`$c_entry_access`";
+        array_push($values, AccessType::ALL, AccessType::REGISTERED);
+        return $allOrRegisteredClause;
+    }
+
+    private function getListEntriesClause(string $userID, /*out*/ array &$values) : string
+    {
+        $c_entry_access = Entry::FIELD_ACCESS;
+        
+        $entryAccessQuery = $this->entryAccessRepository->getExistsQuery();
+        $listClause = "`e`.`$c_entry_access` = ? AND EXISTS ($entryAccessQuery)";
+        array_push($values, AccessType::LIST, $userID);
+        return $listClause;
+    }
+
+    private function getMyCommentsClause(string $userID, /*out*/ array &$values) : string
+    {
+        $c_comment_userID = Comment::FIELD_USER_ID;
+
+        $myClause = "`c`.`$c_comment_userID` = ?";
+        $values[] = $userID;
+        return $ownClause;
+    }
+
+    public function getComments(
+        int $userID, 
+        int $listType, 
+        DateTime $beforeDate, 
+        DateTime $afterDate, 
+        array $bannedIDs = array(), 
+        int $limit = 30) : array
+    {
+        $c_comment_ID = Comment::FIELD_ID;
+        $c_comment_entryID = Comment::FIELD_ENTRY_ID;
+        $c_comment_userID = Comment::FIELD_USER_ID;
+        $c_comment_createDate = Comment::FIELD_CREATE_DATE;
+        $c_comment_body = Comment::FIELD_BODY;
+        $c_entry_diaryID = Entry::FIELD_DIARY_ID;
+        $c_entry_access = Entry::FIELD_ACCESS;
+        $t_comments = $this->getTableName();
+        $t_entries = 'entries'; // TODO: use EntryRepository
+        $c_entry_ID = Entry::FIELD_ID;
+        $c_comment_isTerminated = Comment::FIELD_IS_TERMINATED;
+        $c_entry_userID = Entry::FIELD_USER_ID;
+
+        $selectColumns = "`c`.`$c_comment_ID`, `c`.`$c_comment_entryID`, `c`.`$c_comment_userID`, `c`.`$c_comment_createDate`, " .
+            "`c`.`$c_comment_body`, `e`.`$c_entry_diaryID`, `e`.`$c_entry_access` FROM `$t_comments` AS `c` " .
+            "LEFT JOIN `$t_entries` AS `e` ON `c`.`$c_comment_entryID` = `e`.`$c_entry_ID` ";
+
+        $values = array();
+
+        $dateClause = " AND `c`.`$c_comment_createDate` BETWEEN ? AND ?";
+        $values[] = Util::dateTimeToString($beforeDate);
+        $values[] = Util::dateTimeToString($afterDate);
+
+        if (count($bannedIDs) > 0) {
+            $bannedPlaceholders = $this->toPlaceholderList($bannedIDs);
+            $bannedClause = 
+                " AND `c`.`$c_comment_userID` NOT IN ($bannedPlaceholders)" .
+                " AND `e`.`$c_entry_diaryID` NOT IN ($bannedPlaceholders)";
+            array_push($values, ...$bannedIDs, ...$bannedIDs);
+        } else {
+            $bannedClause = '';
+        }
+
+        $q = "SELECT $selectColumns WHERE `c`.`$c_comment_isTerminated` = 'N' AND `e`.`$c_entry_isTerminated` = 'N'";
+        $q .= $dateClause;
+        $q .= $bannedClause;
+
+        switch ($listType) {
+            case CommentListType::ALL_COMMENTS:
+                $ownEntryClause = $this->getOwnEntriesClause($userID, $values);
+                $allOrRegisteredClause = $this->getAllOrRegisteredEntriesClause($userID, $values);
+                $friendClause = $this->getFriendEntriesClause($userID, $values);
+                $listClause = $this->getListEntriesClause($userID, $values);
+                $q .= " AND ($ownEntryClause OR $allOrRegisteredClause OR ($friendClause) OR ($listClause))";
+                break;
+            
+            case CommentListType::FRIENDS_COMMENTS:
+                $friendClause = $this->getFriendEntriesClause($userID, $values);
+                $q .= " AND $friendClause";
+                break;
+            
+            case CommentListType::OWN_ENTRY_COMMENTS:
+                $ownEntryClause = $this->getOwnEntriesClause($userID, $values);
+                $q .= " AND $ownEntryClause";
+                break;
+
+            case CommentListType::MY_COMMENTS:
+                $myCommentsClause = $this->getMyCommentsClause($userID, $values);
+                $q .= " AND $myCommentsClause";
+                break;
+            
+            default:
+                throw new InvalidArgumentException("Unsupported comment list type '$listType'");
+        }
+
+        $q .= " ORDER BY `c`.`$c_comment_createDate` DESC LIMIT ?";
+        $values[] = $limit;
+
+        return $this->db->queryObjectsWithParams($q, Comment::class, $values);
+    }
 
     public function save(Comment $comment) : int
     {
