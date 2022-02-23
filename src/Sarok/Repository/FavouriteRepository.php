@@ -2,6 +2,8 @@
 
 use Sarok\Util;
 use Sarok\Service\DB;
+use Sarok\Repository\EntryRepository;
+use Sarok\Repository\AbstractRepository;
 use Sarok\Models\Favourite;
 use Sarok\Models\EntryAccess;
 use DateTime;
@@ -17,9 +19,13 @@ class FavouriteRepository extends AbstractRepository
         Favourite::FIELD_NEW_COMMENTS,
     );
     
-    public function __construct(DB $db)
+    /** @var EntryRepository */
+    private EntryRepository $entryRepository;
+
+    public function __construct(DB $db, EntryRepository $entryRepository)
     {
         parent::__construct($db);
+        $this->entryRepository = $entryRepository;
     }
     
     protected function getTableName() : string
@@ -45,8 +51,7 @@ class FavouriteRepository extends AbstractRepository
             $op = '<';
         }
         
-        // FIXME: Move query to EntryRepository?
-        $commentedSubquery = "SELECT `ID` FROM `entries` WHERE `ID` = `f`.`$c_entryID` AND `isTerminated` = 'N' AND `lastComment` $op `f`.`$c_lastVisited`";
+        $commentedSubquery = $this->entryRepository->getCommentedSubquery($op, "`f`.`$c_entryID`", "`f`.`$c_lastVisited`");
         $q = "SELECT `$c_entryID` FROM `$t_favourites` AS `f` WHERE `$c_userID` = ? AND EXISTS ($commentedSubquery)";
         return $this->db->queryArray($q, 'i', $userID);
     }

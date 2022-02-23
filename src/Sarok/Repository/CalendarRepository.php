@@ -1,11 +1,11 @@
 <?php namespace Sarok\Repository;
 
-use DateTime;
 use Sarok\Service\DB;
-use Sarok\Models\Calendar;
-use Sarok\Models\FriendType;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\AbstractRepository;
+use Sarok\Models\FriendType;
+use Sarok\Models\Calendar;
+use DateTime;
 
 class CalendarRepository extends AbstractRepository
 {
@@ -119,14 +119,18 @@ class CalendarRepository extends AbstractRepository
         $insertQuery = "INSERT IGNORE INTO `$t_calendar` (`$insertColumns`) VALUES ($placeholderList)";
         $this->db->execute($insertQuery, 'iiii', $userID, $year, $month, $day);
 
-        // FIXME: replace table and field names with constants from Entry model and repository
-        $allEntriesQuery = "SELECT COUNT(*) FROM `entries` AS `e` " .
-            "WHERE date_format(`e`.`createDate`, '%Y-%c-%e') = concat(`c`.`$y`, '-', `c`.`$m`, '-', `c`.`$d`) " .
-            "AND `c`.`$userIDColumn` = `e`.`diaryID` AND `isTerminated` = 'N'";
+        $t_entries = EntryRepository::TABLE_NAME;
+        $c_createDate = Entry::FIELD_CREATE_DATE;
+        $c_diaryID = Entry::FIELD_DIARY_ID;
+        $c_isTerminated = Entry::FIELD_IS_TERMINATED;
         
-        $publicEntriesQuery = $allEntriesQuery . " AND `e`.`access` = 'ALL'";
-        $registeredOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`access` = 'REGISTERED'";
-        $friendsOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`access` = 'FRIENDS'";
+        $allEntriesQuery = "SELECT COUNT(*) FROM `$t_entries` AS `e` " .
+            "WHERE date_format(`e`.`$c_createDate`, '%Y-%c-%e') = concat(`c`.`$y`, '-', `c`.`$m`, '-', `c`.`$d`) " .
+            "AND `c`.`$c_userID` = `e`.`$c_diaryID` AND `e`.`$c_isTerminated` = 'N'";
+        
+        $publicEntriesQuery = $allEntriesQuery . " AND `e`.`$c_access` = 'ALL'";
+        $registeredOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`$c_access` = 'REGISTERED'";
+        $friendsOnlyEntriesQuery = $allEntriesQuery . " AND `e`.`$c_access` = 'FRIENDS'";
         
         $c_numAll = Calendar::FIELD_NUM_ALL;
         $c_numPublic = Calendar::FIELD_NUM_PUBLIC;
