@@ -161,17 +161,15 @@ CREATE TABLE `calendar` (
 --
 -- Table structure for table `categories`
 --
--- This table is currently unused.
---
 
--- DROP TABLE IF EXISTS `categories`;
--- CREATE TABLE `categories` (
---   `entryID` int(11)  NOT NULL DEFAULT '0',
---   `Name`    char(30) NOT NULL DEFAULT '',
---   PRIMARY KEY (`entryID`,`Name`),
---   KEY `categories_idx_1` (`Name`),
---   KEY `categories_idx_2` (`entryID`)
--- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE `categories` (
+  `entryID` int(11)  NOT NULL DEFAULT '0',
+  `Name`    char(30) NOT NULL DEFAULT '',
+  PRIMARY KEY (`entryID`,`Name`),
+  KEY `categories_idx_1` (`Name`),
+  KEY `categories_idx_2` (`entryID`)
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `commentrates`
