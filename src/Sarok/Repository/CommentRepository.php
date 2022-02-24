@@ -4,6 +4,7 @@ use mysqli_result;
 use Sarok\Util;
 use Sarok\Service\DB;
 use Sarok\Repository\FriendRepository;
+use Sarok\Repository\EntryRepository;
 use Sarok\Repository\EntryAccessRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\FriendType;
@@ -263,7 +264,7 @@ class CommentRepository extends AbstractRepository
         $c_comment_dayDate = Comment::FIELD_DAY_DATE;
         $c_comment_ID = Comment::FIELD_ID;
         $t_comments = $this->getTableName();
-        $t_entries = 'entries'; // TODO: use EntryRepository
+        $t_entries = EntryRepository::TABLE_NAME;
         $c_entry_ID = Entry::FIELD_ID;
         $c_comment_entryID = Comment::FIELD_ENTRY_ID;
         $c_entry_userID = Entry::FIELD_USER_ID;
@@ -307,14 +308,16 @@ class CommentRepository extends AbstractRepository
         return $ownClause;
     }
 
-    private function getAllOrRegisteredEntriesClause(string $userID, /*out*/ array &$values) : string
+    private function getAllOrRegisteredEntriesClause(/*out*/ array &$params) : string
     {
-        $c_entry_access = Entry::FIELD_ACCESS;
-        
-        $allOrRegisteredClause = "`e`.`$c_entry_access` = ? OR `e`.`$c_entry_access`";
-        array_push($values, AccessType::ALL, AccessType::REGISTERED);
+        $c_access = Entry::FIELD_ACCESS;
+        $all = AccessType::ALL;
+        $registered = AccessType::REGISTERED;
+            
+        $allOrRegisteredClause = "`e`.`$c_access` IN ('$all', '$registered')";
         return $allOrRegisteredClause;
     }
+    
 
     private function getListEntriesClause(string $userID, /*out*/ array &$values) : string
     {
@@ -351,7 +354,7 @@ class CommentRepository extends AbstractRepository
         $c_entry_diaryID = Entry::FIELD_DIARY_ID;
         $c_entry_access = Entry::FIELD_ACCESS;
         $t_comments = $this->getTableName();
-        $t_entries = 'entries'; // TODO: use EntryRepository
+        $t_entries = EntryRepository::TABLE_NAME;
         $c_entry_ID = Entry::FIELD_ID;
         $c_comment_isTerminated = Comment::FIELD_IS_TERMINATED;
         $c_entry_userID = Entry::FIELD_USER_ID;
@@ -383,7 +386,7 @@ class CommentRepository extends AbstractRepository
         switch ($listType) {
             case CommentListType::ALL_COMMENTS:
                 $ownEntryClause = $this->getOwnEntriesClause($userID, $values);
-                $allOrRegisteredClause = $this->getAllOrRegisteredEntriesClause($userID, $values);
+                $allOrRegisteredClause = $this->getAllOrRegisteredEntriesClause($values);
                 $friendClause = $this->getFriendEntriesClause($userID, $values);
                 $listClause = $this->getListEntriesClause($userID, $values);
                 $q .= " AND ($ownEntryClause OR $allOrRegisteredClause OR ($friendClause) OR ($listClause))";
