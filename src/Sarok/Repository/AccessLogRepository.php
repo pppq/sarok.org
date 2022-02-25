@@ -1,10 +1,12 @@
-<?php namespace Sarok\Repository;
+<?php declare(strict_types=1);
 
-use DateTime;
+namespace Sarok\Repository;
+
 use Sarok\Util;
 use Sarok\Service\DB;
-use Sarok\Models\AccessLog;
 use Sarok\Repository\AbstractRepository;
+use Sarok\Models\AccessLog;
+use DateTime;
 
 class AccessLogRepository extends AbstractRepository
 {
@@ -76,7 +78,7 @@ class AccessLogRepository extends AbstractRepository
     public function save(AccessLog $accessLog) : int
     {
         $t_accesslog = $this->getTableName();
-        $accessLogArray = $data->toArray();
+        $accessLogArray = $accessLog->toArray();
         $insertColumns = array_keys($accessLogArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);

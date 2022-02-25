@@ -1,7 +1,9 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
 
-use DateTime;
+namespace Sarok\Models;
+
 use Sarok\Util;
+use DateTime;
 
 /*
  * Table structure for `accesslog`:
@@ -41,15 +43,15 @@ class AccessLog
     private int $runTime = 0;
     private int $numQueries = 0;
     
-    public function __construct()
+    public function __construct(?DateTime $datum = null)
     {
         // Initialize only if not already set by fetch_object()
         if (!isset($this->_datum)) {
-            $this->_datum = Util::utcDateTimeFromString();
+            $this->_datum = $datum ?? Util::utcDateTimeFromString();
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, mixed $value)
     {
         // Support conversion from string for fetch_object()
         if ($name === self::FIELD_DATUM && is_string($value)) {
@@ -112,7 +114,7 @@ class AccessLog
         return $this->ip;
     }
 
-    public function setIp($ip)
+    public function setIp(string $ip)
     {
         $this->ip = $ip;
     }
