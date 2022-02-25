@@ -1,2 +1,4 @@
 # Application log files
-logs/sarok_*.txt
+logs/
+# Composer dependencies
+vendor/
