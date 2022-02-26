@@ -99,12 +99,12 @@ class User
     private array $userData;
     private array $unsavedKeys;
     
-    public function __construct()
+    public function __construct(?DateTime $createDate = null)
     {
         // Default values are "zero date" in the DB schema for all three date columns,
         // but current time is more appropriate for the creation date
         if (!isset($this->_createDate)) {
-            $this->_createDate = Util::utcDateTimeFromString();
+            $this->_createDate = $createDate ?? Util::utcDateTimeFromString();
         }
         
         if (!isset($this->_loginDate)) {
