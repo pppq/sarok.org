@@ -118,8 +118,8 @@ final class AccessLogRepositoryTest extends RepositoryTest
         $al->setSessid("123456789012345678");
         $al->setUserCode(123456789);
 
-        $updatedRows = $this->alr->save($al);
-        $this->assertEquals(1, $updatedRows, 
+        $affectedRows = $this->alr->save($al);
+        $this->assertEquals(1, $affectedRows, 
             "Saving an access log entry should insert a row.");
     }
 }
