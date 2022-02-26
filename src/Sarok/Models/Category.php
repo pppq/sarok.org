@@ -1,4 +1,6 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 /*
  * Table structure for `categories`:
@@ -14,12 +16,21 @@ class Category
     private int $entryID = 0;
     private string $Name = '';
 
+    public static function create(int $entryID, string $Name) : Category
+    {
+        $c = new Category();
+        $c->setEntryID($entryID);
+        $c->setName($Name);
+
+        return $c;
+    }
+
     public function getEntryID() : int
     {
         return $this->entryID;
     }
 
-    public function setEntryID(int $entryID)
+    public function setEntryID(int $entryID) : void
     {
         $this->entryID = $entryID;
     }
@@ -29,7 +40,7 @@ class Category
         return $this->Name;
     }
 
-    public function setName(string $Name)
+    public function setName(string $Name) : void
     {
         $this->Name = $Name;
     }

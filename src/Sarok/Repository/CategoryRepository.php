@@ -1,4 +1,6 @@
-<?php namespace Sarok\Repository;
+<?php declare(strict_types=1);
+
+namespace Sarok\Repository;
 
 use mysqli_result;
 use Sarok\Util;
@@ -18,7 +20,10 @@ class CategoryRepository extends AbstractRepository
         Category::FIELD_ENTRY_ID,
         Category::FIELD_NAME,
     );
-    
+
+    const MAX_TAGS_PER_ENTRY = 50;
+    const MAX_SUGGESTIONS = 10;
+
     public function __construct(DB $db)
     {
         parent::__construct($db);
@@ -31,10 +36,10 @@ class CategoryRepository extends AbstractRepository
     
     protected function getColumnNames() : array
     {
-        return self::$COLUMN_NAMES;
+        return self::COLUMN_NAMES;
     }
     
-    public function getNamesByPrefix(string $namePrefix, int $limit = 10) : array
+    public function getNamesByPrefix(string $namePrefix, int $limit = self::MAX_SUGGESTIONS) : array
     {
         $c_Name = Category::FIELD_NAME;
         $t_categories = $this->getTableName();
@@ -44,7 +49,7 @@ class CategoryRepository extends AbstractRepository
         return $this->db->queryArray($q, "si", $namePrefix, $limit);
     }
 
-    public function getNamesByEntryID(int $entryID, int $limit = 50) : array
+    public function getNamesByEntryID(int $entryID, int $limit = self::MAX_TAGS_PER_ENTRY) : array
     {
         $c_Name = Category::FIELD_NAME;
         $t_categories = $this->getTableName();
@@ -62,53 +67,66 @@ class CategoryRepository extends AbstractRepository
         $t_categories = $this->getTableName();
         $placeholderList = $this->toPlaceholderList($entryIDs);
 
-        $q = "SELECT `$columnList` `$t_categories` WHERE `$c_entryID` IN ($placeholderList)";
-        return $this->db->queryObjectsWithParams($q, Category::class, $entryIDs);
+        $q = "SELECT `$columnList` FROM `$t_categories` WHERE `$c_entryID` IN ($placeholderList)";
+        $categories = $this->db->queryObjectsWithParams($q, Category::class, $entryIDs);
+
+        $categoriesByEntryIDs = array();
+
+        // Index category name by entry ID
+        foreach ($categories as $c) {
+            if (!isset($categoriesByEntryIDs[$c->getEntryID()])) {
+                $categoriesByEntryIDs[$c->getEntryID()] = array();
+            }
+
+            $categoriesByEntryIDs[$c->getEntryID()][] = $c->getName();
+        }
+
+        // Set empty arrays for requested IDs that do not have corresponding categories
+        foreach ($entryIDs as $entryID) {
+            if (!isset($categoriesByEntryIDs[$entryID])) {
+                $categoriesByEntryIDs[$entryID] = array();
+            }
+        }
+
+        return $categoriesByEntryIDs;
     }
 
-    private function toTagCloud(mysqli_result $result) : array
+    public function getTagCloud(int $diaryID = 0) : array
     {
+        /* 
+         * This subquery should be in EntryRepository, but moving it there would introduce a 
+         * circular dependency.
+         */
+        $c_ID = Entry::FIELD_ID;
+        $t_entries = EntryRepository::TABLE_NAME;
+        $c_isTerminated = Entry::FIELD_IS_TERMINATED;
+        $c_access = Entry::FIELD_ACCESS;
+        $access = AccessType::AUTHOR_ONLY;
+        $c_diaryID = Entry::FIELD_DIARY_ID;
+
+        $entrySubquery = "SELECT `$c_ID` FROM `$t_entries` WHERE `$c_isTerminated` = 'N' AND `$c_access` <> '{$access->value}'";
+        if ($diaryID > 0) {
+            $entrySubquery .= " AND `$c_diaryID` = ?";
+        }
+
+        $c_Name = Category::FIELD_NAME;
+        $c_entryID = Category::FIELD_ENTRY_ID;
+        $t_categories = $this->getTableName();
+        
+        $q = "SELECT `$c_Name`, COUNT(`$c_entryID`) FROM `$t_categories` WHERE `$c_entryID` IN ($entrySubquery) GROUP BY `$c_Name`";
+        
+        if ($diaryID > 0) {
+            $result = $this->db->query($q, 'i', $diaryID);
+        } else {
+            $result = $this->db->query($q);
+        }
+
         $tagCloud = array();
         while ($row = $result->fetch_row()) {
             $tagCloud[$row[0]] = $row[1];
         }
 
         return $tagCloud;
-    }
-
-    public function getGlobalTagCloud() : array
-    {
-        $c_Name = Category::FIELD_NAME;
-        $c_entryID = Category::FIELD_ENTRY_ID;
-        $t_categories = $this->getTableName();
-
-        $c_ID = Entry::FIELD_ID;
-        $t_entries = EntryRepository::TABLE_NAME;
-        $c_isTerminated = Entry::FIELD_IS_TERMINATED;
-        $c_access = Entry::FIELD_ACCESS;
-        $access = AccessType::AUTHOR_ONLY;
-
-        $entrySubquery = "SELECT `$c_ID` FROM `$t_entries` WHERE `$c_isTerminated` = 'N' AND `$c_access` != '$access'";
-        $q = "SELECT `$c_Name`, COUNT(`$c_entryID`) FROM `$t_categories` WHERE `$c_entryID` IN ($entrySubquery) GROUP BY `$c_Name`";
-        return $this->toTagCloud($this->db->queryArray($q));
-    }
-
-    public function getDiaryTagCloud(int $diaryID) : array
-    {
-        $c_Name = Category::FIELD_NAME;
-        $c_entryID = Category::FIELD_ENTRY_ID;
-        $t_categories = $this->getTableName();
-
-        $c_ID = Entry::FIELD_ID;
-        $t_entries = EntryRepository::TABLE_NAME;
-        $c_diaryID = Entry::FIELD_DIARY_ID;
-        $c_isTerminated = Entry::FIELD_IS_TERMINATED;
-        $c_access = Entry::FIELD_ACCESS;
-        $access = AccessType::AUTHOR_ONLY;
-
-        $entrySubquery = "SELECT `$c_ID` FROM `$t_entries` WHERE `$c_diaryID` = ? AND `$c_isTerminated` = 'N' AND `$c_access` != '$access'";
-        $q = "SELECT `$c_Name`, COUNT(`$c_entryID`) FROM `$t_categories` WHERE `$c_entryID` IN ($entrySubquery) GROUP BY `$c_Name`";
-        return $this->toTagCloud($this->db->queryArray($q, 'i', $diaryID));
     }
 
     public function getEntryIDSubquery(array $names) : string
@@ -121,7 +139,7 @@ class CategoryRepository extends AbstractRepository
         return "SELECT `$c_entryID` FROM `$t_categories` WHERE `$c_Name` IN ($placeholderList)";
     }
 
-    public function deleteByEntryID(int $entryID, int $limit = 50) : int
+    public function deleteByEntryID(int $entryID, int $limit = self::MAX_TAGS_PER_ENTRY) : int
     {
         $t_categories = $this->getTableName();
         $c_entryID = Category::FIELD_ENTRY_ID;
@@ -148,7 +166,7 @@ class CategoryRepository extends AbstractRepository
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT INTO `$t_categories` (`$columnList`) VALUES ($placeholderList)";
+        $q = "INSERT IGNORE INTO `$t_categories` (`$columnList`) VALUES ($placeholderList)";
         $values = array_values($categoryArray);
         return $this->db->execute($q, 'is', ...$values);
     }
