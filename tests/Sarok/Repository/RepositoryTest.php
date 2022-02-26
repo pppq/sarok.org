@@ -17,7 +17,7 @@ abstract class RepositoryTest extends TestCase
     {
         $container = new DIContainer();
         
-        $container->put('logPath', '../logs/log.txt');
+        $container->put('logPath', './logs/log.txt');
         $container->put('logLevel', 5);
 
         $container->put("db_host", "mysql");
