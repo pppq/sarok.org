@@ -64,7 +64,7 @@ class AccessLog
         return $this->_datum;
     }
 
-    public function setDatum(DateTime $datum)
+    public function setDatum(DateTime $datum) : void
     {
         $this->_datum = $datum;
     }
@@ -74,7 +74,7 @@ class AccessLog
         return $this->micros;
     }
 
-    public function setMicros(int $micros)
+    public function setMicros(int $micros) : void
     {
         $this->micros = $micros;
     }
@@ -84,7 +84,7 @@ class AccessLog
         return $this->sessid;
     }
 
-    public function setSessid(string $sessid)
+    public function setSessid(string $sessid) : void
     {
         $this->sessid = $sessid;
     }
@@ -94,7 +94,7 @@ class AccessLog
         return $this->action;
     }
 
-    public function setAction(string $action)
+    public function setAction(string $action) : void
     {
         $this->action = $action;
     }
@@ -104,17 +104,17 @@ class AccessLog
         return $this->referrer;
     }
 
-    public function setReferrer(string $referrer)
+    public function setReferrer(string $referrer) : void
     {
         $this->referrer = $referrer;
     }
 
-    public function getIp()
+    public function getIp() : string
     {
         return $this->ip;
     }
 
-    public function setIp(string $ip)
+    public function setIp(string $ip) : void
     {
         $this->ip = $ip;
     }
@@ -124,7 +124,7 @@ class AccessLog
         return $this->userCode;
     }
 
-    public function setUserCode(int $userCode)
+    public function setUserCode(int $userCode) : void
     {
         $this->userCode = $userCode;
     }
@@ -134,7 +134,7 @@ class AccessLog
         return $this->runTime;
     }
 
-    public function setRunTime(int $runTime)
+    public function setRunTime(int $runTime) : void
     {
         $this->runTime = $runTime;
     }
@@ -144,7 +144,7 @@ class AccessLog
         return $this->numQueries;
     }
 
-    public function setNumQueries(int $numQueries)
+    public function setNumQueries(int $numQueries) : void
     {
         $this->numQueries = $numQueries;
     }

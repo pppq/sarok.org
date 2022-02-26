@@ -1,4 +1,6 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 /*
  * Table structure for `calendar`:
@@ -53,7 +55,7 @@ class Calendar
         return $this->y;
     }
 
-    public function setY(int $y)
+    public function setY(int $y) : void
     {
         $this->y = $y;
     }
@@ -63,7 +65,7 @@ class Calendar
         return $this->m;
     }
 
-    public function setM(int $m)
+    public function setM(int $m) : void
     {
         $this->m = $m;
     }
@@ -73,7 +75,7 @@ class Calendar
         return $this->d;
     }
 
-    public function setD(int $d)
+    public function setD(int $d) : void
     {
         $this->d = $d;
     }
@@ -83,7 +85,7 @@ class Calendar
         return $this->numPublic;
     }
 
-    public function setNumPublic(int $numPublic)
+    public function setNumPublic(int $numPublic) : void
     {
         $this->numPublic = $numPublic;
     }
@@ -93,7 +95,7 @@ class Calendar
         return $this->numRegistered;
     }
 
-    public function setNumRegistered(int $numRegistered)
+    public function setNumRegistered(int $numRegistered) : void
     {
         $this->numRegistered = $numRegistered;
     }
@@ -103,7 +105,7 @@ class Calendar
         return $this->numFriends;
     }
 
-    public function setNumFriends(int $numFriends)
+    public function setNumFriends(int $numFriends) : void
     {
         $this->numFriends = $numFriends;
     }
@@ -113,7 +115,7 @@ class Calendar
         return $this->numAll;
     }
 
-    public function setNumAll(int $numAll)
+    public function setNumAll(int $numAll) : void
     {
         $this->numAll = $numAll;
     }
@@ -123,7 +125,7 @@ class Calendar
         return $this->numMailsReceived;
     }
 
-    public function setNumMailsReceived(int $numMailsReceived)
+    public function setNumMailsReceived(int $numMailsReceived) : void
     {
         $this->numMailsReceived = $numMailsReceived;
     }
@@ -133,7 +135,7 @@ class Calendar
         return $this->numMailsSent;
     }
 
-    public function setNumMailsSent(int $numMailsSent)
+    public function setNumMailsSent(int $numMailsSent) : void
     {
         $this->numMailsSent = $numMailsSent;
     }
