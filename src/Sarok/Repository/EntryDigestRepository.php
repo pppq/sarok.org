@@ -1,13 +1,13 @@
 <?php namespace Sarok\Repository;
 
-use DateTime;
 use Sarok\Util;
 use Sarok\Service\DB;
-use Sarok\Models\Friend;
-use Sarok\Models\FriendType;
-use Sarok\Models\EntryDigest;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\AbstractRepository;
+use Sarok\Models\FriendType;
+use Sarok\Models\Friend;
+use Sarok\Models\EntryDigest;
+use DateTime;
 
 class EntryDigestRepository extends AbstractRepository
 {
@@ -183,7 +183,7 @@ class EntryDigestRepository extends AbstractRepository
     public function save(EntryDigest $entryDigest) : int
     {
         $t_cache_entrylist = $this->getTableName();
-        $entryDigestArray = $data->toArray();
+        $entryDigestArray = $entryDigest->toArray();
         $insertColumns = array_keys($entryDigestArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
@@ -193,7 +193,7 @@ class EntryDigestRepository extends AbstractRepository
         $q = "INSERT INTO `$t_cache_entrylist` (`$columnList`) VALUES ($placeholderList) ON DUPLICATE KEY UPDATE `$c_lastUsed` = ?";
         // Value for the ON DUPLICATE KEY part is repeated
         $values = array_values($entryDigestArray);
-        $values[] = Util::dateTimeToString($data->getLastUsed());
+        $values[] = Util::dateTimeToString($entryDigest->getLastUsed());
         return $this->db->execute($q, 'iisssssss', ...$values);
     }
 }
