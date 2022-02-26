@@ -36,7 +36,7 @@ class AccessLogRepository extends AbstractRepository
     
     protected function getColumnNames() : array
     {
-        return self::$COLUMN_NAMES;
+        return self::COLUMN_NAMES;
     }
     
     public function getIpAddressesOfUser(int $userCode) : array
