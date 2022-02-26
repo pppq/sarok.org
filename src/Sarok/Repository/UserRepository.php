@@ -26,7 +26,6 @@ class UserRepository extends AbstractRepository
         User::FIELD_IS_TERMINATED,
     );
 
-    /** @var FriendRepository */
     private FriendRepository $friendRepository;
     
     public function __construct(DB $db, FriendRepository $friendRepository)
@@ -202,7 +201,7 @@ class UserRepository extends AbstractRepository
         return $properties;
     }
 
-    public function updateUserData(int $userID, array $changedValues)
+    public function updateUserData(int $userID, array $changedValues) : int
     {
         $t_userdata = self::DATA_TABLE_NAME;
         $insertColumns = array(
@@ -218,10 +217,13 @@ class UserRepository extends AbstractRepository
         $q = "INSERT INTO `$t_userdata` (`$columnList`) VALUES ($placeholderList) " .
             "ON DUPLICATE KEY UPDATE `$c_value` = ?";
         
+        $affectedRows = 0;
         foreach ($changedValues as $key => $value) {
             // "value" appears twice due to the ON DUPLICATE KEY UPDATE
-            $this->db->execute($q, 'isss', $userID, $key, $value, $value);
+            $affectedRows += $this->db->execute($q, 'isss', $userID, $key, $value, $value);
         }
+
+        return $affectedRows;
     }
 
     public function getCitiesByPrefix(string $cityPrefix, int $limit = 10) : array
@@ -289,12 +291,13 @@ class UserRepository extends AbstractRepository
             array_shift($placeholderList);
             array_shift($values);
             
-            $this->db->execute($q, 'ssssss', ...$values);
+            $affectedRows = $this->db->execute($q, 'ssssss', ...$values);
             $user->setID($this->db->getLastInsertID());
         } else {
-            $this->db->execute($q, 'issssss', ...$values);
+            $affectedRows = $this->db->execute($q, 'issssss', ...$values);
         }
 
-        $this->updateUserData($user->flushUserData());
+        $affectedRows += $this->updateUserData($user->getID(), $user->flushUserData());
+        return $affectedRows;
     }
 }
