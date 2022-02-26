@@ -2,15 +2,30 @@
 
 namespace Sarok\Models;
 
-class AccessType
+enum AccessType : string
 {
-    const ALL = 'ALL';
-    const REGISTERED = 'REGISTERED';
-    const FRIENDS = 'FRIENDS';
-    /*
-     * XXX: Constant is not named PRIVATE as it is a PHP keyword. While it is allowed to be used
-     * as a constant, some parsers are confused by it.
+    /**
+     * Comment or entry access allowed for both registered and anonymous users.
      */
-    const AUTHOR_ONLY = 'PRIVATE';
-    const LIST = 'LIST';
+    case ALL = 'ALL';
+
+    /**
+     * Comment or entry access allowed for registered users only.
+     */
+    case REGISTERED = 'REGISTERED';
+
+    /**
+     * Comment or entry access allowed for the author and friends of the author.
+     */
+    case FRIENDS = 'FRIENDS';
+    
+    /**
+     * Comment or entry access allowed for the author of the entry only.
+     */
+    case AUTHOR_ONLY = 'PRIVATE';
+
+    /**
+     * Comment or entry access allowed for the author of the entry and a list of users.
+     */
+    case LIST = 'LIST';
 }

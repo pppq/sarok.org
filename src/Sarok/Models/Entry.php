@@ -1,4 +1,6 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use Sarok\Util;
 use Sarok\Models\AccessType;
@@ -63,8 +65,8 @@ class Entry
     private int $ID = -1;
     private int $diaryID = 0;
     private int $userID = 0;
-    private string $access = AccessType::ALL;
-    private string $comments = AccessType::ALL;
+    private AccessType $access = AccessType::ALL;
+    private AccessType $comments = AccessType::ALL;
     private string $title = '';
     private string $body = '';
     private string $body2 = '';
@@ -136,7 +138,7 @@ class Entry
         return $this->ID;
     }
 
-    public function setID(int $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -146,7 +148,7 @@ class Entry
         return $this->diaryID;
     }
 
-    public function setDiaryID(int $diaryID)
+    public function setDiaryID(int $diaryID) : void
     {
         $this->diaryID = $diaryID;
     }
@@ -156,7 +158,7 @@ class Entry
         return $this->userID;
     }
 
-    public function setUserID(int $userID)
+    public function setUserID(int $userID) : void
     {
         $this->userID = $userID;
     }
@@ -166,7 +168,7 @@ class Entry
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }
@@ -176,27 +178,27 @@ class Entry
         return $this->_modifyDate;
     }
 
-    public function setModifyDate(DateTime $modifyDate)
+    public function setModifyDate(DateTime $modifyDate) : void
     {
         $this->_modifyDate = $modifyDate;
     }
 
-    public function getAccess() : string
+    public function getAccess() : AccessType
     {
         return $this->access;
     }
 
-    public function setAccess(string $access)
+    public function setAccess(AccessType $access) : void
     {
         $this->access = $access;
     }
 
-    public function getComments() : string
+    public function getComments() : AccessType
     {
         return $this->comments;
     }
 
-    public function setComments(string $comments)
+    public function setComments(AccessType $comments) : void
     {
         $this->comments = $comments;
     }
@@ -206,7 +208,7 @@ class Entry
         return $this->title;
     }
 
-    public function setTitle(string $title)
+    public function setTitle(string $title) : void
     {
         $this->title = $title;
     }
@@ -216,7 +218,7 @@ class Entry
         return $this->body;
     }
 
-    public function setBody(string $body)
+    public function setBody(string $body) : void
     {
         $this->body = $body;
     }
@@ -226,7 +228,7 @@ class Entry
         return $this->body2;
     }
 
-    public function setBody2(string $body2)
+    public function setBody2(string $body2) : void
     {
         $this->body2 = $body2;
     }
@@ -236,7 +238,7 @@ class Entry
         return $this->numComments;
     }
 
-    public function setNumComments(int $numComments)
+    public function setNumComments(int $numComments) : void
     {
         $this->numComments = $numComments;
     }
@@ -246,7 +248,7 @@ class Entry
         return $this->_lastComment;
     }
 
-    public function setLastComment(DateTime $lastComment)
+    public function setLastComment(DateTime $lastComment) : void
     {
         $this->_lastComment = $lastComment;
     }
@@ -256,7 +258,7 @@ class Entry
         return $this->_lastVisit;
     }
 
-    public function setLastVisit(DateTime $lastVisit)
+    public function setLastVisit(DateTime $lastVisit) : void
     {
         $this->_lastVisit = $lastVisit;
     }
@@ -266,7 +268,7 @@ class Entry
         return $this->_isTerminated;
     }
 
-    public function setTerminated(bool $terminated)
+    public function setTerminated(bool $terminated) : void
     {
         $this->_isTerminated = $terminated;
     }
@@ -276,7 +278,7 @@ class Entry
         return $this->moderatorComment;
     }
 
-    public function setModeratorComment(string $moderatorComment)
+    public function setModeratorComment(string $moderatorComment) : void
     {
         $this->moderatorComment = $moderatorComment;
     }
@@ -286,7 +288,7 @@ class Entry
         return $this->category;
     }
 
-    public function setCategory(int $category)
+    public function setCategory(int $category) : void
     {
         $this->category = $category;
     }
@@ -296,7 +298,7 @@ class Entry
         return $this->_dayDate;
     }
 
-    public function setDayDate(DateTime $dayDate)
+    public function setDayDate(DateTime $dayDate) : void
     {
         $this->_dayDate = Util::dateTimeToDate($dayDate);
     }
@@ -306,7 +308,7 @@ class Entry
         return $this->rssURL;
     }
 
-    public function setRssURL(string $rssURL)
+    public function setRssURL(string $rssURL) : void
     {
         $this->rssURL = $rssURL;
     }
@@ -316,7 +318,7 @@ class Entry
         return $this->posX;
     }
 
-    public function setPosX(?float $posX)
+    public function setPosX(?float $posX) : void
     {
         $this->posX = $posX;
     }
@@ -326,7 +328,7 @@ class Entry
         return $this->posY;
     }
 
-    public function setPosY(?float $posY)
+    public function setPosY(?float $posY) : void
     {
         $this->posY = $posY;
     }
@@ -339,8 +341,8 @@ class Entry
             self::FIELD_USER_ID => $this->userID,
             self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
             self::FIELD_MODIFY_DATE => Util::dateTimeToString($this->_modifyDate),
-            self::FIELD_ACCESS => $this->access,
-            self::FIELD_COMMENTS => $this->comments,
+            self::FIELD_ACCESS => $this->access->value,
+            self::FIELD_COMMENTS => $this->comments->value,
             self::FIELD_TITLE => $this->title,
             self::FIELD_BODY_1 => $this->body,
             self::FIELD_BODY_2 => $this->body2,
