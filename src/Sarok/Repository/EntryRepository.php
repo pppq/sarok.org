@@ -676,7 +676,7 @@ class EntryRepository extends AbstractRepository
     public function save(Entry $entry) : int
     {
         $t_entries = $this->getTableName();
-        $entryArray = $data->toArray();
+        $entryArray = $entry->toArray();
         $insertColumns = array_keys($entryArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
@@ -684,7 +684,7 @@ class EntryRepository extends AbstractRepository
         $q = "INSERT INTO `$t_entries` (`$columnList`) VALUES ($placeholderList)";
         $values = array_values($entryArray);
 
-        if ($comment->getID() < 0) {
+        if ($entry->getID() < 0) {
             // Need auto-generated ID - don't send in the negative value
             array_shift($columnList);
             array_shift($placeholderList);
