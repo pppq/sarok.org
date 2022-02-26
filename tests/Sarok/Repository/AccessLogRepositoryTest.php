@@ -3,41 +3,18 @@
 namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\Repository\RepositoryTest;
 use Sarok\Repository\AccessLogRepository;
 use Sarok\Models\AccessLog;
-use Sarok\DIContainer;
-use PHPUnit\Framework\TestCase;
 
-final class AccessLogRepositoryTest extends TestCase
+final class AccessLogRepositoryTest extends RepositoryTest
 {
-    private static DIContainer $container;
-
-    public static function setUpBeforeClass() : void
-    {
-        $container = new DIContainer();
-        
-        $container->put('logPath', '../logs/log.txt');
-        $container->put('logLevel', 5);
-
-        $container->put("db_host", "mysql");
-        $container->put("db_name", "sarok");
-        $container->put("db_user", "sarok");
-        $container->put("db_password", "such_sec0re");
-
-        self::$container = $container;
-    }
-
-    /** @var AccessLogRepository */
     private AccessLogRepository $alr;
 
     public function setUp() : void
     {
-        $this->alr = self::$container->get(AccessLogRepository::class);
-
-        $db = self::$container->get(DB::class);
-        $t_accesslog = AccessLogRepository::TABLE_NAME;
-        $db->execute("TRUNCATE TABLE `$t_accesslog`");
+        $this->clearTable(AccessLogRepository::TABLE_NAME);
+        $this->alr = self::get(AccessLogRepository::class);
     }
 
     public function testGetIpAddressesOfUser() : void
@@ -88,6 +65,18 @@ final class AccessLogRepositoryTest extends TestCase
         $al2->setUserCode(10002);
         $this->alr->save($al2);
 
+        $al3 = new AccessLog();
+        $al3->setDatum(Util::utcDateTimeFromString("2022-02-25 12:36:56"));
+        $al3->setAction("mail"); // should not appear in results
+        $al3->setIp("192.168.200.201");
+        $al3->setMicros(1234);
+        $al3->setNumQueries(123);
+        $al3->setReferrer("https://www.example.com/");
+        $al3->setRunTime(123456);
+        $al3->setSessid("123456789012345678");
+        $al3->setUserCode(123456789);
+        $this->alr->save($al3);        
+
         $als = $this->alr->getUserActionsFromDate(Util::utcDateTimeFromString("2022-01-01"));
         $this->assertEquals(2, count($als), "Number of access log entries should be 2.");
 
@@ -131,6 +120,6 @@ final class AccessLogRepositoryTest extends TestCase
 
         $updatedRows = $this->alr->save($al);
         $this->assertEquals(1, $updatedRows, 
-            "Saving an access log entry should modify a row.");
+            "Saving an access log entry should insert a row.");
     }
 }
