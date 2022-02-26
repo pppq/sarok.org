@@ -1,8 +1,25 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
 
-class FriendType
+namespace Sarok\Models;
+
+enum FriendType : string
 {
-    const FRIEND = 'friend';
-    const BANNED = 'banned';
-    const READER = 'read';
+    /** 
+     * Allows access to "friends only" entries of `friendOf` to `userID`. 
+     */
+    case FRIEND = 'friend';
+
+    /** 
+     * Disallows access to any entries in the diary of `friendOf`, as well as 
+     * any entries written by `friendOf`, to `userID`. Where possible, pre-existing 
+     * activity of `userID` will be hidden.
+     */
+    case BANNED = 'banned';
+
+    /**
+     * _Currently not implemented._ Used when `friendOf` is interested in 
+     * `userID`'s activity (new comments and entries) but does not want to grant 
+     * additional access to "friends only" entries of theirs.
+     */
+    case READER = 'read';
 }

@@ -1,4 +1,6 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 /*
  * Table structure for `friends`:
@@ -15,14 +17,24 @@ class Friend
     
     private int $friendOf = 0;
     private int $userID = 0;
-    private string $friendType = FriendType::FRIEND;
+    private FriendType $friendType = FriendType::FRIEND;
+
+    public static function create(int $friendOf, int $userID, FriendType $friendType = FriendType::FRIEND) : Friend
+    {
+        $f = new Friend();
+        $f->setFriendOf($friendOf);
+        $f->setUserID($userID);
+        $f->setFriendType($friendType);
+
+        return $f;
+    }
 
     public function getFriendOf() : int
     {
         return $this->friendOf;
     }
 
-    public function setFriendOf(int $friendOf)
+    public function setFriendOf(int $friendOf) : void
     {
         $this->friendOf = $friendOf;
     }
@@ -32,17 +44,17 @@ class Friend
         return $this->userID;
     }
 
-    public function setUserID(int $userID)
+    public function setUserID(int $userID) : void
     {
         $this->userID = $userID;
     }
 
-    public function getFriendType() : string
+    public function getFriendType() : FriendType
     {
         return $this->friendType;
     }
 
-    public function setFriendType(string $friendType)
+    public function setFriendType(FriendType $friendType) : void
     {
         $this->friendType = $friendType;
     }
@@ -52,7 +64,7 @@ class Friend
         return array(
             self::FIELD_FRIEND_OF   => $this->friendOf,
             self::FIELD_USER_ID     => $this->userID,
-            self::FIELD_FRIEND_TYPE => $this->friendType,
+            self::FIELD_FRIEND_TYPE => $this->friendType->value,
         );
     }
 }
