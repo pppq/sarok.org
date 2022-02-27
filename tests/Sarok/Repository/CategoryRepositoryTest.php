@@ -143,6 +143,53 @@ final class CategoryRepositoryTest extends RepositoryTest
         $this->assertEquals($expected, $actual,
             "All tags for diary tag cloud should be returned.");
     }
+
+    public function testDeleteByEntryId() : void
+    {
+        $c1 = Category::create(2000, "fish");
+        $c2 = Category::create(2003, "salmon");
+        $c3 = Category::create(2000, "shark");
+        $c4 = Category::create(2006, "fish");
+
+        $this->cr->save($c1);
+        $this->cr->save($c2);
+        $this->cr->save($c3);
+        $this->cr->save($c4);
+
+        $affectedRows = $this->cr->deleteByEntryID(2000);
+        $this->assertEquals(2, $affectedRows,
+            "Deleting categories for entry 2000 should remove two rows.");
+
+        $actual = $this->cr->getNamesByEntryID(2000);
+        $this->assertEmpty($actual,
+            "Retrieving categories for entry 2000 should result in an empty array.");
+    }
+
+    public function testDelete() : void
+    {
+        $c1 = Category::create(2000, "fish");
+        $c2 = Category::create(2003, "salmon");
+        $c3 = Category::create(2000, "shark");
+        $c4 = Category::create(2006, "fish");
+
+        $this->cr->save($c1);
+        $this->cr->save($c2);
+        $this->cr->save($c3);
+        $this->cr->save($c4);
+
+        $affectedRows = $this->cr->delete(2000, $c3->getName());
+        $this->assertEquals(1, $affectedRows,
+            "Deleting category 'shark' for entry 2000 should remove one row.");
+
+        $affectedRows = $this->cr->delete(2000, "dog");
+        $this->assertEquals(0, $affectedRows,
+            "Deleting non-existent category 'dog' for entry 2000 should remove no rows.");
+
+        $expected = array($c1->getName());
+        $actual = $this->cr->getNamesByEntryID(2000);
+        $this->assertEquals($expected, $actual,
+            "Retrieving categories for entry 2000 should result in a single-element array with the remaining category.");
+    }
     
     public function testSave() : void
     {
