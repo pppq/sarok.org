@@ -1,13 +1,16 @@
-<?php namespace Sarok\Repository;
+<?php declare(strict_types=1);
 
-use DateTime;
+namespace Sarok\Repository;
+
 use Sarok\Util;
 use Sarok\Service\DB;
-use Sarok\Models\Friend;
-use Sarok\Models\FriendType;
-use Sarok\Models\CommentDigest;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\AbstractRepository;
+use Sarok\Models\FriendType;
+use Sarok\Models\CommentDigestCategory;
+use Sarok\Models\CommentDigest;
+use Sarok\Models\AccessType;
+use DateTime;
 
 class CommentDigestRepository extends AbstractRepository
 {
@@ -26,7 +29,6 @@ class CommentDigestRepository extends AbstractRepository
         CommentDigest::FIELD_LAST_USED,
     );
     
-    /* @var FriendRepository */
     private FriendRepository $friendRepository;
     
     public function __construct(DB $db, FriendRepository $friendRepository)
@@ -68,14 +70,14 @@ class CommentDigestRepository extends AbstractRepository
         return $this->deleteByColumn(CommentDigest::FIELD_OWNER_ID, $ownerID);
     }
     
-    public function deleteByCategoryAndOwnerId(string $category, int $ownerID) : int
+    public function deleteByCategoryAndOwnerId(CommentDigestCategory $category, int $ownerID) : int
     {
         $t_cache_commentlist = $this->getTableName();
         $c_category = CommentDigest::FIELD_CATEGORY;
         $c_ownerID = CommentDigest::FIELD_OWNER_ID;
         
         $q = "DELETE FROM `$t_cache_commentlist` WHERE `$c_category` = ? AND `$c_ownerID` = ?";
-        return $this->db->execute($q, 'si', $category, $ownerID);
+        return $this->db->execute($q, 'si', $category->value, $ownerID);
     }
     
     public function deleteLastUsedBefore(DateTime $lastUsed) : int
@@ -87,23 +89,23 @@ class CommentDigestRepository extends AbstractRepository
         return $this->db->execute($q, 's', Util::dateTimeToString($lastUsed));
     }
     
-    public function updateLastUsed(DateTime $lastUsed, string $category, array $IDs, string $friendOfId = '') : int
+    public function updateLastUsed(DateTime $lastUsed, CommentDigestCategory $category, array $IDs, int $friendOf = 0) : int
     {
-        // Introduce an alias after saving placeholders based on the original list
-        $placeholderList = $this->toPlaceholderList($IDs);
-        $values = &$IDs;
-        
         // First two values in the UPDATE statement is the timestamp and the category
-        array_unshift($values, Util::dateTimeToString($lastUsed), $category);
+        $values = array(
+            Util::dateTimeToString($lastUsed), 
+            $category->value,
+        );
         
         // If last parameter is set, the "all comments" section is restricted to comments made by friends of the user
-        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && strlen($friendOfId) > 0) {
+        if ($category === CommentDigestCategory::COMMENTS && $friendOf > 0) {
             $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $c_diaryID = CommentDigest::FIELD_DIARY_ID;
             $friendsOnlyClause = "AND `$c_diaryID` IN ($friendsSubQuery) ";
+            $friendType = FriendType::FRIEND;
             
-            // Optional third-fourth value (at index 2-3) is the user ID when given and the association type
-            array_splice($values, 2, 0, array($friendOfId, FriendType::FRIEND));
+            $values[] = $friendOf;
+            $values[] = $friendType->value;
         } else {
             $friendsOnlyClause = '';
         }
@@ -112,14 +114,16 @@ class CommentDigestRepository extends AbstractRepository
         $c_lastUsed = CommentDigest::FIELD_LAST_USED;
         $c_category = CommentDigest::FIELD_CATEGORY;
         $c_ID = CommentDigest::FIELD_ID;
+        $placeholderList = $this->toPlaceholderList($IDs);
         
         $q = "UPDATE `$t_cache_commentlist` SET `$c_lastUsed` = ? WHERE `$c_category` = ? $friendsOnlyClause" .
             "AND `$c_ID` IN ($placeholderList)";
-            
+        
+        array_push($values, ...$IDs);
         return $this->db->executeWithParams($q, $values);
     }
     
-    public function updateAccess(string $access, array $entryIDs) : int
+    public function updateAccess(AccessType $access, array $entryIDs) : int
     {
         $t_cache_commentlist = $this->getTableName();
         $c_access = CommentDigest::FIELD_ACCESS;
@@ -128,19 +132,16 @@ class CommentDigestRepository extends AbstractRepository
         
         $q = "UPDATE `$t_cache_commentlist` SET `$c_access` = ? WHERE `$c_entryID` IN ($placeholderList)";
         
-        // Introduce an alias, we don't want to copy the array by assignment here
-        $values = &$entryIDs;
-        
         // Prepend first parameter (access type)
-        array_unshift($values, $access);
+        $values = array($access->value, ...$entryIDs);
         return $this->db->executeWithParams($q, $values);
     }
     
     public function getMostRecent(
-        string $category, 
+        CommentDigestCategory $category, 
         int $ownerID, 
         bool $friendsOnly, 
-        array $bannedIDs = array(), 
+        array $bannedLogins = array(), 
         int $limit = 30) : array
     {
         return $this->getMostRecentBefore(
@@ -148,21 +149,21 @@ class CommentDigestRepository extends AbstractRepository
             $ownerID,
             $friendsOnly,
             Util::utcDateTimeFromString(),
-            $bannedIDs,
+            $bannedLogins,
             $limit);
     }
     
     public function getMostRecentBefore(
-        string $category,
+        CommentDigestCategory $category,
         int $ownerID,
         bool $friendsOnly,
         DateTime $createDate,
-        array $bannedIDs = array(),
+        array $bannedLogins = array(),
         int $limit = 30) : array
     {
         // Get the shared comment digests as well for the "all comments" section (ownerID is 0 in that case)
         $c_ownerID = CommentDigest::FIELD_OWNER_ID;
-        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS) {
+        if ($category === CommentDigestCategory::COMMENTS) {
             $ownerClause = "`$c_ownerID` IN (0, ?)";
         } else {
             $ownerClause = "`$c_ownerID` = ?";
@@ -170,13 +171,13 @@ class CommentDigestRepository extends AbstractRepository
 
         $values = array(
             $ownerID,
-            $category,
+            $category->value,
             Util::dateTimeToString($createDate)
         );
         
         // If "friendsOnly" is set, the "all comments" section is restricted to comments made by friends of the user
         $c_diaryID = CommentDigest::FIELD_DIARY_ID;
-        if ($category === CommentDigest::CATEGORY_ALL_COMMENTS && $friendsOnly === true) {
+        if ($category === CommentDigestCategory::COMMENTS && $friendsOnly === true) {
             $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $friendsOnlyClause = "AND `$c_diaryID` IN ($friendsSubQuery) ";
             
@@ -192,12 +193,12 @@ class CommentDigestRepository extends AbstractRepository
          * your own comments even if you banned or got banned by the blog owner.
          */
         $c_userID = CommentDigest::FIELD_USER_ID;
-        if ($category !== CommentDigest::CATEGORY_MY_COMMENTS && count($bannedIDs) > 0) {
-            $placeholderList = $this->toPlaceholderList($bannedIDs);
+        if ($category !== CommentDigestCategory::MY_COMMENTS && count($bannedLogins) > 0) {
+            $placeholderList = $this->toPlaceholderList($bannedLogins);
             $bannedClause = "AND `$c_userID` NOT IN ($placeholderList) AND `$c_diaryID` NOT IN ($placeholderList) ";
             
-            // Parameters 5 and up (index 4+) should be the banned ID list, but twice!
-            array_push($values, ...$bannedIDs, ...$bannedIDs);
+            // Parameters 5 and up (index 4+) should be the banned login list, but twice!
+            array_push($values, ...$bannedLogins, ...$bannedLogins);
         } else {
             $bannedClause = '';
         }
@@ -241,8 +242,8 @@ class CommentDigestRepository extends AbstractRepository
 
         // Values for the ON DUPLICATE KEY parts are repeated
         $values = array_values($commentDigestArray);
-        $values[] = $data->getBody();
-        $values[] = Util::dateTimeToString($data->getLastUsed());
+        $values[] = $commentDigest->getBody();
+        $values[] = Util::dateTimeToString($commentDigest->getLastUsed());
         return $this->db->execute($q, 'siississssss', ...$values);
     }
 }

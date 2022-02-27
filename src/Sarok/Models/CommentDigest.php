@@ -1,9 +1,11 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
 
-use DateTime;
+namespace Sarok\Models;
+
 use Sarok\Util;
-use Sarok\Models\AccessType;
 use Sarok\Models\CommentDigestCategory;
+use Sarok\Models\AccessType;
+use DateTime;
 
 /*
  * Table structure for `cache_commentlist`:
@@ -37,13 +39,13 @@ class CommentDigest
     private DateTime $_lastUsed;
     
     // Assignment from string directly supported
-    private string $category = CommentDigestCategory::COMMENTS;
+    private CommentDigestCategory $category = CommentDigestCategory::COMMENTS;
     private int $ID = 0; // int(11)
     private int $ownerID = 0; // int(10) unsigned, but we'll probably not see 2 billion+ users
-    private string $userID = '';
-    private string $diaryID = '';
+    private string $userID = ''; // XXX: this is the user's login name
+    private string $diaryID = ''; // XXX: this is the diary owner's login name
     private int $entryID = 0; // int(11)
-    private string $access = AccessType::ALL;
+    private AccessType $access = AccessType::ALL;
     private string $body = '';
 
     public function __construct()
@@ -75,7 +77,7 @@ class CommentDigest
         return $this->category;
     }
 
-    public function setCategory(string $category)
+    public function setCategory(CommentDigestCategory $category) : void
     {
         $this->category = $category;
     }
@@ -85,7 +87,7 @@ class CommentDigest
         return $this->ID;
     }
 
-    public function setID(int $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -95,7 +97,7 @@ class CommentDigest
         return $this->ownerID;
     }
 
-    public function setOwnerID(int $ownerID)
+    public function setOwnerID(int $ownerID) : void
     {
         $this->ownerID = $ownerID;
     }
@@ -105,7 +107,7 @@ class CommentDigest
         return $this->userID;
     }
 
-    public function setUserID(string $userID)
+    public function setUserID(string $userID) : void
     {
         $this->userID = $userID;
     }
@@ -115,7 +117,7 @@ class CommentDigest
         return $this->diaryID;
     }
 
-    public function setDiaryID(string $diaryID)
+    public function setDiaryID(string $diaryID) : void
     {
         $this->diaryID = $diaryID;
     }
@@ -125,7 +127,7 @@ class CommentDigest
         return $this->entryID;
     }
 
-    public function setEntryID(int $entryID)
+    public function setEntryID(int $entryID) : void
     {
         $this->entryID = $entryID;
     }
@@ -145,7 +147,7 @@ class CommentDigest
         return $this->access;
     }
 
-    public function setAccess(string $access)
+    public function setAccess(AccessType $access) : void
     {
         $this->access = $access;
     }
@@ -155,7 +157,7 @@ class CommentDigest
         return $this->body;
     }
 
-    public function setBody(string $body)
+    public function setBody(string $body) : void
     {
         $this->body = $body;
     }
@@ -165,7 +167,7 @@ class CommentDigest
         return $this->_lastUsed;
     }
 
-    public function setLastUsed(DateTime $lastUsed)
+    public function setLastUsed(DateTime $lastUsed) : void
     {
         $this->_lastUsed = $lastUsed;
     }
@@ -173,14 +175,14 @@ class CommentDigest
     public function toArray() : array
     {
         return array(
-            self::FIELD_CATEGORY    => $this->category,
+            self::FIELD_CATEGORY    => $this->category->value,
             self::FIELD_ID          => $this->ID,
             self::FIELD_OWNER_ID    => $this->ownerID,
             self::FIELD_USER_ID     => $this->userID,
             self::FIELD_DIARY_ID    => $this->diaryID,
             self::FIELD_ENTRY_ID    => $this->entryID,
             self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
-            self::FIELD_ACCESS      => $this->access,
+            self::FIELD_ACCESS      => $this->access->value,
             self::FIELD_BODY        => $this->body,
             self::FIELD_LAST_USED   => Util::dateTimeToString($this->_lastUsed),
         );
