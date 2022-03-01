@@ -19,7 +19,7 @@ use Sarok\Actions\SettingsImagesAction;
 use Sarok\Actions\SettingsFriendsAction;
 use Sarok\Actions\SettingsBlogAction;
 
-class SettingsAP extends ActionPage
+class SettingsActionPage extends ActionPage
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -49,12 +49,12 @@ class SettingsAP extends ActionPage
             "makeImport" => SettingsMakeImportAction::class,
         );
 
-        $path = $this->context->getPathSegment(0);
+        $firstSegment = $this->context->getPathSegment(0);
 
-        if (!isset($actionMap[$path])) {
+        if (!isset($actionMap[$firstSegment])) {
             $action = SettingsInfoAction::class;
         } else {
-            $action = $actionMap[$path];
+            $action = $actionMap[$firstSegment];
         }
 
         if ($this->context->isPOST()) {
