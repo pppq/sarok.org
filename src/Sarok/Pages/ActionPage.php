@@ -33,10 +33,10 @@ abstract class ActionPage
     public function addAction(string $tile, string $action) : void
     {
         if (!isset($this->actions[$tile])) {
-            $this->actions[$tile] = array();
+            $this->actions[$tile] = array($action);
+        } else {
+            $this->actions[$tile][] = $action;
         }
-
-        $this->actions[$tile][] = $action;
     }
 
     public function getActions() : array
@@ -46,8 +46,11 @@ abstract class ActionPage
 
     public function canExecute() : bool
     {
-        // Subclasses should override to determine if the page can be displayed to the user
-        return false;
+        /* 
+         * The default implementation permits access to logged in users only. Subclasses should override if 
+         * they have another way to determine if the page can be displayed to the user (eg. public pages).
+         */
+        return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
     }
     
     public function init() : void

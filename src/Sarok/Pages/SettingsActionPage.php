@@ -26,11 +26,6 @@ class SettingsActionPage extends ActionPage
         parent::__construct($logger, $context);
     }
 
-    public function canExecute() : bool
-    {
-        return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
-    }
-
     public function init() : void
     {
         $actionMap = array(
