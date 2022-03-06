@@ -5,9 +5,9 @@ namespace Sarok\Pages;
 use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
+use Sarok\Actions\UserMapAction;
 use Sarok\Actions\UserListAction;
 use Sarok\Actions\ShowArticleAction;
-use Sarok\Actions\GeneralMapAction;
 use Sarok\Actions\Action;
 
 class AboutPage extends Page
@@ -19,7 +19,7 @@ class AboutPage extends Page
         ''             => self::ENTRY_ABOUT_US,
         'us'           => self::ENTRY_ABOUT_US,
         'mediaajanlat' => self::ENTRY_MEDIA_OFFER,
-        'map'          => GeneralMapAction::class,
+        'map'          => UserMapAction::class,
         'pacients'     => UserListAction::class,
     ];
 

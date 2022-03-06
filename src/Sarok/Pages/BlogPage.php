@@ -55,7 +55,7 @@ class BlogPage extends Page
 
             if ($secondSegment === 'edit') {
                 $action = EntryEditAction::class;
-            } else if ($this->context->isPOST()) {
+            } else if ($this->context->isPostRequest()) {
                 switch ($secondSegment) {
                     case 'update': 
                         $needsDefaultActions = false;
@@ -82,7 +82,7 @@ class BlogPage extends Page
             $action = EntryNewAction::class;
         } else if ($firstSegment === 'info') {
             $action = EntryInfoAction::class;
-        } else if ($this->context->isPOST() && $firstSegment === 'update') {
+        } else if ($this->context->isPostRequest() && $firstSegment === 'update') {
             $needsDefaultActions = false;
             $action = EntryUpdateAction::class;
         } else {

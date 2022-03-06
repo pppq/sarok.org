@@ -41,7 +41,7 @@ class MailPage extends Page
                 break;
 
             case 'send':
-                if ($this->context->isPOST()) {
+                if ($this->context->isPostRequest()) {
                     $action = MailSendAction::class;
                 }
                 break;

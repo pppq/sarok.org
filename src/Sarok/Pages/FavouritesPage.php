@@ -18,7 +18,7 @@ class FavouritesPage extends Page
     {
         $this->logger->debug('Initializing FavouritesPage');
         
-        if ($this->context->isPOST()) {
+        if ($this->context->isPostRequest()) {
             // TODO: POST requests should update favourites
             $this->setTemplateName('empty');
         } else {

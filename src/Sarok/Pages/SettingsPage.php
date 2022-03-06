@@ -67,7 +67,7 @@ class SettingsPage extends Page
             $action = $actionMap[$firstSegment];
         }
 
-        if ($this->context->isPOST()) {
+        if ($this->context->isPostRequest()) {
             // TODO: POST requests should update corresponding settings
             $this->setTemplateName('empty');
         } else {
