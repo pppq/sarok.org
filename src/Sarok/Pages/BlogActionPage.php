@@ -31,8 +31,11 @@ class BlogActionPage extends ActionPage
     {
         $this->setTemplateName("blog");
         $firstSegment = $this->context->getPathSegment(0);
-
-        if (preg_match('/^m_[0-9]+$', $firstSegment)) {
+        
+        $matches = array();
+        if (preg_match('/^m_([0-9]+)$', $firstSegment, $matches)) {
+            $this->context->setProperty(Context::PROP_ENTRY_ID, $matches[1]);
+            
             $secondSegment = $this->context->getPathSegment(1);
             $action = EntryReadAction::class;
 
