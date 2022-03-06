@@ -55,6 +55,20 @@ class SettingsActionPage extends ActionPage
         if ($this->context->isPOST()) {
             // TODO: POST requests should update corresponding settings
             $this->setTemplateName("empty");
+        } else {
+            $menu = array(
+                array('name' => 'Adatok', 'url' => '/settings/' ),
+                array('name' => 'Blog', 'url' => '/settings/blog/' ),
+                array('name' => 'Barátok', 'url' => '/settings/friends/' ),
+                array('name' => 'Képek', 'url' => '/settings/images/' ),
+                array('name' => 'Térkép', 'url' => '/settings/map/' ),
+                array('name' => 'Külső', 'url' => '/settings/skin/' ),
+                array('name' => 'Import/Export/Varázslat', 'url' => '/settings/other/' ),
+                array('name' => 'Statisztika', 'url' => '/settings/stats/' ),
+                array('name' => 'Snowboardos arc', 'url' => '/settings/ski/' ),
+            );
+
+            $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);
         }
     }
 }
