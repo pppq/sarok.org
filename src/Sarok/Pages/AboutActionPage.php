@@ -34,15 +34,13 @@ class AboutActionPage extends ActionPage
             "pacients"     => UserListAction::class,
         );
 
-        $params = $this->context->params;
-        $path = implode("/", $params);
-        $this->logger->debug("path is $path");
+        $firstSegment = $this->context->getPathSegment(0);
 
-        if (!isset($this->actionMap[$pathline])) {
+        if (!isset($this->actionMap[$firstSegment])) {
             $this->logger->warning("item not found in map");
             $key = 15287;
         } else {
-            $key = $this->actionMap[$pathline];
+            $key = $this->actionMap[$firstSegment];
         }
         
         $this->logger->debug("key set to ".$this->key);
