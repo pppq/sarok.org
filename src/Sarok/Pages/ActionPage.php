@@ -11,7 +11,6 @@ abstract class ActionPage
     protected Logger $logger;
     protected Context $context;
 
-    private string $templateName = "default";
     private array $actions = array();
 
     protected function __construct(Logger $logger, Context $context)
@@ -22,12 +21,12 @@ abstract class ActionPage
 
     public function getTemplateName() : string
     {
-        return $this->templateName;
+        return $this->context->getTemplateName();
     }
 
     public function setTemplateName(string $templateName) : void
     {
-        $this->templateName = $templateName;
+        $this->context->setTemplateName($templateName);
     }
 
     public function addAction(string $tile, string $action) : void
@@ -48,7 +47,7 @@ abstract class ActionPage
     {
         /* 
          * The default implementation permits access to logged in users only. Subclasses should override if 
-         * they have another way to determine if the page can be displayed to the user (eg. public pages).
+         * they have another way to determine if the page should be displayed to the user (eg. public pages).
          */
         return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
     }
