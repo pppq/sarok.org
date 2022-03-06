@@ -2,12 +2,12 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\EmptyAction;
 
-class SplashActionPage extends ActionPage
+class SplashPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -21,7 +21,10 @@ class SplashActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->setTemplateName("splash");
-        $this->addAction("main", EmptyAction::class);
+        $this->logger->debug('Initializing SplashPage');
+        // parent::init() is not needed
+
+        $this->setTemplateName('splash');
+        $this->addAction('main', EmptyAction::class);
     }
 }

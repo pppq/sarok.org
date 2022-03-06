@@ -2,12 +2,12 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\AuthAction;
 
-class AuthActionPage extends ActionPage
+class AuthPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,7 +16,10 @@ class AuthActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->setTemplateName("empty");
-        $this->addAction("main", AuthAction::class);
+        $this->logger->debug('Initializing AuthPage');
+        // parent::init() is not needed
+
+        $this->setTemplateName('empty');
+        $this->addAction('main', AuthAction::class);
     }
 }

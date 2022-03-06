@@ -2,13 +2,13 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\RegistrationStep2Action;
 use Sarok\Actions\RegistrationStep1Action;
 
-class RegistrationActionPage extends ActionPage
+class RegistrationPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -22,9 +22,12 @@ class RegistrationActionPage extends ActionPage
 
     public function init() : void
     {
+        $this->logger->debug('Initializing RegistrationPage');
+        parent::init();
+        
         $actionMap = array(
-            "step1" => RegistrationStep1Action::class,
-            "step2" => RegistrationStep2Action::class,
+            'step1' => RegistrationStep1Action::class,
+            'step2' => RegistrationStep2Action::class,
         );
 
         $path = $this->context->getPathSegment(0);
@@ -35,6 +38,6 @@ class RegistrationActionPage extends ActionPage
             $action = $actionMap[$path];
         }
 
-        $this->addAction("main", $action);
+        $this->addAction('main', $action);
     }
 }

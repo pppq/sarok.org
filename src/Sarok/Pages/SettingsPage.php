@@ -2,7 +2,7 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\SettingsStatsAction;
@@ -19,7 +19,7 @@ use Sarok\Actions\SettingsImagesAction;
 use Sarok\Actions\SettingsFriendsAction;
 use Sarok\Actions\SettingsBlogAction;
 
-class SettingsActionPage extends ActionPage
+class SettingsPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -28,20 +28,23 @@ class SettingsActionPage extends ActionPage
 
     public function init() : void
     {
+        $this->logger->debug('Initializing SettingsPage');
+        // parent::init() is called later
+        
         $actionMap = array(
-            "blog" => SettingsBlogAction::class,
-            // "uploads" => SettingsUploadsAction::class,
-            "friends" => SettingsFriendsAction::class,
-            "skin" => SettingsSkinAction::class,
-            "ski" => SettingsSkiMaskAction::class,
-            "images" => SettingsImagesAction::class,
-            "magic" => SettingsMagicAction::class,
-            "map" => SettingsMapAction::class,
-            "other" => SettingsOtherAction::class,
-            "stats" => SettingsStatsAction::class,
-            "makeMagic" => SettingsMakeMagicAction::class,
-            "import" => SettingsImportAction::class,
-            "makeImport" => SettingsMakeImportAction::class,
+            'blog' => SettingsBlogAction::class,
+            // 'uploads' => SettingsUploadsAction::class,
+            'friends' => SettingsFriendsAction::class,
+            'skin' => SettingsSkinAction::class,
+            'ski' => SettingsSkiMaskAction::class,
+            'images' => SettingsImagesAction::class,
+            'magic' => SettingsMagicAction::class,
+            'map' => SettingsMapAction::class,
+            'other' => SettingsOtherAction::class,
+            'stats' => SettingsStatsAction::class,
+            'makeMagic' => SettingsMakeMagicAction::class,
+            'import' => SettingsImportAction::class,
+            'makeImport' => SettingsMakeImportAction::class,
         );
 
         $firstSegment = $this->context->getPathSegment(0);
@@ -54,8 +57,10 @@ class SettingsActionPage extends ActionPage
 
         if ($this->context->isPOST()) {
             // TODO: POST requests should update corresponding settings
-            $this->setTemplateName("empty");
+            $this->setTemplateName('empty');
         } else {
+            parent::init();
+            
             $menu = array(
                 array('name' => 'Adatok', 'url' => '/settings/' ),
                 array('name' => 'Blog', 'url' => '/settings/blog/' ),
@@ -70,5 +75,7 @@ class SettingsActionPage extends ActionPage
 
             $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);
         }
+
+        $this->addAction('main', $action);
     }
 }

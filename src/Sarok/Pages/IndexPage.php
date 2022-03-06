@@ -2,14 +2,14 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\NewFavouritesAction;
 use Sarok\Actions\LeftMenuAction;
 use Sarok\Actions\IndexAction;
 
-class IndexActionPage extends ActionPage
+class IndexPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -18,8 +18,11 @@ class IndexActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->addAction("leftMenu", LeftMenuAction::class);
-        $this->addAction("leftMenu", NewFavouritesAction::class);
-        $this->addAction("main", IndexAction::class);
+        $this->logger->debug('Initializing IndexPage');
+        parent::init();
+        
+        $this->addAction('leftMenu', LeftMenuAction::class);
+        $this->addAction('leftMenu', NewFavouritesAction::class);
+        $this->addAction('main', IndexAction::class);
     }
 }

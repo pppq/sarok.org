@@ -2,7 +2,7 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\UserListAction;
@@ -10,8 +10,19 @@ use Sarok\Actions\ShowArticleAction;
 use Sarok\Actions\GeneralMapAction;
 use Sarok\Actions\Action;
 
-class AboutActionPage extends ActionPage
+class AboutPage extends Page
 {
+    private const ENTRY_ABOUT_US = 15287;
+    private const ENTRY_MEDIA_OFFER = 20505;
+
+    private const ACTION_MAP = [
+        ''             => self::ENTRY_ABOUT_US,
+        'us'           => self::ENTRY_ABOUT_US,
+        'mediaajanlat' => self::ENTRY_MEDIA_OFFER,
+        'map'          => GeneralMapAction::class,
+        'pacients'     => UserListAction::class,
+    ];
+
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
@@ -24,33 +35,25 @@ class AboutActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->logger->debug("Initializing map");
-
-        $actionMap = array(
-            ""             => 15287,
-            "us"           => 15287,
-            "mediaajanlat" => 20505,
-            "map"          => GeneralMapAction::class,
-            "pacients"     => UserListAction::class,
-        );
+        $this->logger->debug('Initializing AboutPage');
+        parent::init();
 
         $firstSegment = $this->context->getPathSegment(0);
 
-        if (!isset($this->actionMap[$firstSegment])) {
-            $this->logger->warning("item not found in map");
-            $key = 15287;
+        if (!isset(self::ACTION_MAP[$firstSegment])) {
+            $this->logger->warning('Path segment not found in map, using default entry');
+            $action = self::ENTRY_ABOUT_US;
         } else {
-            $key = $this->actionMap[$firstSegment];
+            $action = self::ACTION_MAP[$firstSegment];
         }
         
-        $this->logger->debug("key set to ".$this->key);
-        
-        if (is_numeric($key)) {
-            $this->logger->warning("found numeric key for the item");
-            $this->addAction("main", ShowArticleAction::class);
-            $this->context->setProperty(Context::PROP_ENTRY_ID, $key);
-        } else {
-            $this->addAction("main", $key);
+        if (is_numeric($action)) {
+            $this->logger->debug("Displaying entry with ID '$action'");
+            $this->context->setProperty(Context::PROP_ENTRY_ID, $action);
+            $action = ShowArticleAction::class;
         }
+        
+        $this->logger->debug("Action set to '$action'");
+        $this->addAction('main', $action);
     }
 }

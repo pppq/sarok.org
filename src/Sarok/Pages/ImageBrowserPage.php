@@ -2,12 +2,12 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\ImageBrowserAction;
 
-class ImageBrowserActionPage extends ActionPage
+class ImageBrowserPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,7 +16,9 @@ class ImageBrowserActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->log->debug("Initializing ImageBrowserActionPage");
-        $this->addAction("main", ImageBrowserAction::class);
+        $this->log->debug('Initializing ImageBrowserPage');
+        // parent::init() is not needed
+        
+        $this->addAction('main', ImageBrowserAction::class);
     }
 }

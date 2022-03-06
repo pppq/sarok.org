@@ -2,7 +2,7 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\SidebarAction;
@@ -20,7 +20,7 @@ use Sarok\Actions\EntryDeleteAction;
 use Sarok\Actions\EntryAddCommentAction; 
 use Sarok\Actions\CustomCssAction;
 
-class BlogActionPage extends ActionPage
+class BlogPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -29,9 +29,11 @@ class BlogActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->setTemplateName("blog");
-        $firstSegment = $this->context->getPathSegment(0);
+        $this->logger->debug('Initializing BlogPage');
+        // parent::init() is called if $needsDefaultActions is not set to false later down
+        $needsDefaultActions = true;
         
+        $firstSegment = $this->context->getPathSegment(0);
         $matches = array();
         if (preg_match('/^m_([0-9]+)$', $firstSegment, $matches)) {
             $this->context->setProperty(Context::PROP_ENTRY_ID, $matches[1]);
@@ -44,19 +46,22 @@ class BlogActionPage extends ActionPage
             } else if ($this->context->isPOST()) {
                 switch ($secondSegment) {
                     case 'update': 
+                        $needsDefaultActions = false;
                         $action = EntryUpdateAction::class; 
                         break;
 
                     case 'delete': 
+                        $needsDefaultActions = false;
                         $action = EntryDeleteAction::class; 
                         break;
 
                     case 'insertcomment': 
+                        $needsDefaultActions = false;
                         $action = EntryAddCommentAction::class; 
                         break;
 
                     default: 
-                        // This is just a fallback for POST requests (you don't get RSS or map output this way)
+                        // Fallback for POST requests (you don't get RSS or map output using this request method)
                         $action = EntryListAction::class; 
                         break;
                 }
@@ -66,6 +71,7 @@ class BlogActionPage extends ActionPage
         } else if ($firstSegment === 'info') {
             $action = EntryInfoAction::class;
         } else if ($this->context->isPOST() && $firstSegment === 'update') {
+            $needsDefaultActions = false;
             $action = EntryUpdateAction::class;
         } else {
             $action = EntryListAction::class;
@@ -75,18 +81,25 @@ class BlogActionPage extends ActionPage
     
             if ($lastSegment === 'rss' || $beforeLastSegment === 'rss') {
                 // Render list of entries to RSS XML if requested
-                $this->setTemplateName("rss");
+                $this->setTemplateName('rss');
             } else if ($lastSegment === 'map') {
                 // Show pins on the map for geotagged entries
                 $action = EntryMapAction::class;
             }
         }
 
-        $this->addAction("main", $action);
-        $this->addAction("calendar", MonthAction::class);
-        $this->addAction("navigation", NavigationAction::class);
-        $this->addAction("sidebar", SidebarAction::class);
-        $this->addAction("header", HeaderAction::class);
-        $this->addAction("header", CustomCssAction::class);
+        if ($needsDefaultActions) {
+            parent::init();
+            $this->setTemplateName('blog');
+        } else {
+            $this->setTemplateName('empty');
+        }
+
+        $this->addAction('main', $action);
+        $this->addAction('calendar', MonthAction::class);
+        $this->addAction('navigation', NavigationAction::class);
+        $this->addAction('sidebar', SidebarAction::class);
+        $this->addAction('header', HeaderAction::class);
+        $this->addAction('header', CustomCssAction::class);
     }
 }

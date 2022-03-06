@@ -2,12 +2,12 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\LogoutAction;
 
-class LogoutActionPage extends ActionPage
+class LogoutPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,7 +16,10 @@ class LogoutActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->setTemplateName("empty");
-        $this->addAction("main", LogoutAction::class);
+        $this->logger->debug('Initializing LogoutPage');
+        // parent::init() is not needed
+
+        $this->setTemplateName('empty');
+        $this->addAction('main', LogoutAction::class);
     }
 }

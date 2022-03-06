@@ -2,12 +2,12 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\ErrorAction;
 
-class ErrorActionPage extends ActionPage
+class ErrorPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -21,6 +21,9 @@ class ErrorActionPage extends ActionPage
 
     public function init() : void
     {
-        $this->addAction("main", ErrorAction::class);
+        $this->logger->debug('Initializing ErrorPage');
+        parent::init();
+        
+        $this->addAction('main', ErrorAction::class);
     }
 }

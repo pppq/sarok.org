@@ -2,7 +2,7 @@
 
 namespace Sarok\Pages;
 
-use Sarok\Pages\ActionPage;
+use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\MailSendAction;
@@ -11,7 +11,7 @@ use Sarok\Actions\MailPartnerListAction;
 use Sarok\Actions\MailListAction;
 use Sarok\Actions\MailComposeAction;
 
-class MailActionPage extends ActionPage
+class MailPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -20,6 +20,9 @@ class MailActionPage extends ActionPage
 
     public function init() : void
     {
+        $this->logger->debug('Initializing MailPage');
+        parent::init();
+        
         $firstSegment = $this->context->getPathSegment(0);
         $action = MailListAction::class;
         
@@ -48,7 +51,7 @@ class MailActionPage extends ActionPage
                 break;
         }
 
-        $this->addAction("main", $action);
-        $this->addAction("leftMenu", MailPartnerListAction::class);
+        $this->addAction('main', $action);
+        $this->addAction('leftMenu', MailPartnerListAction::class);
     }
 }

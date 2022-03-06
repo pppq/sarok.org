@@ -4,9 +4,12 @@ namespace Sarok\Pages;
 
 use Sarok\Logger;
 use Sarok\Context;
+use Sarok\Actions\MenuAction;
+use Sarok\Actions\LogoutFormAction;
+use Sarok\Actions\LeftMenuAction;
 use Sarok\Actions\Action;
 
-abstract class ActionPage
+abstract class Page
 {
     protected Logger $logger;
     protected Context $context;
@@ -43,18 +46,33 @@ abstract class ActionPage
         return $this->actions;
     }
 
+    protected function isLoggedIn() : bool
+    {
+        return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
+    }
+
     public function canExecute() : bool
     {
         /* 
          * The default implementation permits access to logged in users only. Subclasses should override if 
          * they have another way to determine if the page should be displayed to the user (eg. public pages).
          */
-        return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
+        return $this->isLoggedIn();
     }
     
     public function init() : void
     {
-        // Subclasses should override to register more actions
+        $this->logger->debug('Initializing Page (adding common actions)');
+
+        // Subclasses should call this method first, then register more actions
+        $this->addAction('menu', MenuAction::class);
+        $this->addAction('logout', LogoutFormAction::class);
+        $this->addAction('leftMenu', LeftMenuAction::class);
+        
+        if ($this->isLoggedIn()) {
+            $this->addAction('friendList', FriendListAction::class);
+            $this->addAction('newMail', CheckMailAction::class);
+        }
     }
 
     public function execute() : array
