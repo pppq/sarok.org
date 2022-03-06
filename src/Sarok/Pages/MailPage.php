@@ -13,6 +13,14 @@ use Sarok\Actions\MailComposeAction;
 
 class MailPage extends Page
 {
+    private const MAIL_MENU_ITEMS = [
+        [ 'name' => 'Bejegyzés irása',   'url' => '/'                ],
+        [ 'name' => 'Level irasa',       'url' => '/privates/new/'   ],
+        [ 'name' => 'Beallitasok',       'url' => '/settings/'       ],
+        [ 'name' => 'Könyjelzők',        'url' => '/favourites/'     ],
+        [ 'name' => 'Páciensek listája', 'url' => '/about/pacients/' ],
+    ];
+
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
@@ -50,6 +58,13 @@ class MailPage extends Page
                 }
                 break;
         }
+
+        $user = $this->context->getUser();
+        $userLogin = $user->getLogin();
+        
+        $menu = self::MAIL_MENU_ITEMS;
+        $menu[0]['url'] = "/users/$userLogin/new/";
+        $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);        
 
         $this->addAction('main', $action);
         $this->addAction('leftMenu', MailPartnerListAction::class);

@@ -2,6 +2,7 @@
 
 namespace Sarok\Pages;
 
+use Sarok\Service\BlogService;
 use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
@@ -22,9 +23,20 @@ use Sarok\Actions\CustomCssAction;
 
 class BlogPage extends Page
 {
-    public function __construct(Logger $logger, Context $context)
+    private const BLOG_MENU_ITEMS = [
+        [ 'name' => 'Bejegyzés irása',   'url' => '/'                ],
+        [ 'name' => 'Level irasa',       'url' => '/privates/new/'   ],
+        [ 'name' => 'Beallitasok',       'url' => '/settings/'       ],
+        [ 'name' => 'Könyjelzők',        'url' => '/favourites/'     ],
+        [ 'name' => 'Páciensek listája', 'url' => '/about/pacients/' ],
+    ];
+
+    private BlogService $blogService;
+
+    public function __construct(Logger $logger, Context $context, BlogService $blogService)
     {
         parent::__construct($logger, $context);
+        $this->blogService = $blogService;
     }
 
     public function init() : void
@@ -90,16 +102,33 @@ class BlogPage extends Page
 
         if ($needsDefaultActions) {
             parent::init();
+
+            $this->addAction('calendar', MonthAction::class);
+            $this->addAction('navigation', NavigationAction::class);
+            $this->addAction('sidebar', SidebarAction::class);
+            $this->addAction('header', HeaderAction::class);
+            $this->addAction('header', CustomCssAction::class);
+    
+            $user = $this->context->getUser();
+            $blog = $this->context->getBlog();
+            $userID = $user->getID();
+            $blogID = $blog->getID();
+            
+            if ($this->blogService->canEdit($userID, $blogID)) {
+                $newLogin = $blog->getLogin();
+            } else {
+                $newLogin = $user->getLogin();
+            }
+            
+            $menu = self::BLOG_MENU_ITEMS;
+            $menu[0]['url'] = "/users/$newLogin/new/";
+            $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);  
+            
             $this->setTemplateName('blog');
         } else {
             $this->setTemplateName('empty');
         }
 
         $this->addAction('main', $action);
-        $this->addAction('calendar', MonthAction::class);
-        $this->addAction('navigation', NavigationAction::class);
-        $this->addAction('sidebar', SidebarAction::class);
-        $this->addAction('header', HeaderAction::class);
-        $this->addAction('header', CustomCssAction::class);
     }
 }

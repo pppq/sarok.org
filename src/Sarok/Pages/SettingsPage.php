@@ -21,6 +21,18 @@ use Sarok\Actions\SettingsBlogAction;
 
 class SettingsPage extends Page
 {
+    private const SETTINGS_MENU = [
+        [ 'name' => 'Adatok',                  'url' => '/settings/'         ],
+        [ 'name' => 'Blog',                    'url' => '/settings/blog/'    ],
+        [ 'name' => 'Barátok',                 'url' => '/settings/friends/' ],
+        [ 'name' => 'Képek',                   'url' => '/settings/images/'  ],
+        [ 'name' => 'Térkép',                  'url' => '/settings/map/'     ],
+        [ 'name' => 'Külső',                   'url' => '/settings/skin/'    ],
+        [ 'name' => 'Import/Export/Varázslat', 'url' => '/settings/other/'   ],
+        [ 'name' => 'Statisztika',             'url' => '/settings/stats/'   ],
+        [ 'name' => 'Snowboardos arc',         'url' => '/settings/ski/'     ],
+    ];
+
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
@@ -60,20 +72,7 @@ class SettingsPage extends Page
             $this->setTemplateName('empty');
         } else {
             parent::init();
-            
-            $menu = array(
-                array('name' => 'Adatok', 'url' => '/settings/' ),
-                array('name' => 'Blog', 'url' => '/settings/blog/' ),
-                array('name' => 'Barátok', 'url' => '/settings/friends/' ),
-                array('name' => 'Képek', 'url' => '/settings/images/' ),
-                array('name' => 'Térkép', 'url' => '/settings/map/' ),
-                array('name' => 'Külső', 'url' => '/settings/skin/' ),
-                array('name' => 'Import/Export/Varázslat', 'url' => '/settings/other/' ),
-                array('name' => 'Statisztika', 'url' => '/settings/stats/' ),
-                array('name' => 'Snowboardos arc', 'url' => '/settings/ski/' ),
-            );
-
-            $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);
+            $this->context->setProperty(Context::PROP_MENU_ITEMS, self::SETTINGS_MENU);
         }
 
         $this->addAction('main', $action);
