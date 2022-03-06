@@ -5,9 +5,7 @@ namespace Sarok\Pages;
 use Sarok\Pages\ActionPage;
 use Sarok\Logger;
 use Sarok\Context;
-use Sarok\Actions\NewFavouritesAction;
-use Sarok\Actions\LeftMenuAction;
-use Sarok\Actions\IndexAction;
+use Sarok\Actions\ImageBrowserAction;
 
 class ImageBrowserActionPage extends ActionPage
 {
