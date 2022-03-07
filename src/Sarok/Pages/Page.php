@@ -22,14 +22,24 @@ abstract class Page
         $this->context = $context;
     }
 
-    public function getTemplateName() : string
-    {
-        return $this->context->getTemplateName();
-    }
-
-    public function setTemplateName(string $templateName) : void
+    protected function setTemplateName(string $templateName) : void
     {
         $this->context->setTemplateName($templateName);
+    }
+
+    protected function isLoggedIn() : bool
+    {
+        return $this->context->isLoggedIn();
+    }
+
+    protected function getUser() : User
+    {
+        return $this->context->getUser();
+    }
+
+    protected function getBlog() : User
+    {
+        return $this->context->getBlog();
     }
 
     public function addAction(string $tile, string $action) : void
@@ -44,11 +54,6 @@ abstract class Page
     public function getActions() : array
     {
         return $this->actions;
-    }
-
-    protected function isLoggedIn() : bool
-    {
-        return $this->context->getProperty(Context::PROP_IS_LOGGED_IN);
     }
 
     public function canExecute() : bool

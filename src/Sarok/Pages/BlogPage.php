@@ -4,6 +4,7 @@ namespace Sarok\Pages;
 
 use Sarok\Service\BlogService;
 use Sarok\Pages\Page;
+use Sarok\Models\MenuItem;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\SidebarAction;
@@ -23,14 +24,6 @@ use Sarok\Actions\CustomCssAction;
 
 class BlogPage extends Page
 {
-    private const BLOG_MENU_ITEMS = [
-        [ 'name' => 'Bejegyzés irása',   'url' => '/'                ],
-        [ 'name' => 'Level irasa',       'url' => '/privates/new/'   ],
-        [ 'name' => 'Beallitasok',       'url' => '/settings/'       ],
-        [ 'name' => 'Könyjelzők',        'url' => '/favourites/'     ],
-        [ 'name' => 'Páciensek listája', 'url' => '/about/pacients/' ],
-    ];
-
     private BlogService $blogService;
 
     public function __construct(Logger $logger, Context $context, BlogService $blogService)
@@ -48,7 +41,8 @@ class BlogPage extends Page
         $firstSegment = $this->context->getPathSegment(0);
         $matches = array();
         if (preg_match('/^m_([0-9]+)$', $firstSegment, $matches)) {
-            $this->context->setProperty(Context::PROP_ENTRY_ID, $matches[1]);
+            $entryID = (int) $matches[1];
+            $this->context->setEntryID($entryID);
             
             $secondSegment = $this->context->getPathSegment(1);
             $action = EntryReadAction::class;
@@ -88,8 +82,8 @@ class BlogPage extends Page
         } else {
             $action = EntryListAction::class;
 
-            $lastSegment = $this->context->getLastPathSegment(0);
-            $beforeLastSegment = $this->context->getLastPathSegment(1);
+            $lastSegment = $this->context->getPathSegment(-1);
+            $beforeLastSegment = $this->context->getPathSegment(-2);
     
             if ($lastSegment === 'rss' || $beforeLastSegment === 'rss') {
                 // Render list of entries to RSS XML if requested
@@ -109,8 +103,8 @@ class BlogPage extends Page
             $this->addAction('header', HeaderAction::class);
             $this->addAction('header', CustomCssAction::class);
     
-            $user = $this->context->getUser();
-            $blog = $this->context->getBlog();
+            $user = $this->getUser();
+            $blog = $this->getBlog();
             $userID = $user->getID();
             $blogID = $blog->getID();
             
@@ -120,10 +114,14 @@ class BlogPage extends Page
                 $newLogin = $user->getLogin();
             }
             
-            $menu = self::BLOG_MENU_ITEMS;
-            $menu[0]['url'] = "/users/$newLogin/new/";
-            $this->context->setProperty(Context::PROP_MENU_ITEMS, $menu);  
-            
+            $this->context->setLeftMenuItems(
+                new MenuItem('Bejegyzés irása',   "/users/$newLogin/new/"),
+                new MenuItem('Level irasa',       '/privates/new/'),
+                new MenuItem('Beallitasok',       '/settings/'),
+                new MenuItem('Könyjelzők',        '/favourites/'),
+                new MenuItem('Páciensek listája', '/about/pacients/'),
+            );
+
             $this->setTemplateName('blog');
         } else {
             $this->setTemplateName('empty');

@@ -21,18 +21,6 @@ use Sarok\Actions\SettingsBlogAction;
 
 class SettingsPage extends Page
 {
-    private const SETTINGS_MENU = [
-        [ 'name' => 'Adatok',                  'url' => '/settings/'         ],
-        [ 'name' => 'Blog',                    'url' => '/settings/blog/'    ],
-        [ 'name' => 'Barátok',                 'url' => '/settings/friends/' ],
-        [ 'name' => 'Képek',                   'url' => '/settings/images/'  ],
-        [ 'name' => 'Térkép',                  'url' => '/settings/map/'     ],
-        [ 'name' => 'Külső',                   'url' => '/settings/skin/'    ],
-        [ 'name' => 'Import/Export/Varázslat', 'url' => '/settings/other/'   ],
-        [ 'name' => 'Statisztika',             'url' => '/settings/stats/'   ],
-        [ 'name' => 'Snowboardos arc',         'url' => '/settings/ski/'     ],
-    ];
-
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
@@ -72,7 +60,18 @@ class SettingsPage extends Page
             $this->setTemplateName('empty');
         } else {
             parent::init();
-            $this->context->setProperty(Context::PROP_MENU_ITEMS, self::SETTINGS_MENU);
+            
+            $this->context->setLeftMenuItems(
+                new MenuItem('Adatok',                  '/settings/'),
+                new MenuItem('Blog',                    '/settings/blog/'),
+                new MenuItem('Barátok',                 '/settings/friends/'),
+                new MenuItem('Képek',                   '/settings/images/'),
+                new MenuItem('Térkép',                  '/settings/map/'),
+                new MenuItem('Külső',                   '/settings/skin/'),
+                new MenuItem('Import/Export/Varázslat', '/settings/other/'),
+                new MenuItem('Statisztika',             '/settings/stats/'),
+                new MenuItem('Snowboardos arc',         '/settings/ski/'),
+            );
         }
 
         $this->addAction('main', $action);

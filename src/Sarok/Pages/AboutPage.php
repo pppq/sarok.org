@@ -47,9 +47,9 @@ class AboutPage extends Page
             $action = self::ACTION_MAP[$firstSegment];
         }
         
-        if (is_numeric($action)) {
+        if (is_int($action)) {
             $this->logger->debug("Displaying entry with ID '$action'");
-            $this->context->setProperty(Context::PROP_ENTRY_ID, $action);
+            $this->context->setEntryID($action);
             $action = ShowArticleAction::class;
         }
         
