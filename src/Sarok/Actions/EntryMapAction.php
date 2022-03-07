@@ -30,8 +30,8 @@ class EntryMapAction extends Action
         $blogLogin = $blog->getLogin();
         $blogName = $blog->getUserData(User::KEY_BLOG_NAME);
 
-        if ($this->context->hasProperty(Context::PROP_ENTRY_ID)) {
-            $entryID = $this->context->getProperty(Context::PROP_ENTRY_ID);
+        if ($this->context->hasEntryID()) {
+            $entryID = $this->context->getEntryID();
             $pushPins = $this->blogService->getPushPinForEntry($readerID, $blogID, $entryID);
         } else {
             $pushPins = $this->blogService->getPushPinsForBlog($readerID, $blogID);

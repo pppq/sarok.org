@@ -25,7 +25,7 @@ class ShowArticleAction extends Action
         
         $reader = $this->context->getUser();
         $readerID = $reader->getID();
-        $entryID = $this->context->getProperty(Context::PROP_ENTRY_ID);
+        $entryID = $this->context->getEntryID();
 
         if ($this->blogService->isEntryVisible($readerID, $entryID)) {
             $entry = $this->blogService->getEntryByID($entryID);

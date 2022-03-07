@@ -27,7 +27,6 @@ class EntryDeleteAction extends Action
         $userID = $user->getID();
         $blogID = $blog->getID();
         $blogLogin = $blog->getLogin();
-        $entryID = $this->context->getProperty(Context::PROP_ENTRY_ID, 0);
 
         // Default redirect location after POST is the blog's main page
         $location = "/users/$blogLogin/";
@@ -36,7 +35,8 @@ class EntryDeleteAction extends Action
             return compact('location');
         }
         
-        if ($entryID > 0) {
+        if ($this->context->hasEntryID()) {
+            $entryID = $this->context->getEntryID();
             $thirdSegment = $this->context->getPathSegment(2);
 
             if (preg_match('/^[1-9][0-9]*$/', $thirdSegment)) {

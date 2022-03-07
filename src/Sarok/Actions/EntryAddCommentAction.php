@@ -72,7 +72,7 @@ class EntryAddCommentAction extends Action
         }
 
         $userID = $user->getID();
-        $entryID = $this->context->getProperty(Context::PROP_ENTRY_ID);
+        $entryID = $this->context->getEntryID();
 
         if ($this->blogService->canComment($entryID, $userID)) {
             $this->blogService->addComment(0, $entryID, $userID, $this->format($body));
