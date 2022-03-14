@@ -24,6 +24,11 @@ abstract class Action
         $this->context->setTemplateName($templateName);
     }
 
+    protected function isLoggedIn() : bool
+    {
+        return $this->context->isLoggedIn();
+    }
+
     protected function getUser() : User
     {
         return $this->context->getUser();

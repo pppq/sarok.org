@@ -17,7 +17,6 @@ use Sarok\Pages\LogoutPage;
 use Sarok\Pages\MailPage;
 use Sarok\Pages\RegistrationPage;
 use Sarok\Pages\SplashPage;
-use Sarok\Service\UserService;
 
 class Context
 {
@@ -25,25 +24,32 @@ class Context
 
     /** The currently logged in user */
     private User $user;
+    
     /** The owner of the currently browsed diary */
     private User $blog;
     /** The ID of the currently browser entry */
     private int $entryID;
-    /** The master template to use for rendering the current page */
-    private string $templateName = 'default';
+    /** Loaded entries */
+    private array $blogEntries;
+    /** Blog search parameters producing the entries */
+    private array $blogParams;
+
     /** An array of links to be displayed in the sidebar */
     private array $leftMenuItems;
+
+    /** The master template to use for rendering the current page */
+    private string $templateName = 'default';
+    /** Request path */
+    private string $path;
     /** Request path segments */
     private array $segments;
 
     private Logger $logger;
-    private UserService $userService;
     private DIContainer $container;
 
-    public function __construct(Logger $logger, UserService $userService, DIContainer $container)
+    public function __construct(Logger $logger, DIContainer $container)
     {
         $this->logger = $logger;
-        $this->userService = $userService;
         $this->container = $container;
     }
 
@@ -102,6 +108,26 @@ class Context
         return $this->leftMenuItems;
     }
 
+    public function getBlogEntries() : array
+    {
+        return $this->blogEntries;
+    }
+
+    public function setBlogEntries(array $blogEntries) : void
+    {
+        $this->blogEntries = $blogEntries;
+    }
+
+    public function getBlogParams() : array
+    {
+        return $this->blogParams;
+    }
+
+    public function setBlogParams(array $blogParams) : void
+    {
+        $this->blogParams = $blogParams;
+    }
+
     public function setLeftMenuItems(MenuItem ...$leftMenuItems) : void
     {
         $this->leftMenuItems = $leftMenuItems;
@@ -137,6 +163,7 @@ class Context
     public function parsePath(string $path) : string
     {
         $this->logger->debug("Parsing request path '$path'");
+        $this->path = $path;
 
         // Split by path separator, remove trailing empty separator
         $this->segments = explode('/', $path, self::PATH_LIMIT);
@@ -181,6 +208,11 @@ class Context
             default:
                 return ErrorPage::class;
         }
+    }
+
+    public function getPath() : string
+    {
+        return $this->path;
     }
 
     public function isPOST() : bool
