@@ -24,6 +24,6 @@ class ErrorPage extends Page
         $this->logger->debug('Initializing ErrorPage');
         parent::init();
         
-        $this->addAction('main', ErrorAction::class);
+        $this->addAction(self::TILE_MAIN, ErrorAction::class);
     }
 }

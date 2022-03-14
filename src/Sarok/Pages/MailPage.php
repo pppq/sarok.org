@@ -10,6 +10,7 @@ use Sarok\Actions\MailReadAction;
 use Sarok\Actions\MailPartnerListAction;
 use Sarok\Actions\MailListAction;
 use Sarok\Actions\MailComposeAction;
+use Sarok\Models\MenuItem;
 
 class MailPage extends Page
 {
@@ -23,7 +24,7 @@ class MailPage extends Page
         $this->logger->debug('Initializing MailPage');
         parent::init();
         
-        $firstSegment = $this->context->getPathSegment(0);
+        $firstSegment = $this->getPathSegment(0);
         $action = MailListAction::class;
         
         switch ($firstSegment) {
@@ -33,14 +34,14 @@ class MailPage extends Page
                 break;
 
             case 'send':
-                if ($this->context->isPostRequest()) {
+                if ($this->isPOST()) {
                     $action = MailSendAction::class;
                 }
                 break;
                 
             default:
                 if (preg_match('/^[0-9]+$/', $firstSegment)) {
-                    $secondSegment = $this->context->getPathSegment(1);
+                    $secondSegment = $this->getPathSegment(1);
                     
                     if ($secondSegment === 'reply') {
                         $action = MailComposeAction::class;
@@ -62,7 +63,7 @@ class MailPage extends Page
             new MenuItem('Páciensek listája', '/about/pacients/'),
         );
 
-        $this->addAction('main', $action);
-        $this->addAction('leftMenu', MailPartnerListAction::class);
+        $this->addAction(self::TILE_MAIN, $action);
+        $this->addAction(self::TILE_LEFT_MENU, MailPartnerListAction::class);
     }
 }

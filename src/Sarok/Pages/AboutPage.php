@@ -38,7 +38,7 @@ class AboutPage extends Page
         $this->logger->debug('Initializing AboutPage');
         parent::init();
 
-        $firstSegment = $this->context->getPathSegment(0);
+        $firstSegment = $this->removeFirstSegment();
 
         if (!isset(self::ACTION_MAP[$firstSegment])) {
             $this->logger->warning('Path segment not found in map, using default entry');
@@ -54,6 +54,6 @@ class AboutPage extends Page
         }
         
         $this->logger->debug("Action set to '$action'");
-        $this->addAction('main', $action);
+        $this->addAction(self::TILE_MAIN, $action);
     }
 }

@@ -18,6 +18,7 @@ use Sarok\Actions\SettingsImportAction;
 use Sarok\Actions\SettingsImagesAction;
 use Sarok\Actions\SettingsFriendsAction;
 use Sarok\Actions\SettingsBlogAction;
+use Sarok\Models\MenuItem;
 
 class SettingsPage extends Page
 {
@@ -47,7 +48,7 @@ class SettingsPage extends Page
             'makeImport' => SettingsMakeImportAction::class,
         );
 
-        $firstSegment = $this->context->getPathSegment(0);
+        $firstSegment = $this->getPathSegment(0);
 
         if (!isset($actionMap[$firstSegment])) {
             $action = SettingsInfoAction::class;
@@ -55,25 +56,25 @@ class SettingsPage extends Page
             $action = $actionMap[$firstSegment];
         }
 
-        if ($this->context->isPostRequest()) {
+        if ($this->isPOST()) {
             // TODO: POST requests should update corresponding settings
             $this->setTemplateName('empty');
         } else {
             parent::init();
             
             $this->context->setLeftMenuItems(
-                new MenuItem('Adatok',                  '/settings/'),
-                new MenuItem('Blog',                    '/settings/blog/'),
-                new MenuItem('Barátok',                 '/settings/friends/'),
-                new MenuItem('Képek',                   '/settings/images/'),
-                new MenuItem('Térkép',                  '/settings/map/'),
-                new MenuItem('Külső',                   '/settings/skin/'),
+                new MenuItem('Adatok', '/settings/'),
+                new MenuItem('Blog', '/settings/blog/'),
+                new MenuItem('Barátok', '/settings/friends/'),
+                new MenuItem('Képek', '/settings/images/'),
+                new MenuItem('Térkép', '/settings/map/'),
+                new MenuItem('Külső', '/settings/skin/'),
                 new MenuItem('Import/Export/Varázslat', '/settings/other/'),
-                new MenuItem('Statisztika',             '/settings/stats/'),
-                new MenuItem('Snowboardos arc',         '/settings/ski/'),
+                new MenuItem('Statisztika', '/settings/stats/'),
+                new MenuItem('Snowboardos arc', '/settings/ski/'),
             );
         }
 
-        $this->addAction('main', $action);
+        $this->addAction(self::TILE_MAIN, $action);
     }
 }

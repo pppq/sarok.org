@@ -8,6 +8,7 @@ use Sarok\Context;
 use Sarok\Actions\NewFavouritesAction;
 use Sarok\Actions\LeftMenuAction;
 use Sarok\Actions\IndexAction;
+use Sarok\Models\MenuItem;
 
 class IndexPage extends Page
 {
@@ -32,7 +33,7 @@ class IndexPage extends Page
             new MenuItem('Páciensek listája', '/about/pacients/'),
         );
         
-        $this->addAction('leftMenu', NewFavouritesAction::class);
-        $this->addAction('main', IndexAction::class);
+        $this->addAction(self::TILE_LEFT_MENU, NewFavouritesAction::class);
+        $this->addAction(self::TILE_MAIN, IndexAction::class);
     }
 }

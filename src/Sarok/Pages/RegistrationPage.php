@@ -15,22 +15,22 @@ class RegistrationPage extends Page
         parent::__construct($logger, $context);
     }
 
-    public function canExecute() : bool
+    public function canExecute(): bool
     {
-        return !($this->context->getProperty(Context::PROP_IS_LOGGED_IN));
+        return !$this->isLoggedIn();
     }
 
-    public function init() : void
+    public function init(): void
     {
         $this->logger->debug('Initializing RegistrationPage');
         parent::init();
-        
+
         $actionMap = array(
             'step1' => RegistrationStep1Action::class,
             'step2' => RegistrationStep2Action::class,
         );
 
-        $path = $this->context->getPathSegment(0);
+        $path = $this->getPathSegment(0);
 
         if (!isset($actionMap[$path])) {
             $action = RegistrationStep1Action::class;
@@ -38,6 +38,6 @@ class RegistrationPage extends Page
             $action = $actionMap[$path];
         }
 
-        $this->addAction('main', $action);
+        $this->addAction(self::TILE_MAIN, $action);
     }
 }

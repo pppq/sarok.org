@@ -20,6 +20,6 @@ class AuthPage extends Page
         // parent::init() is not needed
 
         $this->setTemplateName('empty');
-        $this->addAction('main', AuthAction::class);
+        $this->addAction(self::TILE_MAIN, AuthAction::class);
     }
 }

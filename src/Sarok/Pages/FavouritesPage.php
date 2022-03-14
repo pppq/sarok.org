@@ -18,13 +18,13 @@ class FavouritesPage extends Page
     {
         $this->logger->debug('Initializing FavouritesPage');
         
-        if ($this->context->isPostRequest()) {
+        if ($this->isPOST()) {
             // TODO: POST requests should update favourites
             $this->setTemplateName('empty');
         } else {
             parent::init();
         }
         
-        $this->addAction('main', FavouritesAction::class);
+        $this->addAction(self::TILE_MAIN, FavouritesAction::class);
     }
 }

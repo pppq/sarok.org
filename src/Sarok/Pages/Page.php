@@ -8,12 +8,26 @@ use Sarok\Actions\MenuAction;
 use Sarok\Actions\LogoutFormAction;
 use Sarok\Actions\LeftMenuAction;
 use Sarok\Actions\Action;
+use Sarok\Models\User;
 
 abstract class Page
 {
+    // Major sections in main (index.php) templates
+    const TILE_MENU = 'menu';
+    const TILE_LOGOUT = 'logout';
+    const TILE_LEFT_MENU = 'leftMenu';
+    const TILE_FRIEND_LIST = 'friendlist';
+    const TILE_MAIN = 'main';
+    const TILE_CALENDAR = 'calendar';
+    const TILE_NAVIGATION = 'navigation';
+    const TILE_SIDEBAR = 'sidebar';
+    const TILE_HEADER = 'header';
+    const TILE_NEW_MAIL = 'newMail';
+
     protected Logger $logger;
     protected Context $context;
 
+    /** @var array<string, array<string>> */
     private array $actions = array();
 
     protected function __construct(Logger $logger, Context $context)
@@ -37,9 +51,24 @@ abstract class Page
         return $this->context->getUser();
     }
 
+    protected function getPathSegment(int $segment) : string
+    {
+        return $this->context->getPathSegment($segment);
+    }
+
+    protected function removeFirstSegment() : string
+    {
+        return $this->context->removeFirstSegment();
+    }
+
     protected function getBlog() : User
     {
         return $this->context->getBlog();
+    }
+
+    protected function isPOST() : bool
+    {
+        return $this->context->isPOST();
     }
 
     public function addAction(string $tile, string $action) : void
@@ -70,13 +99,13 @@ abstract class Page
         $this->logger->debug('Initializing Page (adding common actions)');
 
         // Subclasses should call this method first, then register more actions
-        $this->addAction('menu', MenuAction::class);
-        $this->addAction('logout', LogoutFormAction::class);
-        $this->addAction('leftMenu', LeftMenuAction::class);
+        $this->addAction(self::TILE_MENU, MenuAction::class);
+        $this->addAction(self::TILE_LOGOUT, LogoutFormAction::class);
+        $this->addAction(self::TILE_LEFT_MENU, LeftMenuAction::class);
         
         if ($this->isLoggedIn()) {
-            $this->addAction('friendList', FriendListAction::class);
-            $this->addAction('newMail', CheckMailAction::class);
+            $this->addAction(self::TILE_FRIEND_LIST, FriendListAction::class);
+            $this->addAction(self::TILE_NEW_MAIL, CheckMailAction::class);
         }
     }
 

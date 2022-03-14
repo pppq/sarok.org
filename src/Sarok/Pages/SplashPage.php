@@ -25,6 +25,6 @@ class SplashPage extends Page
         // parent::init() is not needed
 
         $this->setTemplateName('splash');
-        $this->addAction('main', EmptyAction::class);
+        $this->addAction(self::TILE_MAIN, EmptyAction::class);
     }
 }

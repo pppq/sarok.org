@@ -21,15 +21,28 @@ use Sarok\Actions\EntryEditAction;
 use Sarok\Actions\EntryDeleteAction; 
 use Sarok\Actions\EntryAddCommentAction; 
 use Sarok\Actions\CustomCssAction;
+use Sarok\Models\User;
+use Sarok\Service\UserService;
 
 class BlogPage extends Page
 {
+    private UserService $userService;
     private BlogService $blogService;
 
-    public function __construct(Logger $logger, Context $context, BlogService $blogService)
-    {
+    public function __construct(
+        Logger $logger, 
+        Context $context, 
+        UserService $userService, 
+        BlogService $blogService
+    ) {
         parent::__construct($logger, $context);
+        $this->userService = $userService;
         $this->blogService = $blogService;
+    }
+
+    private function setBlog(User $blog) : void
+    {
+        $this->context->setBlog($blog);
     }
 
     public function init() : void
@@ -37,20 +50,30 @@ class BlogPage extends Page
         $this->logger->debug('Initializing BlogPage');
         // parent::init() is called if $needsDefaultActions is not set to false later down
         $needsDefaultActions = true;
+
+        $firstArg = $this->getPathSegment(0);
+        if (strlen($firstArg) === 0 || $firstArg === 'rss' || $firstArg === 'map') {
+            $this->setBlog($this->userService->getUserByLogin(User::LOGIN_ALL));
+            // process this segment again, below
+        } else {
+            $this->setBlog($this->userService->getUserByLogin($firstArg));
+            $this->removeFirstSegment(); // consume this path segment
+        }
         
-        $firstSegment = $this->context->getPathSegment(0);
+        $secondArg = $this->getPathSegment(0);
+
         $matches = array();
-        if (preg_match('/^m_([0-9]+)$', $firstSegment, $matches)) {
+        if (preg_match('^m_([1-9][0-9]*)$', $secondArg, $matches)) {
             $entryID = (int) $matches[1];
             $this->context->setEntryID($entryID);
             
-            $secondSegment = $this->context->getPathSegment(1);
+            $thirdArg = $this->getPathSegment(1);
             $action = EntryReadAction::class;
 
-            if ($secondSegment === 'edit') {
+            if ($thirdArg === 'edit') {
                 $action = EntryEditAction::class;
-            } else if ($this->context->isPostRequest()) {
-                switch ($secondSegment) {
+            } else if ($this->isPOST()) {
+                switch ($thirdArg) {
                     case 'update': 
                         $needsDefaultActions = false;
                         $action = EntryUpdateAction::class; 
@@ -72,23 +95,23 @@ class BlogPage extends Page
                         break;
                 }
             }
-        } else if ($firstSegment === 'new') {
+        } else if ($secondArg === 'new') {
             $action = EntryNewAction::class;
-        } else if ($firstSegment === 'info') {
+        } else if ($secondArg === 'info') {
             $action = EntryInfoAction::class;
-        } else if ($this->context->isPostRequest() && $firstSegment === 'update') {
+        } else if ($this->isPOST() && $secondArg === 'update') {
             $needsDefaultActions = false;
             $action = EntryUpdateAction::class;
         } else {
             $action = EntryListAction::class;
 
-            $lastSegment = $this->context->getPathSegment(-1);
-            $beforeLastSegment = $this->context->getPathSegment(-2);
+            $lastArg = $this->getPathSegment(-1);
+            $beforeLastArg = $this->getPathSegment(-2);
     
-            if ($lastSegment === 'rss' || $beforeLastSegment === 'rss') {
+            if ($lastArg === 'rss' || $beforeLastArg === 'rss') {
                 // Render list of entries to RSS XML if requested
                 $this->setTemplateName('rss');
-            } else if ($lastSegment === 'map') {
+            } else if ($lastArg === 'map') {
                 // Show pins on the map for geotagged entries
                 $action = EntryMapAction::class;
             }
@@ -97,11 +120,11 @@ class BlogPage extends Page
         if ($needsDefaultActions) {
             parent::init();
 
-            $this->addAction('calendar', MonthAction::class);
-            $this->addAction('navigation', NavigationAction::class);
-            $this->addAction('sidebar', SidebarAction::class);
-            $this->addAction('header', HeaderAction::class);
-            $this->addAction('header', CustomCssAction::class);
+            $this->addAction(self::TILE_CALENDAR, MonthAction::class);
+            $this->addAction(self::TILE_NAVIGATION, NavigationAction::class);
+            $this->addAction(self::TILE_SIDEBAR, SidebarAction::class);
+            $this->addAction(self::TILE_HEADER, HeaderAction::class);
+            $this->addAction(self::TILE_HEADER, CustomCssAction::class);
     
             $user = $this->getUser();
             $blog = $this->getBlog();
@@ -115,10 +138,10 @@ class BlogPage extends Page
             }
             
             $this->context->setLeftMenuItems(
-                new MenuItem('Bejegyzés irása',   "/users/$newLogin/new/"),
-                new MenuItem('Level irasa',       '/privates/new/'),
-                new MenuItem('Beallitasok',       '/settings/'),
-                new MenuItem('Könyjelzők',        '/favourites/'),
+                new MenuItem('Bejegyzés irása', "/users/$newLogin/new/"),
+                new MenuItem('Level irasa', '/privates/new/'),
+                new MenuItem('Beallitasok', '/settings/'),
+                new MenuItem('Könyjelzők', '/favourites/'),
                 new MenuItem('Páciensek listája', '/about/pacients/'),
             );
 
@@ -127,6 +150,6 @@ class BlogPage extends Page
             $this->setTemplateName('empty');
         }
 
-        $this->addAction('main', $action);
+        $this->addAction(self::TILE_MAIN, $action);
     }
 }

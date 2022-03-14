@@ -20,6 +20,6 @@ class LogoutPage extends Page
         // parent::init() is not needed
 
         $this->setTemplateName('empty');
-        $this->addAction('main', LogoutAction::class);
+        $this->addAction(self::TILE_MAIN, LogoutAction::class);
     }
 }
