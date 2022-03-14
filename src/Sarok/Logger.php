@@ -55,6 +55,10 @@ class Logger {
         }
 
         $this->ensureLogOpen();
+        if ($this->logFile === false) {
+            // The log was already open (once), then closed and some writes are arriving late, skip
+            return;
+        }
         
         $currentTime = date("Y-m-d G:i:s");
         $elapsedTime = (microtime(true) - $this->startTime) * 1000.0;
@@ -139,6 +143,7 @@ class Logger {
 	    if ($this->logFileOpened && $this->logFile !== false) {
 	        $this->debug("Closing log file");
 	        fclose($this->logFile);
+            $this->logFile = false;
 	    }
 	}
 }
