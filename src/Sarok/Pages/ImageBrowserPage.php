@@ -5,7 +5,7 @@ namespace Sarok\Pages;
 use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
-use Sarok\Actions\ImageBrowserAction;
+use Sarok\Actions\SettingsImagesAction;
 
 class ImageBrowserPage extends Page
 {
@@ -19,6 +19,8 @@ class ImageBrowserPage extends Page
         $this->log->debug('Initializing ImageBrowserPage');
         // parent::init() is not needed
         
-        $this->addAction('main', ImageBrowserAction::class);
+        // Re-using the image browser from the settings page here
+        $this->addAction(self::TILE_MAIN, SettingsImagesAction::class);
+        $this->setTemplateName('empty');
     }
 }
