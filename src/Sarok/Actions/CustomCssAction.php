@@ -18,8 +18,8 @@ class CustomCssAction extends Action
     {
         $this->log->debug("Running CustomCssAction");
         
-        $user = $this->context->getUser();
-        $blog = $this->context->getBlog();
+        $user = $this->getUser();
+        $blog = $this->getBlog();
         $userID = $user->getID();
         $blogID = $blog->getID();
         

@@ -21,8 +21,8 @@ class EntryDeleteAction extends Action
     {
         $this->log->debug('Running EntryDeleteAction');
 
-        $user = $this->context->getUser();
-        $blog = $this->context->getBlog();
+        $user = $this->getUser();
+        $blog = $this->getBlog();
 
         $userID = $user->getID();
         $blogID = $blog->getID();
@@ -31,13 +31,13 @@ class EntryDeleteAction extends Action
         // Default redirect location after POST is the blog's main page
         $location = "/users/$blogLogin/";
 
-        if (!$this->context->isPostRequest()) {
+        if (!$this->isPOST()) {
             return compact('location');
         }
         
         if ($this->context->hasEntryID()) {
             $entryID = $this->context->getEntryID();
-            $thirdSegment = $this->context->getPathSegment(2);
+            $thirdSegment = $this->getPathSegment(2);
 
             if (preg_match('/^[1-9][0-9]*$/', $thirdSegment)) {
                 $commentID = (int) $thirdSegment;

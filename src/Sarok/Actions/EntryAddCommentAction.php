@@ -33,7 +33,10 @@ class EntryAddCommentAction extends Action
     {
         $this->log->debug('Running EntryAddCommentAction');
 
-        $user = $this->context->getUser();
+        $user = $this->getUser();
+        $blog = $this->getBlog();
+        $blogLogin = $blog->getLogin();
+        $entryID = $this->context->getEntryID();
         $redirectToMain = $user->getUserData(User::KEY_TO_MAIN_PAGE, 'N');
         
         if ($redirectToMain === 'Y') {
@@ -43,14 +46,14 @@ class EntryAddCommentAction extends Action
             $location = "/users/$blogLogin/m_$entryID/";
         }
 
-        if (!$this->context->isPostRequest()) {
+        if (!$this->isPOST()) {
             return compact('location');
         }
         
         // FIXME: input filtering!
-        $body = $this->context->getPost('body');
-        $submitterName = $this->context->getPost('your_name');
-        $submitterLink = $this->context->getPost('your_web');
+        $body = $this->getPOST('body');
+        $submitterName = $this->getPOST('your_name');
+        $submitterLink = $this->getPOST('your_web');
 
         if (strlen($submitterName) > 0) {
             $signature = $submitterName;
@@ -72,7 +75,6 @@ class EntryAddCommentAction extends Action
         }
 
         $userID = $user->getID();
-        $entryID = $this->context->getEntryID();
 
         if ($this->blogService->canComment($entryID, $userID)) {
             $this->blogService->addComment(0, $entryID, $userID, $this->format($body));

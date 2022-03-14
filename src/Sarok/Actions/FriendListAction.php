@@ -5,6 +5,10 @@ namespace Sarok\Actions;
 use Sarok\Service\UserService;
 use Sarok\Service\SessionService;
 use Sarok\Actions\Action;
+use Sarok\Context;
+use Sarok\Logger;
+use Sarok\Models\User;
+use Sarok\Util;
 
 class FriendListAction extends Action
 {
@@ -26,12 +30,17 @@ class FriendListAction extends Action
     {
         $this->log->debug("Running FriendListAction");
 
-        $user = $this->context->getUser();
+        $user = $this->getUser();
         $userID = $user->getID();
         $userLogin= $user->getLogin();
 
+        $lastActive = Util::utcDateTimeFromString();
+        $lastActive->modify('-1 hour');
+
         $friends = $this->userService->getFriendsActivity($userID);
-        $onlineFriends = $this->sessionService->getOnlineFriends($userID);
+        $onlineFriends = array_filter($friends, function(User $f) use (&$lastActive) { 
+            return $f->getActivationDate() >= $lastActive; 
+        });
 
         return compact('userLogin', 'friends', 'onlineFriends');
     }

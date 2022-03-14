@@ -22,10 +22,10 @@ class EntryMapAction extends Action
     {
         $this->log->debug("Running EntryMapAction");
 
-        $reader = $this->context->getUser();
+        $reader = $this->getUser();
         $readerID = $reader->getID();
 
-        $blog = $this->context->getBlog();
+        $blog = $this->getBlog();
         $blogID = $blog->getID();
         $blogLogin = $blog->getLogin();
         $blogName = $blog->getUserData(User::KEY_BLOG_NAME);

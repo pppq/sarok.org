@@ -21,14 +21,14 @@ class LoginAction extends Action
     {
         $this->log->debug('Running LoginAction');
 
-        if (!$this->context->isPostRequest()) {
+        if (!$this->isPOST()) {
             $location = '/';
             return compact('location');
         }
 
-        $loginName = $this->context->getPost('login');
-        $password = $this->context->getPost('pass');
-        $location = $this->context->getPost('from', '/');
+        $loginName = $this->getPOST('login');
+        $password = $this->getPOST('pass');
+        $location = $this->getPOST('from', '/');
 
         $success = $this->sessionService->loginUser($loginName, $password);
 

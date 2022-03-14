@@ -22,10 +22,10 @@ class CheckMailAction extends Action
     {
         $this->log->debug("Running CheckMailAction");
         
-        $user = $this->context->getUser();
+        $user = $this->getUser();
         $userID = $user->getID();
         $userLogin = $user->getLogin();
-        $newMail = $user->getProperty(User::KEY_NEW_MAIL);
+        $newMail = (int) $user->getUserData(User::KEY_NEW_MAIL);
 
         $lastUnread = null;
         $firstUnread = null;

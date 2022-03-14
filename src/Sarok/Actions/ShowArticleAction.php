@@ -23,7 +23,7 @@ class ShowArticleAction extends Action
     {
         $this->log->debug('Running ShowArticleAction');
         
-        $reader = $this->context->getUser();
+        $reader = $this->getUser();
         $readerID = $reader->getID();
         $entryID = $this->context->getEntryID();
 

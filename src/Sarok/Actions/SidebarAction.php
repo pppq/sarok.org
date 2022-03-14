@@ -22,7 +22,7 @@ class SidebarAction extends Action
     {
         $this->log->debug('Running SidebarAction');
 
-        $blog = $this->context->getBlog();
+        $blog = $this->getBlog();
         $blogID = $blog->getID();
         $blogLogin = $blog->getLogin();
         $blogText = $blog->getUserData(User::KEY_BLOG_TEXT);

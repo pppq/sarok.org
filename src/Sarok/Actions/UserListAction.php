@@ -21,8 +21,8 @@ class UserListAction extends Action
     {
         $this->log->debug('Running UserListAction');
 
-        $secondSegment = $this->context->getPathSegment(1);
-        $thirdSegment = $this->context->getPathSegment(2);
+        $secondSegment = $this->getPathSegment(0);
+        $thirdSegment = $this->getPathSegment(1);
         
         if ($secondSegment === 'skip' && preg_match('/^0|[1-9][0-9]*$/', $thirdSegment)) {
             $offset = (int) $thirdSegment;
