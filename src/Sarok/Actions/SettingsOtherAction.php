@@ -15,11 +15,11 @@ class SettingsOtherAction extends Action
     private RssService $rssService;
 
     public function __construct(
-        Logger $logger, 
-        Context $context, 
+        Logger $logger,
+        Context $context,
         UserService $userService,
-        RssService $rssService)
-    {
+        RssService $rssService
+    ) {
         parent::__construct($logger, $context);
         $this->userService = $userService;
         $this->rssService = $rssService;
@@ -29,50 +29,45 @@ class SettingsOtherAction extends Action
     {
         $this->log->debug('Running SettingsOtherAction');
         
-        $user = $this->context->getUser();
-        
-		$this->userService->populateUserData($user, 
-			User::KEY_FRIEND_LIST_ONLY, 
-			User::KEY_TO_MAIN_PAGE,
-			User::KEY_TRACK_ME,
-			User::KEY_RSS,
-			User::KEY_WYSIWYG
-		);
+        $user = $this->getUser();
 
-        if ($this->context->isPostRequest()) {
-            return update($user);
+        if ($this->isPOST()) {
+            return $this->update($user);
         }
-        
-		$friendListOnly = $user->getUserData(User::KEY_FRIEND_LIST_ONLY);
-		$toMainPage = $user->getUserData(User::KEY_TO_MAIN_PAGE);
-		$trackMe = $user->getUserData(User::KEY_TRACK_ME);
-		$rss = $user->getUserData(User::KEY_RSS);
-		$wysiwyg = $user->getUserData(User::KEY_WYSIWYG);
-        $login = $user->getLogin();
-        $rssKey = $user->getRssKey();
 
-        return compact('friendListOnly', 'toMainPage', 'trackMe', 'rss', 'wysiwyg', 'login', 'rssKey');
+        list($friendListOnly, $toMainPage, $trackMe, $rss, $wysiwyg, $rssSecret) = $this->userService->populateUserData($user,
+            User::KEY_FRIEND_LIST_ONLY,
+            User::KEY_TO_MAIN_PAGE,
+            User::KEY_TRACK_ME,
+            User::KEY_RSS,
+            User::KEY_WYSIWYG,
+            User::KEY_RSS_SECRET);
+
+        $login = $user->getLogin();
+    
+        return compact('friendListOnly', 'toMainPage', 'trackMe', 'rss', 'wysiwyg', 'login', 'rssSecret');
     }
 
-    public function update(User $user) : array
+    private function update(User $user) : array
     {
-        $friendListOnly = $this->context->getPost(User::KEY_FRIEND_LIST_ONLY);
+        $friendListOnly = $this->getPOST(User::KEY_FRIEND_LIST_ONLY);
         if (isset($friendListOnly)) {
-			$user->setUserData(User::KEY_FRIEND_LIST_ONLY, $friendListOnly);
-		}
-		
-		$toMainPage = $this->context->getPost(User::KEY_TO_MAIN_PAGE);
+            $user->setUserData(User::KEY_FRIEND_LIST_ONLY, $friendListOnly);
+        }
+        
+        $toMainPage = $this->getPOST(User::KEY_TO_MAIN_PAGE);
         if (isset($toMainPage)) {
-			$user->setUserData(User::KEY_TO_MAIN_PAGE, $toMainPage);
-		}
+            $user->setUserData(User::KEY_TO_MAIN_PAGE, $toMainPage);
+        }
 
-        $wysiwyg = $this->context->getPost(User::KEY_WYSIWYG);
-		if (isset($wysiwyg)) {
+        $wysiwyg = $this->getPOST(User::KEY_WYSIWYG);
+        if (isset($wysiwyg)) {
             $user->setUserData(User::KEY_WYSIWYG, $wysiwyg);
         }
 
-        $rss = trim($this->context->getPost(User::KEY_RSS));
-        if (isset($rss) && $user->getUserData(User::KEY_RSS) !== $rss && $this->rssService->isValidFeed($rss)) {
+        $rss = trim($this->getPOST(User::KEY_RSS));
+        list($existingRss) = $this->userService->populateUserData($user, User::KEY_RSS);
+        if (isset($rss) && $existingRss !== $rss && $this->rssService->isValidFeed($rss)) {
             $this->log->debug('RSS is valid, updating');
 
             $this->rssService->deleteFeed($user->getID());
@@ -80,8 +75,8 @@ class SettingsOtherAction extends Action
             $user->setUserData(User::KEY_RSS, $rss);
         }
 
-        $pass1 = $this->context->getPost('pass1');
-        $pass2 = $this->context->getPost('pass2');
+        $pass1 = $this->getPOST('pass1');
+        $pass2 = $this->getPOST('pass2');
         if (isset($pass1) && $pass1 === $pass2 && strlen($pass1) > 3) {
             $user->setPass($pass1);
         }
@@ -89,7 +84,7 @@ class SettingsOtherAction extends Action
         $this->userService->saveUser($user);
         
         $this->setTemplateName('empty');
-        $location = $this->context->getPost('location', '/settings/other');
+        $location = $this->getPOST('location', '/settings/other');
         return compact('location');
     }
 }

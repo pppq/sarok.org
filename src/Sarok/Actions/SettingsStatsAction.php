@@ -26,7 +26,7 @@ class SettingsStatsAction extends Action
     {
         $this->log->debug('Running SettingsStatsAction');
 
-        $user = $this->context->getUser();
+        $user = $this->getUser();
         
         $startDate = $user->getCreateDate();
         $endDate = Util::utcDateTimeFromString();

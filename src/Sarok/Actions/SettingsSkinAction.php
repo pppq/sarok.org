@@ -22,10 +22,10 @@ class SettingsSkinAction extends Action
     {
         $this->log->debug('Running SettingsSkinAction');
         
-        $user = $this->context->getUser();
+        $user = $this->getUser();
         $this->userService->populateUserData($user, User::KEY_CSS, User::KEY_SKIN_NAME);
 
-        if ($this->context->isPostRequest()) {
+        if ($this->isPOST()) {
             return update($user);
         }
 
@@ -44,12 +44,12 @@ class SettingsSkinAction extends Action
 
     public function update(User $user) : array
     {
-        $css = $this->context->getPost(User::KEY_CSS);
+        $css = $this->getPOST(User::KEY_CSS);
         if (isset($css)) {
             $user->setUserData(User::KEY_CSS, $css);
         }
         
-        $skinName = $this->context->getPost(User::KEY_SKIN_NAME);
+        $skinName = $this->getPOST(User::KEY_SKIN_NAME);
         if (isset($skinName)) {
             $user->setUserData(User::KEY_SKIN_NAME, $skinName);
         }
@@ -57,7 +57,7 @@ class SettingsSkinAction extends Action
         $this->userService->saveUserData($user);
         
         $this->setTemplateName('empty');
-        $location = $this->context->getPost('location', '/settings/skin');
+        $location = $this->getPOST('location', '/settings/skin');
         return compact('location');
     }
 }
