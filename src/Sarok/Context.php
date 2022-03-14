@@ -2,33 +2,89 @@
 
 namespace Sarok;
 
+use InvalidArgumentException;
+use Sarok\Actions\Action;
+use Sarok\Models\MenuItem;
 use Sarok\Models\User;
-use Sarok\Logger;
+use Sarok\Pages\AboutPage;
+use Sarok\Pages\AuthPage;
+use Sarok\Pages\BlogPage;
+use Sarok\Pages\ErrorPage;
+use Sarok\Pages\FavouritesPage;
+use Sarok\Pages\ImageBrowserPage;
+use Sarok\Pages\IndexPage;
+use Sarok\Pages\LogoutPage;
+use Sarok\Pages\MailPage;
+use Sarok\Pages\RegistrationPage;
+use Sarok\Pages\SplashPage;
+use Sarok\Service\UserService;
 
 class Context
 {
-    const PROP_IS_LOGGED_IN = 'isLoggedIn';
-    const PROP_ENTRY_ID = 'entryID';
-    const PROP_MENU_ITEMS = 'menuItems';
+    private const PATH_LIMIT = 15;
 
-    public $users = array(); //hash of loaded users
-    public $session; // sessionClass that stores current session values
-    public $entries = array(); // hash of loaded entries
-    public $comments = array(); //hash of loaded comments
-    public $mails = array(); // hash of loaded mails
-    public $blog; // current blog
-    public $params; // paramaeters from the URL
-    public $ActionPage; //action to execute
-    
-    
-    public User $user;
-    private array $properties = array();
-    private Logger $logger;
+    /** The currently logged in user */
+    private User $user;
+    /** The owner of the currently browsed diary */
+    private User $blog;
+    /** The ID of the currently browser entry */
+    private int $entryID;
+    /** The master template to use for rendering the current page */
     private string $templateName = 'default';
+    /** An array of links to be displayed in the sidebar */
+    private array $leftMenuItems;
+    /** Request path segments */
+    private array $segments;
 
-    public function __construct(Logger $logger)
+    private Logger $logger;
+    private UserService $userService;
+    private DIContainer $container;
+
+    public function __construct(Logger $logger, UserService $userService, DIContainer $container)
     {
         $this->logger = $logger;
+        $this->userService = $userService;
+        $this->container = $container;
+    }
+
+    public function getUser() : User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user) : void
+    {
+        $this->user = $user;
+    }
+
+    public function isLoggedIn() : bool
+    {
+        return $this->user->getID() === User::ID_ANONYMOUS;
+    }
+
+    public function getBlog() : User
+    {
+        return $this->blog;
+    }
+
+    public function setBlog(User $blog) : void
+    {
+        $this->blog = $blog;
+    }
+
+    public function getEntryID() : int
+    {
+        return $this->entryID;
+    }
+
+    public function setEntryID(int $entryID) : void
+    {
+        $this->entryID = $entryID;
+    }
+
+    public function hasEntryID() : bool
+    {
+        return isset($this->entryID);
     }
 
     public function getTemplateName() : string
@@ -41,92 +97,116 @@ class Context
         $this->templateName = $templateName;
     }
 
-    public function getUser() : User
+    public function getLeftMenuItems() : array
     {
-        return $this->user;
+        return $this->leftMenuItems;
     }
 
-    public function getProperty(string $name, $defaultValue = false) : mixed
+    public function setLeftMenuItems(MenuItem ...$leftMenuItems) : void
     {
-        if (isset($this->properties[$name])) {
-            return $this->properties[$name];
+        $this->leftMenuItems = $leftMenuItems;
+    }
+
+    public function hasLeftMenuItems() : bool
+    {
+        return isset($this->leftMenuItems);
+    }
+
+    public function getPathSegment(int $segment) : string
+    {
+        $pathSegment = array_slice($this->segments, $segment, 1);
+
+        if (count($pathSegment) > 0) {
+            return $pathSegment[0];
+        } else {
+            return '';
+        }
+    }
+
+    public function removeFirstSegment() : string
+    {
+        $firstSegment = array_shift($this->segments);
+        
+        if ($firstSegment !== null) {
+            return $firstSegment;
+        } else {
+            return '';
+        }
+    }
+
+    public function parsePath(string $path) : string
+    {
+        $this->logger->debug("Parsing request path '$path'");
+
+        // Split by path separator, remove trailing empty separator
+        $this->segments = explode('/', $path, self::PATH_LIMIT);
+
+        $lastPos = count($this->segments) - 1;
+        if ($lastPos >= 0 && strlen($this->segments[$lastPos]) === 0) {
+            unset($this->segments[$lastPos]);
+        }
+
+        // Root path corresponds to the dashboard or the login page
+        if (count($this->segments) === 0) {
+            if ($this->isLoggedIn()) {
+                return IndexPage::class;
+            } else {
+                return SplashPage::class;
+            }
+        }
+
+        // Otherwise the first path segment decides which page to display
+        $firstSegment = $this->removeFirstSegment();
+
+        switch ($firstSegment) {
+            case 'about':
+                return AboutPage::class;
+            case 'auth':
+                return AuthPage::class;
+            case 'users':
+                return BlogPage::class;
+            case 'favourites':
+                return FavouritesPage::class;
+            case 'imagebrowser':
+                return ImageBrowserPage::class;
+            case 'logout':
+                return LogoutPage::class;
+            case 'mail': // fall-through
+            case 'privates':
+                return MailPage::class;
+            case 'registration':
+                return RegistrationPage::class;
+            case 'settings':
+                return SettingsPage::class;
+            default:
+                return ErrorPage::class;
+        }
+    }
+
+    public function isPOST() : bool
+    {
+        return $_SERVER['REQUEST_METHOD'] === 'POST';
+    }
+
+    public function getPOST(string $name, mixed $defaultValue = '') : mixed
+    {
+        if (isset($_POST[$name])) {
+            return $_POST[$name];
         } else {
             return $defaultValue;
         }
     }
 
-    public function setProperty(string $name, $value) : void
-    {
-        $this->properties[$name] = $value;
+    public function getUpload(string $name) : array {
+        return $_FILES[$name];
     }
 
-    public function getPathSegment(int $segment) : string
+    public function getAction(string $name) : Action
     {
-        // Return empty string if there are not enough segments
-    }
-
-
-
-
-    public function requestUserDAL($ida)
-    {
-        $this->log->debug2("requestUserDAL($ida)");
-        $id=userDAL::findID($ida);
-        if (!array_key_exists($id, $this->users)) {
-            new userDAL($id);
-            $this->log->debug("$id added to container");
+        if (!is_subclass_of($name, Action::class)) {
+            throw new InvalidArgumentException("Class '$name' is not a subclass of Action.");
         }
-
-        return ($this->users[$id]);
-    }
-
-
-    public function parseURL($url)
-    {
-        $this->log->debug2("parsing url $url");
-        if (strlen($url) == 0) {
-            if ($this->getProperty("loggedin")==false) {
-                $ActionPage = "splash";
-            } else {
-                $ActionPage = "default";
-            }
-            $this->log->debug("Action Page is {$ActionPage}");
-            return $ActionPage;
-        }
-        $p = explode("/", $url);
-        $this->params=$p;
-        if ($p[sizeof($p) - 1] == "") {
-            unset($p[sizeof($p) - 1]);
-        }
-        if ($p[0] == "users") {
-            if (sizeof($p) > 1 and $p[1]!='rss') {
-                $this->blog = $this->requestUserDAL($p[1]);
-                array_shift($p);
-            } else {
-                $this->blog = $this->requestUserDAL("all");
-            }
-            $this->props["blog"] = true;
-            $this->log->debug("blog is set");
-
-            array_shift($p);
-            $this->params=$p;
-            $ActionPage = "blog";
-            return $ActionPage;
-        }
-        if ($p[0]=="mail" or $p[0]=="privates") {
-            $ActionPage = "mail";
-
-            return $ActionPage;
-        }
-
-        if (class_exists($p[0]."AP")) {
-            $ActionPage = $p[0];
-            array_shift($p);
-        } else {
-            $ActionPage = "error";
-        }
-        $this->params=$p;
-        $this->log->debug("Action Page is {$ActionPage}");
-        return $ActionPage;
+        
+        return $this->container->get($name, true);
     }
 }
