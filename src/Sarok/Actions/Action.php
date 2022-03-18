@@ -54,5 +54,10 @@ abstract class Action
         return $this->context->getPOST($name, $defaultValue);
     }
 
+    protected function getPathParams() : array
+    {
+        return $this->context->getPathParams();
+    }
+
     abstract public function execute() : array;
 }

@@ -26,6 +26,8 @@ use Sarok\Service\UserService;
 
 class BlogPage extends Page
 {
+    private const DEFAULT_SKIP = 20;
+
     private UserService $userService;
     private BlogService $blogService;
 
@@ -117,6 +119,10 @@ class BlogPage extends Page
             }
         }
 
+        if ($action === EntryListAction::class) {
+            $this->parseBlogParams();
+        }
+
         if ($needsDefaultActions) {
             parent::init();
 
@@ -151,5 +157,100 @@ class BlogPage extends Page
         }
 
         $this->addAction(self::TILE_MAIN, $action);
+    }
+
+    private function parseBlogParams() : void
+    {
+        // Parse remaining path parameters
+        $pathParams = array();
+
+        /* 
+        * Display entries from diaries of the user's friends:
+        * 
+        * - /users/all (everyone is a friend of "all" by default)
+        * - /users/xyz/friends
+        */
+        if ($this->getBlog()->getLogin() === User::LOGIN_ALL || $this->getPathSegment(0) === 'friends') {
+            $pathParams['friends'] = true;
+            if ($this->getPathSegment(0) === 'friends') {
+                $this->removeFirstSegment();
+            }
+        }
+
+        /*
+        * Display entries from the selected year/month/day:
+        * 
+        * - /users/xyz/2022
+        * - /users/xyz/2022/03
+        * - /users/xyz/2022/03/18
+        */
+        if (ctype_digit($this->getPathSegment(0))) {
+            $pathParams['year'] = (int) $this->removeFirstSegment();
+
+            if (ctype_digit($this->getPathSegment(0))) {
+                $pathParams['month'] = (int) $this->removeFirstSegment();
+
+                if (ctype_digit($this->getPathSegment(0))) {
+                    $pathParams['day'] = (int) $this->removeFirstSegment();
+                }
+            }
+        }
+
+        /*
+        * Display entries matching the search expression with match highlighting:
+        * 
+        * - /users/xyz/search (keyword is received via POST data)
+        * - /users/xyz/search/algernon (keyword is the next path parameter)
+        */
+        if ($this->getPathSegment(0) === 'search') {
+            $pathParams['search'] = true;
+            $this->removeFirstSegment();
+
+            if (strlen($this->getPathSegment(0)) > 0) {
+                $pathParams['keyword'] = $this->removeFirstSegment();
+            } else {
+                // Will be empty if not a POST request or the parameter is missing
+                $pathParams['keyword'] = $this->getPOST('keyword');
+            }
+        }
+
+        /*
+        * Display entries with matching tag
+        * 
+        * - /users/xyz/tags (tag is received via POST data)
+        * - /users/xyz/tags/howto (tag is the next path parameter)
+        */
+        if ($this->getPathSegment(0) === 'tags') {
+            $pathParams['tags'] = true;
+            $this->removeFirstSegment();
+
+            if (strlen($this->getPathSegment(0)) > 0) {
+                $pathParams['tagword'] = $this->removeFirstSegment();
+            } else {
+                // Will be empty if not a POST request or the parameter is missing
+                $pathParams['tagword'] = $this->getPOST('tagword');
+            }
+        }
+
+        /*
+        * Skip first "N" matching entries
+        * 
+        * - /users/xyz/skip/300
+        */
+        if ($this->removeFirstSegment() === 'skip') {
+            $skip = $this->removeFirstSegment();
+            if (ctype_digit($skip)) {
+                $pathParams['skip'] = (int) $skip;
+            } else {
+                $pathParams['skip'] = self::DEFAULT_SKIP;
+            }
+        }
+
+        /* 
+        * ...or any combination of the above, but also in the order listed above.
+        * 
+        * - /users/xyz/friend/2022/02/search/hairbrush/skip/50
+        */
+        $this->setPathParams($pathParams);
     }
 }

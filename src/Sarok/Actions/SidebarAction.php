@@ -27,7 +27,7 @@ class SidebarAction extends Action
         $blogLogin = $blog->getLogin();
         $blogText = $blog->getUserData(User::KEY_BLOG_TEXT);
 
-        $tags = $this->blogService->getTagCloud($blogID);
+        $tags = $this->blogService->getTagCloudForBlog($blogID);
 
         return compact('blogLogin', 'blogText', 'tags');
     }

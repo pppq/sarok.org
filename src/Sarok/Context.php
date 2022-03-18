@@ -20,25 +20,28 @@ use Sarok\Pages\SplashPage;
 
 class Context
 {
-    private const PATH_LIMIT = 15;
+    private const SEGMENT_LIMIT = 15;
 
     /** The currently logged in user */
     private User $user;
     
     /** The owner of the currently browsed diary */
     private User $blog;
-    /** The ID of the currently browser entry */
+    /** The ID of the currently browsed entry */
     private int $entryID;
-    /** Loaded entries */
-    private array $blogEntries;
-    /** Blog search parameters producing the entries */
-    private array $blogParams;
+
+    /** 
+     * Path parameters as an associative array 
+     * @var array<string, mixed>
+     */
+    private array $pathParams;
 
     /** An array of links to be displayed in the sidebar */
     private array $leftMenuItems;
 
     /** The master template to use for rendering the current page */
     private string $templateName = 'default';
+
     /** Request path */
     private string $path;
     /** Request path segments */
@@ -118,14 +121,14 @@ class Context
         $this->blogEntries = $blogEntries;
     }
 
-    public function getBlogParams() : array
+    public function getPathParams() : array
     {
-        return $this->blogParams;
+        return $this->pathParams;
     }
 
-    public function setBlogParams(array $blogParams) : void
+    public function setPathParams(array $pathParams) : void
     {
-        $this->blogParams = $blogParams;
+        $this->pathParams = $pathParams;
     }
 
     public function setLeftMenuItems(MenuItem ...$leftMenuItems) : void
@@ -166,7 +169,7 @@ class Context
         $this->path = $path;
 
         // Split by path separator, remove trailing empty separator
-        $this->segments = explode('/', $path, self::PATH_LIMIT);
+        $this->segments = explode('/', $path, self::SEGMENT_LIMIT);
 
         $lastPos = count($this->segments) - 1;
         if ($lastPos >= 0 && strlen($this->segments[$lastPos]) === 0) {

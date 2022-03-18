@@ -61,6 +61,11 @@ abstract class Page
         return $this->context->removeFirstSegment();
     }
 
+    protected function setPathParams(array $pathParams) : void
+    {
+        $this->context->setPathParams($pathParams);
+    }
+
     protected function getBlog() : User
     {
         return $this->context->getBlog();
@@ -69,6 +74,11 @@ abstract class Page
     protected function isPOST() : bool
     {
         return $this->context->isPOST();
+    }
+
+    protected function getPOST(string $name, mixed $defaultValue = '') : mixed
+    {
+        return $this->context->getPOST($name, $defaultValue);
     }
 
     public function addAction(string $tile, string $action) : void
