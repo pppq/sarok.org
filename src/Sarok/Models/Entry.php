@@ -97,7 +97,7 @@ class Entry
         }
 
         if (!isset($this->_dayDate)) {
-            $this->_dayDate = Util::dateTimeToDate($this->_createDate);
+            $this->_dayDate = $this->_createDate;
         }
     }
     
@@ -311,7 +311,7 @@ class Entry
 
     public function setDayDate(DateTime $dayDate) : void
     {
-        $this->_dayDate = Util::dateTimeToDate($dayDate);
+        $this->_dayDate = $dayDate;
     }
 
     public function getRssURL() : string
