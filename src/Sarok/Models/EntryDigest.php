@@ -38,7 +38,7 @@ class EntryDigest
     private string     $userID       = '';
     private string     $diaryID      = '';
     private DateTime   $_createDate;
-    private AccessType $access       = AccessType::ALL;
+    private AccessType $_access      = AccessType::ALL;
     private string     $body         = '';
     private DateTime   $_lastUsed;
     
@@ -61,6 +61,10 @@ class EntryDigest
         
         if (self::FIELD_LAST_USED === $name && is_string($value)) {
             $this->setLastUsed(Util::utcDateTimeFromString($value));
+        }
+
+        if (self::FIELD_ACCESS === $name && is_string($value)) {
+            $this->setAccess(AccessType::from($value));
         }
     }
     
@@ -116,12 +120,12 @@ class EntryDigest
 
     public function getAccess() : AccessType
     {
-        return $this->access;
+        return $this->_access;
     }
 
     public function setAccess(AccessType $access) : void
     {
-        $this->access = $access;
+        $this->_access = $access;
     }
 
     public function getBody() : string
@@ -152,7 +156,7 @@ class EntryDigest
             self::FIELD_USER_ID     => $this->userID,
             self::FIELD_DIARY_ID    => $this->diaryID,
             self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
-            self::FIELD_ACCESS      => $this->access->value,
+            self::FIELD_ACCESS      => $this->_access->value,
             self::FIELD_BODY        => $this->body,
             self::FIELD_LAST_USED   => Util::dateTimeToString($this->_lastUsed),
         );

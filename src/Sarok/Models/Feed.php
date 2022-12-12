@@ -35,15 +35,15 @@ class Feed
     const FIELD_STATUS        = 'status';
     const FIELD_COMMENT       = 'comment';
     
-    private int      $ID           = -1;
-    private string   $feedURL      = '';
-    private int      $blogID       = 0;
-    private DateTime $_lastUpdate;
-    private DateTime $_nextUpdate;
-    private string   $lastEntry    = '';
-    private string   $contactEmail = '';
-    private string   $status       = FeedStatus::DEFAULT;
-    private string   $comment      = '';
+    private int        $ID           = -1;
+    private string     $feedURL      = '';
+    private int        $blogID       = 0;
+    private DateTime   $_lastUpdate;
+    private DateTime   $_nextUpdate;
+    private string     $lastEntry    = '';
+    private string     $contactEmail = '';
+    private FeedStatus $_status      = FeedStatus::DEFAULT;
+    private string     $comment      = '';
     
     public function __construct()
     {
@@ -56,7 +56,7 @@ class Feed
         }
     }
     
-    public function __set(string $name, $value) : void
+    public function __set(string $name, mixed $value) : void
     {
         if (self::FIELD_LAST_UPDATE === $name && is_string($value)) {
             $this->setLastUpdate(Util::utcDateTimeFromString($value));
@@ -64,6 +64,10 @@ class Feed
         
         if (self::FIELD_NEXT_UPDATE === $name && is_string($value)) {
             $this->setNextUpdate(Util::utcDateTimeFromString($value));
+        }
+
+        if (self::FIELD_STATUS === $name && is_string($value)) {
+            $this->setStatus(FeedStatus::from($value));
         }
     }
     
@@ -137,14 +141,14 @@ class Feed
         $this->contactEmail = $contactEmail;
     }
 
-    public function getStatus() : string
+    public function getStatus() : FeedStatus
     {
-        return $this->status;
+        return $this->_status;
     }
 
-    public function setStatus(string $status) : void
+    public function setStatus(FeedStatus $status) : void
     {
-        $this->status = $status;
+        $this->_status = $status;
     }
 
     public function getComment() : string
@@ -167,7 +171,7 @@ class Feed
             self::FIELD_NEXT_UPDATE   => Util::dateTimeToString($this->_nextUpdate),
             self::FIELD_LAST_ENTRY    => $this->lastEntry,
             self::FIELD_CONTACT_EMAIL => $this->contactEmail,
-            self::FIELD_STATUS        => $this->status,
+            self::FIELD_STATUS        => $this->_status->value,
             self::FIELD_COMMENT       => $this->comment,
         );
     }

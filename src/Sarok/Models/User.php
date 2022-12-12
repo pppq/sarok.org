@@ -121,7 +121,7 @@ class User
 
     /**
      * Keys that will need updating on next save
-     * @var array<string>
+     * @var array<string, bool>
      */
     private array $unsavedKeys = array();
     
@@ -293,7 +293,7 @@ class User
      */
     public function flushUserData() : array
     {
-        $unsavedData = array_intersect_key($this->unsavedKeys, $this->userData);
+        $unsavedData = array_intersect_key($this->userData, $this->unsavedKeys);
         $this->unsavedKeys = array();
         return $unsavedData;
     }

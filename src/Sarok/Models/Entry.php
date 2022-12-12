@@ -62,8 +62,8 @@ class Entry
     private int        $userID           = 0;
     private DateTime   $_createDate;
     private DateTime   $_modifyDate;
-    private AccessType $access           = AccessType::ALL;
-    private AccessType $comments         = AccessType::ALL;
+    private AccessType $_access          = AccessType::ALL;
+    private AccessType $_comments        = AccessType::ALL;
     private string     $title            = '';
     private string     $body             = '';
     private string     $body2            = '';
@@ -94,10 +94,6 @@ class Entry
 
         if (!isset($this->_lastVisit)) {
             $this->_lastVisit = Util::zeroDateTime();
-        }
-
-        if (!isset($this->_isTerminated)) {
-            $this->_isTerminated = false;
         }
 
         if (!isset($this->_dayDate)) {
@@ -137,6 +133,14 @@ class Entry
         
         if (self::FIELD_POS_Y === $name && is_string($value)) {
             $this->setPosY((float) $value);
+        }
+
+        if (self::FIELD_ACCESS === $name && is_string($value)) {
+            $this->setAccess(AccessType::from($value));
+        }
+
+        if (self::FIELD_COMMENTS === $name && is_string($value)) {
+            $this->setComments(AccessType::from($value));
         }
     }
 
@@ -192,22 +196,22 @@ class Entry
 
     public function getAccess() : AccessType
     {
-        return $this->access;
+        return $this->_access;
     }
 
     public function setAccess(AccessType $access) : void
     {
-        $this->access = $access;
+        $this->_access = $access;
     }
 
     public function getComments() : AccessType
     {
-        return $this->comments;
+        return $this->_comments;
     }
 
     public function setComments(AccessType $comments) : void
     {
-        $this->comments = $comments;
+        $this->_comments = $comments;
     }
 
     public function getTitle() : string
@@ -348,8 +352,8 @@ class Entry
             self::FIELD_USER_ID           => $this->userID,
             self::FIELD_CREATE_DATE       => Util::dateTimeToString($this->_createDate),
             self::FIELD_MODIFY_DATE       => Util::dateTimeToString($this->_modifyDate),
-            self::FIELD_ACCESS            => $this->access->value,
-            self::FIELD_COMMENTS          => $this->comments->value,
+            self::FIELD_ACCESS            => $this->_access->value,
+            self::FIELD_COMMENTS          => $this->_comments->value,
             self::FIELD_TITLE             => $this->title,
             self::FIELD_BODY_1            => $this->body,
             self::FIELD_BODY_2            => $this->body2,

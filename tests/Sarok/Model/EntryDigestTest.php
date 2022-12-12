@@ -51,6 +51,16 @@ final class EntryDigestTest extends TestCase
             "'Last used' date's timestamp should match value set via magic method.");
     }
 
+    public function testEnumMagicSetter() : void
+    {
+        // Simulate what mysqli does when reading a row returned from a query
+        $ed = new EntryDigest();
+        $ed->access = 'PRIVATE';
+
+        $this->assertEquals(AccessType::AUTHOR_ONLY, $ed->getAccess(), 
+            "Access type should match string value set via magic method.");
+    }
+    
     public function testToArray() : void
     {
         $ed = new EntryDigest();

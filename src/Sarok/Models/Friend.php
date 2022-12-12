@@ -21,15 +21,22 @@ class Friend
     
     private int        $friendOf   = 0;
     private int        $userID     = 0;
-    private FriendType $friendType = FriendType::FRIEND;
+    private FriendType $_friendType = FriendType::FRIEND;
 
     public static function create(int $friendOf, int $userID, FriendType $friendType = FriendType::FRIEND) : Friend
     {
         $friend = new Friend();
         $friend->friendOf = $friendOf;
         $friend->userID = $userID;
-        $friend->friendType = $friendType;
+        $friend->_friendType = $friendType;
         return $friend;
+    }
+
+    public function __set(string $name, mixed $value) : void
+    {
+        if (self::FIELD_FRIEND_TYPE === $name && is_string($value)) {
+            $this->_friendType = FriendType::from($value);
+        }
     }
 
     public function getFriendOf() : int
@@ -44,7 +51,7 @@ class Friend
 
     public function getFriendType() : FriendType
     {
-        return $this->friendType;
+        return $this->_friendType;
     }
 
     public function toArray() : array
@@ -52,7 +59,7 @@ class Friend
         return array(
             self::FIELD_FRIEND_OF   => $this->friendOf,
             self::FIELD_USER_ID     => $this->userID,
-            self::FIELD_FRIEND_TYPE => $this->friendType->value,
+            self::FIELD_FRIEND_TYPE => $this->_friendType->value,
         );
     }
 }

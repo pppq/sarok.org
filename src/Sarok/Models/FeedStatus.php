@@ -10,15 +10,15 @@ enum FeedStatus : string
     /** 
      * Source feed can be periodically polled for new entries
      */
-    const ALLOWED = 'allowed';
+    case ALLOWED = 'allowed';
 
     /** 
      * No new entries will be added from the specified feed
      */
-    const BANNED = 'banned';
+    case BANNED = 'banned';
 
     /**
      * No explicit permission or denial specified for this feed
      */
-    const DEFAULT = '-';
+    case DEFAULT = '-';
 }

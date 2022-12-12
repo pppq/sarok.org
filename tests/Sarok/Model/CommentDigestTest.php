@@ -52,6 +52,19 @@ final class CommentDigestTest extends TestCase
             "'Last used' date's timestamp should match value set via magic method.");
     }
 
+    public function testEnumMagicSetters() : void
+    {
+        // Simulate what mysqli does when reading a row returned from a query
+        $cd = new CommentDigest();
+        $cd->category = 'myComments';
+        $cd->access = 'LIST';
+
+        $this->assertEquals(CommentDigestCategory::MY_COMMENTS, $cd->getCategory(), 
+            "Comment digest category should match string value set via magic method.");
+        $this->assertEquals(AccessType::LIST, $cd->getAccess(), 
+            "Access type should match string value set via magic method.");
+    }
+
     public function testToArray() : void
     {
         $cd = new CommentDigest();
