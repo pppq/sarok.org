@@ -33,14 +33,14 @@ class EntryDigest
     const FIELD_BODY        = 'body';
     const FIELD_LAST_USED   = 'lastUsed';
     
-    private int      $ID           = 0;
-    private int      $ownerID      = 0;
-    private string   $userID       = '';
-    private string   $diaryID      = '';
-    private DateTime $_createDate;
-    private string   $access       = AccessType::ALL;
-    private string   $body         = '';
-    private DateTime $_lastUsed;
+    private int        $ID           = 0;
+    private int        $ownerID      = 0;
+    private string     $userID       = '';
+    private string     $diaryID      = '';
+    private DateTime   $_createDate;
+    private AccessType $access       = AccessType::ALL;
+    private string     $body         = '';
+    private DateTime   $_lastUsed;
     
     public function __construct()
     {
@@ -114,12 +114,12 @@ class EntryDigest
         $this->_createDate = $createDate;
     }
 
-    public function getAccess() : string
+    public function getAccess() : AccessType
     {
         return $this->access;
     }
 
-    public function setAccess(string $access) : void
+    public function setAccess(AccessType $access) : void
     {
         $this->access = $access;
     }
@@ -152,7 +152,7 @@ class EntryDigest
             self::FIELD_USER_ID     => $this->userID,
             self::FIELD_DIARY_ID    => $this->diaryID,
             self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
-            self::FIELD_ACCESS      => $this->access,
+            self::FIELD_ACCESS      => $this->access->value,
             self::FIELD_BODY        => $this->body,
             self::FIELD_LAST_USED   => Util::dateTimeToString($this->_lastUsed),
         );

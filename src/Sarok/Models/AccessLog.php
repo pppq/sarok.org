@@ -36,24 +36,16 @@ class AccessLog
     
     private DateTime $_datum;
     private int      $micros     = 0;
-    private int      $sessid     = '';
+    private int      $sessid     = 0;
     private string   $action     = '';
     private string   $referrer   = '';
     private string   $ip         = '';
     private int      $userCode   = 0;
     private int      $runTime    = 0;
     private int      $numQueries = 0;
-    
-    public static function create(DateTime $datum) : AccessLog 
-    {
-        $accessLog = new AccessLog();
-        $accessLog->setDatum($datum);
-        return $accessLog;
-    }
 
     public function __construct()
     {
-        // Initialize only if not already set by fetch_object()
         if (!isset($this->_datum)) {
             $this->_datum = Util::utcDateTimeFromString();
         }
@@ -61,7 +53,6 @@ class AccessLog
     
     public function __set(string $name, mixed $value) : void
     {
-        // Support conversion from string for fetch_object()
         if (self::FIELD_DATUM === $name && is_string($value)) {
             $this->setDatum(Util::utcDateTimeFromString($value));
         }

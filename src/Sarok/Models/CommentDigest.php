@@ -51,7 +51,6 @@ class CommentDigest
 
     public function __construct()
     {
-        // Initialize only if not already set by fetch_object()
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::zeroDateTime();
         }
@@ -61,9 +60,8 @@ class CommentDigest
         }
     }
     
-    public function __set(string $name, $value) : void
+    public function __set(string $name, mixed $value) : void
     {
-        // Support conversion from string for fetch_object()
         if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }

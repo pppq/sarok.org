@@ -49,11 +49,6 @@ class Comment
 
     public function __construct()
     {
-        // Initialize only if not already set by fetch_object()
-        if (!isset($this->_isTerminated)) {
-            $this->_isTerminated = false;
-        }
-
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::utcDateTimeFromString();
         }
@@ -63,9 +58,8 @@ class Comment
         }
     }
     
-    public function __set(string $name, $value) : void
+    public function __set(string $name, mixed $value) : void
     {
-        // Support conversion from string for fetch_object()
         if (self::FIELD_IS_TERMINATED === $name && is_string($value)) {
             $this->setTerminated(Util::yesNoToBool($value));
         }

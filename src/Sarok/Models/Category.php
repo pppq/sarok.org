@@ -17,14 +17,15 @@ class Category
     const FIELD_ENTRY_ID = 'entryID';
     const FIELD_NAME     = 'Name';
 
+    // XXX: Field name capitalization must match column names in the corresponding SQL table
     private int    $entryID = 0;
     private string $Name    = '';
 
-    public static function create(int $entryID, string $Name) : Category
+    public static function create(int $entryID, string $name) : Category
     {
         $category = new Category();
-        $category->setEntryID($entryID);
-        $category->setName($Name);
+        $category->entryID = $entryID;
+        $category->Name = $name;
         return $category;
     }
 
@@ -33,19 +34,9 @@ class Category
         return $this->entryID;
     }
 
-    public function setEntryID(int $entryID) : void
-    {
-        $this->entryID = $entryID;
-    }
-
     public function getName() : string
     {
         return $this->Name;
-    }
-
-    public function setName(string $Name) : void
-    {
-        $this->Name = $Name;
     }
 
     public function toArray() : array

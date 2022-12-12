@@ -26,9 +26,9 @@ class Friend
     public static function create(int $friendOf, int $userID, FriendType $friendType = FriendType::FRIEND) : Friend
     {
         $friend = new Friend();
-        $friend->setFriendOf($friendOf);
-        $friend->setUserID($userID);
-        $friend->setFriendType($friendType);
+        $friend->friendOf = $friendOf;
+        $friend->userID = $userID;
+        $friend->friendType = $friendType;
         return $friend;
     }
 
@@ -37,29 +37,14 @@ class Friend
         return $this->friendOf;
     }
 
-    public function setFriendOf(int $friendOf) : void
-    {
-        $this->friendOf = $friendOf;
-    }
-
     public function getUserID() : int
     {
         return $this->userID;
     }
 
-    public function setUserID(int $userID) : void
-    {
-        $this->userID = $userID;
-    }
-
     public function getFriendType() : FriendType
     {
         return $this->friendType;
-    }
-
-    public function setFriendType(FriendType $friendType) : void
-    {
-        $this->friendType = $friendType;
     }
 
     public function toArray() : array

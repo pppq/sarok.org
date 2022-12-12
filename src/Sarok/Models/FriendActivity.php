@@ -23,6 +23,15 @@ class FriendActivity
     private string   $login  = '';
     private DateTime $_activationDate;
 
+    public static function create(int $userID, string $login, DateTime $activationDate) : FriendActivity
+    {
+        $friendActivity = new FriendActivity();
+        $friendActivity->userID = $userID;
+        $friendActivity->login = $login;
+        $friendActivity->_activationDate = $activationDate;
+        return $friendActivity;
+    }
+
     public function __construct()
     {
         if (!isset($this->_activationDate)) {

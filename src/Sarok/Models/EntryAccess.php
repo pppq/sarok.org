@@ -21,10 +21,12 @@ class EntryAccess
     private int $entryID = 0;
     private int $userID  = 0;
 
-    public function __construct(int $entryID, int $userID)
+    public static function create(int $entryID, int $userID) : EntryAccess
     {
-        $this->entryID = $entryID;
-        $this->userID = $userID;
+        $entryAccess = new EntryAccess();
+        $entryAccess->entryID = $entryID;
+        $entryAccess->userID = $userID;
+        return $entryAccess;
     }
     
     public function getEntryID() : int
@@ -32,19 +34,9 @@ class EntryAccess
         return $this->entryID;
     }
 
-    public function setEntryID(int $entryID) : void
-    {
-        $this->entryID = $entryID;
-    }
-
     public function getUserID() : int
     {
         return $this->userID;
-    }
-
-    public function setUserID(int $userID) : void
-    {
-        $this->userID = $userID;
     }
 
     public function toArray() : array

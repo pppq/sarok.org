@@ -79,7 +79,7 @@ class CommentRating
 
     public function getCreateDate() : DateTime
     {
-        return $this->createDate;
+        return $this->_createDate;
     }
 
     public function setCreateDate(DateTime $createDate) : void
