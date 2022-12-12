@@ -7,9 +7,12 @@ use Sarok\Models\CommentDigestCategory;
 use Sarok\Models\AccessType;
 use DateTime;
 
-/*
+/**
+ * Represents a shortened version of a comment, displayed on the dashboard.
+ * 
  * Table structure for `cache_commentlist`:
  * 
+ * ```sql
  * `category`   enum('comments','commentsOfEntries','myComments') NOT NULL DEFAULT 'comments',
  * `ID`         int(11)          NOT NULL DEFAULT '0',
  * `ownerID`    int(10) unsigned NOT NULL DEFAULT '0',
@@ -20,33 +23,31 @@ use DateTime;
  * `access`     enum('ALL','REGISTERED','FRIENDS','PRIVATE','LIST') NOT NULL DEFAULT 'ALL',
  * `body`       char(60)         NOT NULL DEFAULT '',
  * `lastUsed`   datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * ```
  */
 class CommentDigest
 {
-    const FIELD_CATEGORY = 'category';
-    const FIELD_ID = 'ID';
-    const FIELD_OWNER_ID = 'ownerID';
-    const FIELD_USER_ID = 'userID';
-    const FIELD_DIARY_ID = 'diaryID';
-    const FIELD_ENTRY_ID = 'entryID';
+    const FIELD_CATEGORY    = 'category';
+    const FIELD_ID          = 'ID';
+    const FIELD_OWNER_ID    = 'ownerID';
+    const FIELD_USER_ID     = 'userID';
+    const FIELD_DIARY_ID    = 'diaryID';
+    const FIELD_ENTRY_ID    = 'entryID';
     const FIELD_CREATE_DATE = 'createDate';
-    const FIELD_ACCESS = 'access';
-    const FIELD_BODY = 'body';
-    const FIELD_LAST_USED = 'lastUsed';
+    const FIELD_ACCESS      = 'access';
+    const FIELD_BODY        = 'body';
+    const FIELD_LAST_USED   = 'lastUsed';
     
-    // Assignment requires conversion via magic method (__set)
-    private DateTime $_createDate;
-    private DateTime $_lastUsed;
-    
-    // Assignment from string directly supported
-    private CommentDigestCategory $category = CommentDigestCategory::COMMENTS;
-    private int $ID = 0; // int(11)
-    private int $ownerID = 0; // int(10) unsigned, but we'll probably not see 2 billion+ users
-    private string $userID = ''; // XXX: this is the user's login name
-    private string $diaryID = ''; // XXX: this is the diary owner's login name
-    private int $entryID = 0; // int(11)
-    private AccessType $access = AccessType::ALL;
-    private string $body = '';
+    private CommentDigestCategory $category     = CommentDigestCategory::COMMENTS;
+    private int                   $ID           = 0;
+    private int                   $ownerID      = 0;
+    private string                $userID       = ''; // XXX: this is the user's login name
+    private string                $diaryID      = ''; // XXX: this is the diary owner's login name
+    private int                   $entryID      = 0;
+    private DateTime              $_createDate;
+    private AccessType            $access       = AccessType::ALL;
+    private string                $body         = '';
+    private DateTime              $_lastUsed;
 
     public function __construct()
     {
@@ -60,19 +61,19 @@ class CommentDigest
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, $value) : void
     {
         // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+        if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_LAST_USED && is_string($value)) {
+        if (self::FIELD_LAST_USED === $name && is_string($value)) {
             $this->setLastUsed(Util::utcDateTimeFromString($value));
         }
     }
     
-    public function getCategory() : string
+    public function getCategory() : CommentDigestCategory
     {
         return $this->category;
     }
@@ -137,12 +138,12 @@ class CommentDigest
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }
 
-    public function getAccess() : string
+    public function getAccess() : AccessType
     {
         return $this->access;
     }

@@ -5,9 +5,12 @@ namespace Sarok\Models;
 use Sarok\Util;
 use DateTime;
 
-/*
+/**
+ * Represents a single access log entry in the database.
+ * 
  * Table structure for `accesslog`:
- *
+ * 
+ * ```sql
  * `datum`      datetime     NOT NULL DEFAULT '0000-00-00 00:00:00',
  * `micros`     int(3)       NOT NULL DEFAULT '0',
  * `sessid`     bigint(15)   NOT NULL DEFAULT '0',
@@ -17,44 +20,49 @@ use DateTime;
  * `userCode`   int(11)      NOT NULL DEFAULT '0',
  * `runTime`    int(7)       NOT NULL DEFAULT '0',
  * `numQueries` int(6)       NOT NULL DEFAULT '0',
+ * ```
  */
 class AccessLog
 {
-    const FIELD_DATUM = 'datum';
-    const FIELD_MICROS = 'micros';
-    const FIELD_SESSID = 'sessid';
-    const FIELD_ACTION = 'action';
-    const FIELD_REFERRER = 'referrer';
-    const FIELD_IP = 'ip';
-    const FIELD_USER_CODE = 'userCode';
-    const FIELD_RUNTIME = 'runTime';
+    const FIELD_DATUM       = 'datum';
+    const FIELD_MICROS      = 'micros';
+    const FIELD_SESSID      = 'sessid';
+    const FIELD_ACTION      = 'action';
+    const FIELD_REFERRER    = 'referrer';
+    const FIELD_IP          = 'ip';
+    const FIELD_USER_CODE   = 'userCode';
+    const FIELD_RUNTIME     = 'runTime';
     const FIELD_NUM_QUERIES = 'numQueries';
     
-    // Assignment requires conversion via magic method (__set)
     private DateTime $_datum;
+    private int      $micros     = 0;
+    private int      $sessid     = '';
+    private string   $action     = '';
+    private string   $referrer   = '';
+    private string   $ip         = '';
+    private int      $userCode   = 0;
+    private int      $runTime    = 0;
+    private int      $numQueries = 0;
     
-    // Assignment from string directly supported
-    private int $micros = 0;
-    private string $sessid = ''; // bigint(15), does not fit in an int on 32-bit platforms
-    private string $action = '';
-    private string $referrer = '';
-    private string $ip = '';
-    private int $userCode = 0;
-    private int $runTime = 0;
-    private int $numQueries = 0;
-    
-    public function __construct(?DateTime $datum = null)
+    public static function create(DateTime $datum) : AccessLog 
+    {
+        $accessLog = new AccessLog();
+        $accessLog->setDatum($datum);
+        return $accessLog;
+    }
+
+    public function __construct()
     {
         // Initialize only if not already set by fetch_object()
         if (!isset($this->_datum)) {
-            $this->_datum = $datum ?? Util::utcDateTimeFromString();
+            $this->_datum = Util::utcDateTimeFromString();
         }
     }
     
-    public function __set(string $name, mixed $value)
+    public function __set(string $name, mixed $value) : void
     {
         // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_DATUM && is_string($value)) {
+        if (self::FIELD_DATUM === $name && is_string($value)) {
             $this->setDatum(Util::utcDateTimeFromString($value));
         }
     }
@@ -79,12 +87,12 @@ class AccessLog
         $this->micros = $micros;
     }
 
-    public function getSessid() : string
+    public function getSessid() : int
     {
         return $this->sessid;
     }
 
-    public function setSessid(string $sessid) : void
+    public function setSessid(int $sessid) : void
     {
         $this->sessid = $sessid;
     }

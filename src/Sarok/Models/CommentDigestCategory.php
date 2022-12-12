@@ -2,6 +2,9 @@
 
 namespace Sarok\Models;
 
+/**
+ * Points to the section the comment digest appears in.
+ */
 enum CommentDigestCategory : string
 {
     /**

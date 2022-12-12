@@ -1,40 +1,43 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use Sarok\Util;
 use DateTime;
 
-/*
+/**
+ * Represents a single browser session.
+ *
  * Table structure for `sessions`:
  *
+ * ```sql
  * `ID`             bigint(15)       NOT NULL DEFAULT '0',
  * `userID`         int(10) unsigned NOT NULL DEFAULT '0',
  * `createDate`     datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
  * `loginDate`      datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
  * `activationDate` datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
  * `IP`             char(100)        NOT NULL DEFAULT '',
+ * ```
  */
 class Session
 {
-    const FIELD_ID = 'ID';
-    const FIELD_USER_ID = 'userID';
-    const FIELD_CREATE_DATE = 'createDate';
-    const FIELD_LOGIN_DATE = 'loginDate';
+    const FIELD_ID              = 'ID';
+    const FIELD_USER_ID         = 'userID';
+    const FIELD_CREATE_DATE     = 'createDate';
+    const FIELD_LOGIN_DATE      = 'loginDate';
     const FIELD_ACTIVATION_DATE = 'activationDate';
-    const FIELD_IP = 'IP';
+    const FIELD_IP              = 'IP';
     
-    // Assignment requires conversion via magic method (__set)
+    private int $ID                    = 0;
+    private int $userID                = 0;
     private DateTime $_createDate;
     private DateTime $_loginDate;
     private DateTime $_activationDate;
-    
-    // Assignment from string directly supported
-    private string $ID;
-    private int $userID;
-    private string $IP;
+    private string $IP                 = '';
     
     public function __construct()
     {
-        // Default values are "zero date", but "now" is more appropriate
+        // MySQL's default values are "zero date", but "now" is more appropriate
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::utcDateTimeFromString();
         }
@@ -48,28 +51,27 @@ class Session
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, mixed $value) : void
     {
-        // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+        if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_LOGIN_DATE && is_string($value)) {
+        if (self::FIELD_LOGIN_DATE === $name && is_string($value)) {
             $this->setLoginDate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_ACTIVATION_DATE && is_string($value)) {
+        if (self::FIELD_ACTIVATION_DATE === $name && is_string($value)) {
             $this->setActivationDate(Util::utcDateTimeFromString($value));
         }
     }
     
-    public function getID() : string
+    public function getID() : int
     {
         return $this->ID;
     }
     
-    public function setID(string $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -79,7 +81,7 @@ class Session
         return $this->userID;
     }
     
-    public function setUserID(int $userID)
+    public function setUserID(int $userID) : void
     {
         $this->userID = $userID;
     }
@@ -89,7 +91,7 @@ class Session
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }
@@ -99,7 +101,7 @@ class Session
         return $this->_loginDate;
     }
 
-    public function setLoginDate(DateTime $loginDate)
+    public function setLoginDate(DateTime $loginDate) : void
     {
         $this->_loginDate = $loginDate;
     }
@@ -109,7 +111,7 @@ class Session
         return $this->_activationDate;
     }
 
-    public function setActivationDate(DateTime $activationDate)
+    public function setActivationDate(DateTime $activationDate) : void
     {
         $this->_activationDate = $activationDate;
     }
@@ -119,7 +121,7 @@ class Session
         return $this->IP;
     }
 
-    public function setIP(string $IP)
+    public function setIP(string $IP) : void
     {
         $this->IP = $IP;
     }

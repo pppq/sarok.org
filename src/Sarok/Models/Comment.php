@@ -1,11 +1,16 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use Sarok\Util;
 use DateTime;
 
-/*
+/**
+ * Represents a comment on an entry.
+ * 
  * Table structure for `comments`:
  *
+ * ```sql
  * `ID`           int(10) unsigned NOT NULL AUTO_INCREMENT,
  * `isTerminated` enum('Y','N')    NOT NULL DEFAULT 'N',
  * `parentID`     int(10) unsigned NOT NULL DEFAULT '0',
@@ -16,33 +21,31 @@ use DateTime;
  * `IP`           varchar(255)     NOT NULL DEFAULT '',
  * `dayDate`      date             NOT NULL DEFAULT '0000-00-00',
  * `rate`         int(11)          NOT NULL DEFAULT '0',
+ * ```
  */
 class Comment
 {
-    const FIELD_ID = 'ID';
+    const FIELD_ID            = 'ID';
     const FIELD_IS_TERMINATED = 'isTerminated';
-    const FIELD_PARENT_ID = 'parentID';
-    const FIELD_ENTRY_ID = 'entryID';
-    const FIELD_USER_ID = 'userID';
-    const FIELD_CREATE_DATE = 'createDate';
-    const FIELD_BODY = 'body';
-    const FIELD_IP = 'IP';
-    const FIELD_DAY_DATE = 'dayDate';
-    const FIELD_RATE = 'rate';
-
-    // Assignment requires conversion via magic method (__set)
-    private bool $_isTerminated;
+    const FIELD_PARENT_ID     = 'parentID';
+    const FIELD_ENTRY_ID      = 'entryID';
+    const FIELD_USER_ID       = 'userID';
+    const FIELD_CREATE_DATE   = 'createDate';
+    const FIELD_BODY          = 'body';
+    const FIELD_IP            = 'IP';
+    const FIELD_DAY_DATE      = 'dayDate';
+    const FIELD_RATE          = 'rate';
+    
+    private int      $ID             = 0;
+    private bool     $_isTerminated  = false;
+    private int      $parentID       = 0;
+    private int      $entryID        = 0;
+    private int      $userID         = 0;
     private DateTime $_createDate;
+    private string   $body           = '';
+    private string   $IP             = '';
     private DateTime $_dayDate;
-
-    // Assignment from string directly supported
-    private int $ID = 0;
-    private int $parentID = 0;
-    private int $entryID = 0;
-    private int $userID = 0;
-    private string $body = '';
-    private string $IP = '';
-    private int $rate = 0;
+    private int      $rate           = 0;
 
     public function __construct()
     {
@@ -56,22 +59,22 @@ class Comment
         }
 
         if (!isset($this->_dayDate)) {
-            $this->_dayDate = Util::dateTimeToDate($this->_createDate);
+            $this->_dayDate = $this->_createDate;
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, $value) : void
     {
         // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_IS_TERMINATED && is_string($value)) {
+        if (self::FIELD_IS_TERMINATED === $name && is_string($value)) {
             $this->setTerminated(Util::yesNoToBool($value));
         }
 
-        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+        if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_DAY_DATE && is_string($value)) {
+        if (self::FIELD_DAY_DATE === $name && is_string($value)) {
             $this->setDayDate(Util::utcDateTimeFromString($value));
         }
     }
@@ -81,7 +84,7 @@ class Comment
         return $this->ID;
     }
 
-    public function setID(int $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -91,7 +94,7 @@ class Comment
         return $this->_isTerminated;
     }
 
-    public function setTerminated(bool $terminated)
+    public function setTerminated(bool $terminated) : void
     {
         $this->_isTerminated = $terminated;
     }
@@ -101,7 +104,7 @@ class Comment
         return $this->parentID;
     }
 
-    public function setParentID(int $parentID)
+    public function setParentID(int $parentID) : void
     {
         $this->parentID = $parentID;
     }
@@ -111,7 +114,7 @@ class Comment
         return $this->parentID;
     }
 
-    public function setEntryID(int $parentID)
+    public function setEntryID(int $parentID) : void
     {
         $this->parentID = $parentID;
     }
@@ -121,7 +124,7 @@ class Comment
         return $this->userID;
     }
 
-    public function setUserID(int $userID)
+    public function setUserID(int $userID) : void
     {
         $this->userID = $userID;
     }
@@ -131,7 +134,7 @@ class Comment
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }
@@ -141,7 +144,7 @@ class Comment
         return $this->body;
     }
 
-    public function setBody(string $body)
+    public function setBody(string $body) : void
     {
         $this->body = $body;
     }
@@ -151,7 +154,7 @@ class Comment
         return $this->IP;
     }
 
-    public function setIP(string $IP)
+    public function setIP(string $IP) : void
     {
         $this->IP = $IP;
     }
@@ -161,9 +164,9 @@ class Comment
         return $this->_dayDate;
     }
 
-    public function setDayDate(DateTime $dayDate)
+    public function setDayDate(DateTime $dayDate) : void
     {
-        $this->_dayDate = Util::dateTimeToDate($dayDate);
+        $this->_dayDate = $dayDate;
     }
     
     public function getRate() : int
@@ -171,7 +174,7 @@ class Comment
         return $this->rate;
     }
 
-    public function setRate(int $rate)
+    public function setRate(int $rate) : void
     {
         $this->rate = $rate;
     }
@@ -187,6 +190,7 @@ class Comment
             self::FIELD_CREATE_DATE => Util::dateTimeToString($this->_createDate),
             self::FIELD_BODY => $this->body,
             self::FIELD_IP => $this->IP,
+            // XXX: "dayDate" is stored as a full DateTime, but its time portion is ignored
             self::FIELD_DAY_DATE => Util::dateToString($this->_dayDate),
             self::FIELD_RATE => $this->rate,
         );

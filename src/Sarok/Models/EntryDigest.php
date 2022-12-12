@@ -1,12 +1,17 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use DateTime;
 use Sarok\Util;
 use Sarok\Models\AccessType;
 
-/*
+/**
+ * Represents a shortened version of each entry visible to a user, displayed on the dashboard.
+ * 
  * Table structure for `cache_entrylist`:
  *
+ * ```sql
  * `ID`         int(11)          NOT NULL DEFAULT '0',
  * `ownerID`    int(10) unsigned NOT NULL DEFAULT '0',
  * `userID`     char(30)         NOT NULL DEFAULT '',
@@ -15,33 +20,30 @@ use Sarok\Models\AccessType;
  * `access`     enum('ALL','REGISTERED','FRIENDS','PRIVATE','LIST') NOT NULL DEFAULT 'ALL',
  * `body`       char(60)         NOT NULL DEFAULT '',
  * `lastUsed`   datetime         NOT NULL DEFAULT '0000-00-00 00:00:00',
+ * ```
  */
 class EntryDigest
 {
-    const FIELD_ID = 'ID';
-    const FIELD_OWNER_ID = 'ownerID';
-    const FIELD_USER_ID = 'userID';
-    const FIELD_DIARY_ID = 'diaryID';
+    const FIELD_ID          = 'ID';
+    const FIELD_OWNER_ID    = 'ownerID';
+    const FIELD_USER_ID     = 'userID';
+    const FIELD_DIARY_ID    = 'diaryID';
     const FIELD_CREATE_DATE = 'createDate';
-    const FIELD_ACCESS = 'access';
-    const FIELD_BODY = 'body';
-    const FIELD_LAST_USED = 'lastUsed';
+    const FIELD_ACCESS      = 'access';
+    const FIELD_BODY        = 'body';
+    const FIELD_LAST_USED   = 'lastUsed';
     
-    // Assignment requires conversion via magic method (__set)
+    private int      $ID           = 0;
+    private int      $ownerID      = 0;
+    private string   $userID       = '';
+    private string   $diaryID      = '';
     private DateTime $_createDate;
+    private string   $access       = AccessType::ALL;
+    private string   $body         = '';
     private DateTime $_lastUsed;
     
-    // Assignment from string directly supported
-    private int $ID = 0; // int(11)
-    private int $ownerID = 0; // int(10) unsigned, but we'll probably not see 2 billion+ users
-    private string $userID = '';
-    private string $diaryID = '';
-    private string $access = AccessType::ALL;
-    private string $body = '';
-
     public function __construct()
     {
-        // Initialize only if not already set by fetch_object()
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::zeroDateTime();
         }
@@ -51,14 +53,13 @@ class EntryDigest
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, $value) : void
     {
-        // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+        if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_LAST_USED && is_string($value)) {
+        if (self::FIELD_LAST_USED === $name && is_string($value)) {
             $this->setLastUsed(Util::utcDateTimeFromString($value));
         }
     }
@@ -68,7 +69,7 @@ class EntryDigest
         return $this->ID;
     }
 
-    public function setID(int $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -78,7 +79,7 @@ class EntryDigest
         return $this->ownerID;
     }
 
-    public function setOwnerID(int $ownerID)
+    public function setOwnerID(int $ownerID) : void
     {
         $this->ownerID = $ownerID;
     }
@@ -88,7 +89,7 @@ class EntryDigest
         return $this->userID;
     }
 
-    public function setUserID(string $userID)
+    public function setUserID(string $userID) : void
     {
         $this->userID = $userID;
     }
@@ -98,7 +99,7 @@ class EntryDigest
         return $this->diaryID;
     }
 
-    public function setDiaryID(string $diaryID)
+    public function setDiaryID(string $diaryID) : void
     {
         $this->diaryID = $diaryID;
     }
@@ -108,7 +109,7 @@ class EntryDigest
         return $this->_createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }
@@ -118,7 +119,7 @@ class EntryDigest
         return $this->access;
     }
 
-    public function setAccess(string $access)
+    public function setAccess(string $access) : void
     {
         $this->access = $access;
     }
@@ -128,7 +129,7 @@ class EntryDigest
         return $this->body;
     }
 
-    public function setBody(string $body)
+    public function setBody(string $body) : void
     {
         $this->body = $body;
     }
@@ -138,7 +139,7 @@ class EntryDigest
         return $this->_lastUsed;
     }
 
-    public function setLastUsed(DateTime $lastUsed)
+    public function setLastUsed(DateTime $lastUsed) : void
     {
         $this->_lastUsed = $lastUsed;
     }

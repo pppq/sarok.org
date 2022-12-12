@@ -2,31 +2,34 @@
 
 namespace Sarok\Models;
 
-/*
+/**
+ * Describes relationships between users (readers, friends, banned users).
+ * 
  * Table structure for `friends`:
  *
+ * ```sql
  * `friendOf`   int(10) unsigned NOT NULL DEFAULT '0',
  * `userID`     int(10) unsigned NOT NULL DEFAULT '0',
  * `friendType` enum('friend','banned','read') NOT NULL DEFAULT 'friend',
+ * ```
  */
 class Friend
 {
-    const FIELD_FRIEND_OF = 'friendOf';
-    const FIELD_USER_ID = 'userID';
+    const FIELD_FRIEND_OF   = 'friendOf';
+    const FIELD_USER_ID     = 'userID';
     const FIELD_FRIEND_TYPE = 'friendType';
     
-    private int $friendOf = 0;
-    private int $userID = 0;
+    private int        $friendOf   = 0;
+    private int        $userID     = 0;
     private FriendType $friendType = FriendType::FRIEND;
 
     public static function create(int $friendOf, int $userID, FriendType $friendType = FriendType::FRIEND) : Friend
     {
-        $f = new Friend();
-        $f->setFriendOf($friendOf);
-        $f->setUserID($userID);
-        $f->setFriendType($friendType);
-
-        return $f;
+        $friend = new Friend();
+        $friend->setFriendOf($friendOf);
+        $friend->setUserID($userID);
+        $friend->setFriendType($friendType);
+        return $friend;
     }
 
     public function getFriendOf() : int

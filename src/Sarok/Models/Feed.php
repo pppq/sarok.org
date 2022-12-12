@@ -1,12 +1,17 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use DateTime;
 use Sarok\Util;
 use Sarok\Models\FeedStatus;
 
-/*
+/**
+ * Stores metadata about entries syndicated via an RSS feed.
+ * 
  * Table structure for `feeds`:
  *
+ * ```sql
  * `ID`           int(10) unsigned NOT NULL AUTO_INCREMENT,
  * `feedURL`      varchar(255)     NOT NULL DEFAULT '',
  * `blogID`       int(10) unsigned NOT NULL DEFAULT '0',
@@ -16,31 +21,29 @@ use Sarok\Models\FeedStatus;
  * `contactEmail` varchar(255)     NOT NULL DEFAULT '',
  * `status`       enum('allowed','banned','-') NOT NULL DEFAULT '-',
  * `comment`      varchar(255)     NOT NULL DEFAULT '',
+ * ```
  */
 class Feed
 {
-    const FIELD_ID = 'ID';
-    const FIELD_FEED_URL = 'feedURL';
-    const FIELD_BLOG_ID = 'blogID';
-    const FIELD_LAST_UPDATE = 'lastUpdate';
-    const FIELD_NEXT_UPDATE = 'nextUpdate';
-    const FIELD_LAST_ENTRY = 'lastEntry';
+    const FIELD_ID            = 'ID';
+    const FIELD_FEED_URL      = 'feedURL';
+    const FIELD_BLOG_ID       = 'blogID';
+    const FIELD_LAST_UPDATE   = 'lastUpdate';
+    const FIELD_NEXT_UPDATE   = 'nextUpdate';
+    const FIELD_LAST_ENTRY    = 'lastEntry';
     const FIELD_CONTACT_EMAIL = 'contactEmail';
-    const FIELD_STATUS = 'status';
-    const FIELD_COMMENT = 'comment';
+    const FIELD_STATUS        = 'status';
+    const FIELD_COMMENT       = 'comment';
     
-    // Assignment requires conversion via magic method (__set)
+    private int      $ID           = -1;
+    private string   $feedURL      = '';
+    private int      $blogID       = 0;
     private DateTime $_lastUpdate;
     private DateTime $_nextUpdate;
-    
-    // Assignment from string directly supported
-    private int $ID = -1;
-    private string $feedURL = '';
-    private int $blogID = 0;
-    private string $lastEntry = '';
-    private string $contactEmail = '';
-    private string $status = FeedStatus::DEFAULT;
-    private string $comment = '';
+    private string   $lastEntry    = '';
+    private string   $contactEmail = '';
+    private string   $status       = FeedStatus::DEFAULT;
+    private string   $comment      = '';
     
     public function __construct()
     {
@@ -53,14 +56,13 @@ class Feed
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, $value) : void
     {
-        // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_LAST_UPDATE && is_string($value)) {
+        if (self::FIELD_LAST_UPDATE === $name && is_string($value)) {
             $this->setLastUpdate(Util::utcDateTimeFromString($value));
         }
         
-        if ($name === self::FIELD_NEXT_UPDATE && is_string($value)) {
+        if (self::FIELD_NEXT_UPDATE === $name && is_string($value)) {
             $this->setNextUpdate(Util::utcDateTimeFromString($value));
         }
     }
@@ -70,7 +72,7 @@ class Feed
         return $this->ID;
     }
 
-    public function setID(int $ID)
+    public function setID(int $ID) : void
     {
         $this->ID = $ID;
     }
@@ -80,7 +82,7 @@ class Feed
         return $this->feedURL;
     }
 
-    public function setFeedURL(string $feedURL)
+    public function setFeedURL(string $feedURL) : void
     {
         $this->feedURL = $feedURL;
     }
@@ -90,7 +92,7 @@ class Feed
         return $this->blogID;
     }
     
-    public function setBlogID(int $blogID)
+    public function setBlogID(int $blogID) : void
     {
         $this->blogID = $blogID;
     }
@@ -100,7 +102,7 @@ class Feed
         return $this->_lastUpdate;
     }
     
-    public function setLastUpdate(DateTime $lastUpdate)
+    public function setLastUpdate(DateTime $lastUpdate) : void
     {
         $this->_lastUpdate = $lastUpdate;
     }
@@ -110,7 +112,7 @@ class Feed
         return $this->_nextUpdate;
     }
     
-    public function setNextUpdate(DateTime $nextUpdate)
+    public function setNextUpdate(DateTime $nextUpdate) : void
     {
         $this->_nextUpdate = $nextUpdate;
     }
@@ -120,7 +122,7 @@ class Feed
         return $this->lastEntry;
     }
 
-    public function setLastEntry(string $lastEntry)
+    public function setLastEntry(string $lastEntry) : void
     {
         $this->lastEntry = $lastEntry;
     }
@@ -130,7 +132,7 @@ class Feed
         return $this->contactEmail;
     }
 
-    public function setContactEmail(string $contactEmail)
+    public function setContactEmail(string $contactEmail) : void
     {
         $this->contactEmail = $contactEmail;
     }
@@ -140,7 +142,7 @@ class Feed
         return $this->status;
     }
 
-    public function setStatus(string $status)
+    public function setStatus(string $status) : void
     {
         $this->status = $status;
     }
@@ -150,7 +152,7 @@ class Feed
         return $this->comment;
     }
 
-    public function setComment(string $comment)
+    public function setComment(string $comment) : void
     {
         $this->comment = $comment;
     }

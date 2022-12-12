@@ -2,6 +2,9 @@
 
 namespace Sarok\Models;
 
+/**
+ * Enumerates possible access types for comments and entries.
+ */
 enum AccessType : string
 {
     /**

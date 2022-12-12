@@ -2,6 +2,9 @@
 
 namespace Sarok\Models;
 
+/**
+ * Enumerates relationship types between users.
+ */
 enum FriendType : string
 {
     /** 

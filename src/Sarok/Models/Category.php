@@ -2,27 +2,30 @@
 
 namespace Sarok\Models;
 
-/*
+/**
+ * Represents a single tag on an entry.
+ * 
  * Table structure for `categories`:
  * 
+ * ```sql
  * `entryID` int(11)  NOT NULL DEFAULT '0',
  * `Name`    char(30) NOT NULL DEFAULT '',
+ * ```
  */
 class Category
 {
     const FIELD_ENTRY_ID = 'entryID';
-    const FIELD_NAME = 'Name';
+    const FIELD_NAME     = 'Name';
 
-    private int $entryID = 0;
-    private string $Name = '';
+    private int    $entryID = 0;
+    private string $Name    = '';
 
     public static function create(int $entryID, string $Name) : Category
     {
-        $c = new Category();
-        $c->setEntryID($entryID);
-        $c->setName($Name);
-
-        return $c;
+        $category = new Category();
+        $category->setEntryID($entryID);
+        $category->setName($Name);
+        return $category;
     }
 
     public function getEntryID() : int

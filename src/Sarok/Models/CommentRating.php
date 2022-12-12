@@ -1,46 +1,48 @@
-<?php namespace Sarok\Models;
+<?php declare(strict_types=1);
+
+namespace Sarok\Models;
 
 use DateTime;
 use Sarok\Util;
 
-/*
+/**
+ * Represents a Useless Internet Point awarded to a comment (positive and negative 
+ * rating are both allowed).
+ * 
  * Table structure for `commentrates`:
  * 
+ * ```sql
  * `userID`     int(11) NOT NULL,
  * `commentID`  int(11) NOT NULL,
  * `rate`       enum('rulez','sux') NOT NULL DEFAULT 'rulez',
  * `createDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ * ```
  */
 class CommentRating
 {
     const RATE_POSITIVE = 'rulez';
     const RATE_NEGATIVE = 'sux';
     
-    const FIELD_USER_ID = 'userID';
-    const FIELD_COMMENT_ID = 'commentID';
-    const FIELD_RATE = 'rate';
+    const FIELD_USER_ID     = 'userID';
+    const FIELD_COMMENT_ID  = 'commentID';
+    const FIELD_RATE        = 'rate';
     const FIELD_CREATE_DATE = 'createDate';
-
-    // Assignment requires conversion via magic method (__set)
-    private DateTime $_createDate;
     
-    // Assignment from string directly supported
-    private int $userID = 0;
-    private int $commentID = 0;
-    private string $rate = self::RATE_POSITIVE;
+    private int      $userID       = 0;
+    private int      $commentID    = 0;
+    private string   $rate         = self::RATE_POSITIVE;
+    private DateTime $_createDate;
     
     public function __construct()
     {
-        // Initialize only if not already set by fetch_object()
         if (!isset($this->_createDate)) {
             $this->_createDate = Util::utcDateTimeFromString();
         }
     }
     
-    public function __set(string $name, $value)
+    public function __set(string $name, mixed $value) : void
     {
-        // Support conversion from string for fetch_object()
-        if ($name === self::FIELD_CREATE_DATE && is_string($value)) {
+        if (self::FIELD_CREATE_DATE === $name && is_string($value)) {
             $this->setCreateDate(Util::utcDateTimeFromString($value));
         }
     }
@@ -50,7 +52,7 @@ class CommentRating
         return $this->userID;
     }
 
-    public function setUserID(int $userID)
+    public function setUserID(int $userID) : void
     {
         $this->userID = $userID;
     }
@@ -60,7 +62,7 @@ class CommentRating
         return $this->commentID;
     }
 
-    public function setCommentID(int $commentID)
+    public function setCommentID(int $commentID) : void
     {
         $this->commentID = $commentID;
     }
@@ -70,7 +72,7 @@ class CommentRating
         return $this->rate;
     }
 
-    public function setRate(string $rate)
+    public function setRate(string $rate) : void
     {
         $this->rate = $rate;
     }
@@ -80,7 +82,7 @@ class CommentRating
         return $this->createDate;
     }
 
-    public function setCreateDate(DateTime $createDate)
+    public function setCreateDate(DateTime $createDate) : void
     {
         $this->_createDate = $createDate;
     }

@@ -2,6 +2,9 @@
 
 namespace Sarok\Models;
 
+/**
+ * Represents a menu item with a display name and an association hyperlink URL.
+ */
 class MenuItem
 {
     private string $name;

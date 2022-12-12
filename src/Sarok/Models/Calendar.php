@@ -2,9 +2,13 @@
 
 namespace Sarok\Models;
 
-/*
+/**
+ * Represents a calendar day for a user (and their diary), summarizing the number of 
+ * entries and messages created.
+ * 
  * Table structure for `calendar`:
  * 
+ * ```sql
  * `userID`           int(10) unsigned NOT NULL DEFAULT '0',
  * `y`                int(10) unsigned NOT NULL DEFAULT '0',
  * `m`                int(10) unsigned NOT NULL DEFAULT '0',
@@ -15,30 +19,31 @@ namespace Sarok\Models;
  * `numAll`           int(10) unsigned NOT NULL DEFAULT '0',
  * `numMailsReceived` int(10) unsigned NOT NULL DEFAULT '0',
  * `numMailsSent`     int(10) unsigned NOT NULL DEFAULT '0',
+ * ```
  */
 class Calendar
 {
-    const FIELD_USER_ID = 'userID';
-    const FIELD_Y = 'y';
-    const FIELD_M = 'm';
-    const FIELD_D = 'd';
-    const FIELD_NUM_PUBLIC = 'numPublic';
-    const FIELD_NUM_REGISTERED = 'numRegistered';
-    const FIELD_NUM_FRIENDS = 'numFriends';
-    const FIELD_NUM_ALL = 'numAll';
+    const FIELD_USER_ID            = 'userID';
+    const FIELD_Y                  = 'y';
+    const FIELD_M                  = 'm';
+    const FIELD_D                  = 'd';
+    const FIELD_NUM_PUBLIC         = 'numPublic';
+    const FIELD_NUM_REGISTERED     = 'numRegistered';
+    const FIELD_NUM_FRIENDS        = 'numFriends';
+    const FIELD_NUM_ALL            = 'numAll';
     const FIELD_NUM_MAILS_RECEIVED = 'numMailsReceived';
-    const FIELD_NUM_MAILS_SENT = 'numMailsSent';
+    const FIELD_NUM_MAILS_SENT     = 'numMailsSent';
 
-    private int $userID = 0;
-    private int $y = 0;
-    private int $m = 0;
-    private int $d = 0;
-    private int $numPublic = 0;
-    private int $numRegistered = 0;
-    private int $numFriends = 0;
-    private int $numAll = 0;
+    private int $userID           = 0;
+    private int $y                = 0;
+    private int $m                = 0;
+    private int $d                = 0;
+    private int $numPublic        = 0;
+    private int $numRegistered    = 0;
+    private int $numFriends       = 0;
+    private int $numAll           = 0;
     private int $numMailsReceived = 0;
-    private int $numMailsSent = 0;
+    private int $numMailsSent     = 0;
     
     public function getUserID() : int
     {
