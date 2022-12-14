@@ -1,25 +1,30 @@
-<?php namespace Sarok;
+<?php declare(strict_types=1);
+
+namespace Sarok;
 
 use Sarok\Exceptions\LogException;
 use InvalidArgumentException;
 
-class Logger {
-
+final class Logger 
+{
     private string $logPath;
     private int $logLevel;
 
     private int $counter;
     private float $startTime;
-    private $logFileOpened;
+    private bool $logFileOpened;
+
+    /** @var resource|false */
     private $logFile;
 
-    public function __construct(string $logPath, int $logLevel) {
-        if (! isset($logPath) || $logPath === '') {
-            throw new InvalidArgumentException("Log path may not be null or empty.");
+    public function __construct(string $logPath, int $logLevel) 
+    {
+        if ($logPath === '') {
+            throw new InvalidArgumentException('Log path may not be empty.');
         }
 
-        if (! isset($logLevel) || $logLevel < 1 || $logLevel > 5) {
-            throw new InvalidArgumentException("Log level must be an integer between 1 and 5.");
+        if ($logLevel < 1 || $logLevel > 5) {
+            throw new InvalidArgumentException('Log level must be an integer between 1 and 5.');
         }
 
         $this->logPath = $logPath;
@@ -32,23 +37,29 @@ class Logger {
         $this->debug("Logger initialized");
     }
 
-    private function ensureLogOpen() {
-        if (!$this->logFileOpened) {
-            // We will try opening the file at most once.
+    private function ensureLogOpen() : void
+    {
+        if ($this->logFileOpened === false) {
+            /* 
+             * We will try opening the file at most once. This is stored in a flag independent 
+             * of the contents of $this->logFile (uninitialized / resource / false).
+             */
             $this->logFileOpened = true;
-
-            $this->logFile = fopen($this->logPath, "a");
+            
+            $logPath = $this->logPath;
+            $this->logFile = fopen($logPath, 'a');
             if ($this->logFile === false) {
-                throw new LogException("Couldn't open log file '" . $this->logPath . "' for writing.");
+                throw new LogException("Couldn't open log file '${logPath}' for writing.");
             }
 
             $this->info("");
             $this->info("---------------------------------------------");
-            $this->info("Opened " . $this->logPath . " for writing");
+            $this->info("Opened log file '${logPath}' for writing");
         }
     }
 
-    private function write(int $messageLevel, string $message) {
+    private function write(int $messageLevel, string $message) : void
+    {
         if ($this->logLevel > $messageLevel) {
             // Not interested in this message, skip
             return;
@@ -56,7 +67,7 @@ class Logger {
 
         $this->ensureLogOpen();
         if ($this->logFile === false) {
-            // The log was already open (once), then closed and some writes are arriving late, skip
+            // The log is already closed and some writes are arriving late, skip
             return;
         }
         
@@ -65,83 +76,40 @@ class Logger {
         $entry = sprintf("%s; %s; %6dms; %3d; %s\n", $messageLevel, $currentTime, $elapsedTime, $this->counter++, $message);
         
         if (fwrite($this->logFile, $entry) === false) {
-            throw new LogException("Couldn't write log entry to file '" . $this->logPath . "'.");
+            $logPath = $this->logPath;
+            throw new LogException("Couldn't write log entry to file '${logPath}'.");
         }
     }
 
-	public function debug($message) {
+	public function debug(string $message) : void
+    {
 		$this->write(1, $message);
 	}
 
-	public function info($message) {
+	public function info(string $message) : void
+    {
 		$this->write(2, $message);
 	}
 
-	public function warning($message) {
+	public function warning(string $message) : void
+    {
 		$this->write(3, $message);
 	}
 
-	public function error($message) {
+	public function error(string $message) : void
+    {
 		$this->write(4, $message);
 	}
 	
-	public function critical($message) {
+	public function critical(string $message) : void
+    {
 	    $this->write(5, $message);
 	}
-	
-// 	public function mail($message="")
-// 	{
-// 		global $system_email;
-// 		$this->write(7, $message);
-// 		$traceList=debug_backtrace();	
-// 		$str.="\n\n";
-// 		foreach($_COOKIE as $k=>$v)
-// 			{
-// 				$str.="$k: $v\n";
-// 			}
-			
-// 		mail($system_email,"sarok.org system message: $category",$str);
-// 	}
-
-
-// 	public function security($message) {
-// 		global $system_email;
-// 		$this->write(7, $message);
-// 		$traceList=debug_backtrace();	
-// 		$str.="\n\n";
-// 			for($i=sizeof($traceList)-1;$i>=0;$i--)
-// 		{
-// 			$trace=$traceList[$i];
-// 			$file=explode("\\",$trace["file"]);
-// 			$filename=$file[sizeof($file)-1];
-// 			$filename=str_replace(".php","",$filename);
-// 			$filename=str_replace(".class","",$filename);
-// 			$str.=$filename.":".$trace["function"].":".$trace["line"]." -->\n";
-// 		}
-			
-// 			foreach($_SERVER as $k=>$v)
-// 			{
-// 				$str.="$k: $v\n";
-// 			}
-	
-// 			foreach($_POST as $k=>$v)
-// 			{
-// 				$str.="$k: $v\n";
-// 			}
-// 			foreach($_GET as $k=>$v)
-// 			{
-// 				$str.="$k: $v\n";
-// 			}
-// 			foreach($_COOKIE as $k=>$v)
-// 			{
-// 				$str.="$k: $v\n";
-// 			}
-// 		mail($system_email,"Security alert from sarok.org",$str);
-// 	}
 
 	public function __destruct() {
-	    if ($this->logFileOpened && $this->logFile !== false) {
-	        $this->debug("Closing log file");
+	    if ($this->logFileOpened === true && is_resource($this->logFile)) {
+            $logPath = $this->logPath;
+	        $this->debug("Closing log file '${logPath}'");
 	        fclose($this->logFile);
             $this->logFile = false;
 	    }
