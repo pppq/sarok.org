@@ -42,19 +42,6 @@ class BlogPage extends Page
         $this->blogService = $blogService;
     }
 
-    ///////////////////////////////
-    // Request context delegates
-    ///////////////////////////////
-
-    private function setBlog(User $blog) : void
-    {
-        $this->context->setBlog($blog);
-    }
-
-    ////////////////////
-    // Page lifecycle
-    ////////////////////
-
     public function init() : void
     {
         // parent::init() is called if $templateName is still set to 'blog' later down

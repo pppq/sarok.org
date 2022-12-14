@@ -78,6 +78,11 @@ abstract class Page
         return $this->context->getBlog();
     }
 
+    protected function setBlog(User $blog) : void
+    {
+        $this->context->setBlog($blog);
+    }
+
     protected function setEntryID(int $entryID) : void
     {
         $this->context->setEntryID($entryID);
