@@ -1,6 +1,6 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Service\DB;
+use Sarok\DB;
 
 abstract class AbstractRepository
 {

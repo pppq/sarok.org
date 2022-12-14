@@ -1,13 +1,12 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\Session;
 use Sarok\Models\FriendType;
 use Sarok\Models\FriendActivity;
-use Sarok\Models\Friend;
 use DateTime;
 
 class SessionRepository extends AbstractRepository

@@ -1,6 +1,6 @@
 <?php namespace Sarok\Repository;
 
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Models\CommentRating;
 use Sarok\Repository\AbstractRepository;
 

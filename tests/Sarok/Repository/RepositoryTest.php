@@ -2,10 +2,7 @@
 
 namespace Sarok\Repository;
 
-use Sarok\Util;
-use Sarok\Service\DB;
-use Sarok\Repository\AccessLogRepository;
-use Sarok\Models\AccessLog;
+use Sarok\DB;
 use Sarok\DIContainer;
 use PHPUnit\Framework\TestCase;
 

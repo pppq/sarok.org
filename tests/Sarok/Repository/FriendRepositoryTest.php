@@ -2,7 +2,7 @@
 
 namespace Sarok\Repository;
 
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\UserRepository;
 use Sarok\Repository\RepositoryTest;
 use Sarok\Repository\FriendRepository;

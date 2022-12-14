@@ -2,7 +2,7 @@
 
 namespace Sarok\Repository;
 
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Models\User;
 use Sarok\Models\FriendType;
 use Sarok\Models\Friend;

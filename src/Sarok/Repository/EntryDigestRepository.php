@@ -1,7 +1,7 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\FriendType;

@@ -2,15 +2,12 @@
 
 namespace Sarok\Repository;
 
-use mysqli_result;
-use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\EntryRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\Entry;
 use Sarok\Models\Category;
 use Sarok\Models\AccessType;
-use DateTime;
 
 class CategoryRepository extends AbstractRepository
 {

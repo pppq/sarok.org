@@ -1,11 +1,10 @@
 <?php namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\EntryRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\Favourite;
-use Sarok\Models\EntryAccess;
 use DateTime;
 
 class FavouriteRepository extends AbstractRepository

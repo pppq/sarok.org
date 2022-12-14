@@ -2,13 +2,12 @@
 
 use mysqli_result;
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\EntryRepository;
 use Sarok\Repository\EntryAccessRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\FriendType;
-use Sarok\Models\Friend;
 use Sarok\Models\Entry;
 use Sarok\Models\CommentListType;
 use Sarok\Models\Comment;

@@ -2,14 +2,12 @@
 
 use mysqli_result;
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\FriendRepository;
 use Sarok\Repository\EntryAccessRepository;
-use Sarok\Repository\CommentRepository;
 use Sarok\Repository\CategoryRepository;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\FriendType;
-use Sarok\Models\Friend;
 use Sarok\Models\Entry;
 use Sarok\Models\AccessType;
 use DateTime;

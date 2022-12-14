@@ -3,7 +3,7 @@
 namespace Sarok\Repository;
 
 use Sarok\Util;
-use Sarok\Service\DB;
+use Sarok\DB;
 use Sarok\Repository\AbstractRepository;
 use Sarok\Models\AccessLog;
 use DateTime;
