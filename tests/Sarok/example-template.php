@@ -1,1 +1,0 @@
-Pre <?php echo $main; ?> post

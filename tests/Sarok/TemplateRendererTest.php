@@ -20,26 +20,26 @@ final class TemplateRendererTest extends TestCase
 
     public function testInvalidPath() : void
     {
-        $variables = array('main' => 'Hello world!');
+        $variables = array('variable' => 'Hello world!');
         $this->assertEmpty(self::$tr->render('no-such-template.php', $variables),
             'Output should be empty if a template can not be read.');
     }
 
     public function testRender() : void
     {
-        $variables = array('main' => 'Hello world!');
-        $this->assertEquals('Pre Hello world! post', 
-            self::$tr->render(dirname(__FILE__) . '/example-template.php', $variables),
+        $variables = array('variable' => 'Hello world!');
+        $this->assertEquals('Action pre Hello world! action post', 
+            self::$tr->render(dirname(__FILE__) . '/../templates/testAction1.php', $variables),
             'Renderer should substitute input variable.');
     }
 
     public function testLocalVariable() : void
     {
         // This variable should have no effect on the template
-        $main = 'Hello world!';
+        $variable = 'Hello world!';
 
-        $this->assertEquals('Pre ', 
-            self::$tr->render(dirname(__FILE__) . '/example-template.php', array()),
+        $this->assertEquals('Action pre ', 
+            self::$tr->render(dirname(__FILE__) . '/../templates/testAction1.php', array()),
             'Renderer should produce best-effort results.');
     }    
 
@@ -48,17 +48,17 @@ final class TemplateRendererTest extends TestCase
         try {
 
             // This global should have no effect on the template either
-            global $main;
-            $main = 'Hello world!';
+            global $variable;
+            $variable = 'Hello world!';
 
-            $this->assertEquals('Pre ', 
-                self::$tr->render(dirname(__FILE__) . '/example-template.php', array()),
+            $this->assertEquals('Action pre ', 
+                self::$tr->render(dirname(__FILE__) . '/../templates/testAction1.php', array()),
                 'Renderer should produce best-effort results.');
 
         } finally {
 
             // Clean up the global
-            unset($main);
+            unset($variable);
         }
     }    
 }

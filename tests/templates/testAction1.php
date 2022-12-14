@@ -1,0 +1,1 @@
+Action pre <?php echo $variable; ?> action post

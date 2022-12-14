@@ -1,111 +1,130 @@
-<?php namespace Sarok;
+<?php declare(strict_types=1);
 
-class ViewHandler
+namespace Sarok;
+
+/**
+ * Renders text to smaller templates (tiles), then combines the output using another template.
+ */
+final class ViewHandler 
 {
+    public const TEMPLATE_BASE_PATH = '../templates';
+    
+    private const DEFAULT_TEMPLATE_PATH = self::TEMPLATE_BASE_PATH . '/default';
+    private const MAIN_TEMPLATE = '/index.php';
+    private const EMPTY_TEMPLATE = '/empty.php';
+
     /** 
-     * tile name => array of actions
+     * tile name => array of action (name)s
      * @var array<string, array<string>> 
      */
-    private array $actions = array();
+    private array $tiles = array();
 
     /**
-     * action name => action data (as an associative array)
-     * @var array<string, mixed>
+     * action name => action data as an associative array
+     * @var array<string, array<string, mixed>>
      */ 
-    private array $data = array();
+    private array $actionData = array();
     
     /**
      * tile name => tile content + any extra variables used in the main template (index.php)
      * @var array<string, mixed>
      */
-    private array $viewData = array();
+    private array $tileData = array();
     
-    private string $templateName;
+    private string $templatePath;
     private TemplateRenderer $templateRenderer;
     private Logger $logger;
 
-    public function __construct(Logger $logger, TemplateRenderer $templateRenderer)
+    public function __construct(Logger $logger, TemplateRenderer $templateRenderer) 
     {
         $this->logger = $logger;
         $this->templateRenderer = $templateRenderer;
         $this->logger->debug("ViewHandler initialized");
     }
 
-    public function setTemplate(string $templateName) : void
+    public function setTemplatePath(string $templatePath) : void
     {
-        if (file_exists("../templates/$templateName/index.php")) {
-            $this->logger->debug("Using template '$templateName'");
-            $this->templateName = $templateName;
+        if (file_exists($templatePath . self::MAIN_TEMPLATE)) {
+            $this->logger->debug("Using template path '${templatePath}'");
+            $this->templatePath = $templatePath;
         } else {
-            $this->logger->warning("Template '$templateName' does not exist, using default");
-            $this->templateName = 'default';
+            $this->logger->warning("Template '${templatePath}' does not exist, using default path");
+            $this->templatePath = self::DEFAULT_TEMPLATE_PATH;
         }
     }
 
     public function addAction(string $tile, string $action) : void
     {
-        if (!isset($this->actions[$tile])) {
-            $this->actions[$tile] = array($action);
+        if (!isset($this->tiles[$tile])) {
+            $this->tiles[$tile] = array($action);
         } else {
-            $this->actions[$tile][] = $action;
+            $this->tiles[$tile][] = $action;
         }
     }
     
     /**
-     * @param array<string, mixed> $actions
+     * @param array<string, array<string, mixed>> $actionData
      */
-    public function setData(array $actions) : void
+    public function putAllActionData(array $actionData) : void
     {
-        foreach ($actions as $action => $variables) {
-            $this->data[$action] = $variables;
-        }
+        $this->actionData = array_replace($this->actionData, $actionData);
     }
 
     /**
      * @param string $key
      * @param mixed $value
      */
-    public function setViewData(string $key, $value) : void
+    public function putTileData(string $key, mixed $value) : void
     {
-        $this->viewData[$key] = $value;
+        $this->tileData[$key] = $value;
     }
     
     /**
-     * @param array<string, mixed> $viewData
+     * @param array<string, mixed> $tileData
      */
-    public function mergeViewData(array $viewData) : void
+    public function putAllTileData(array $tileData) : void
     {
-        $this->viewData = array_merge($this->viewData, $viewData);
+        $this->tileData = array_replace($this->tileData, $tileData);
     }
     
     private function renderAction(string $action) : string
     {
-        $templatePath = "../templates/{$this->templateName}/$action.php";
+        $actionTemplatePath = $this->templatePath . "/${action}.php";
 
-        if (file_exists($templatePath)) {
-            $this->logger->debug("Using action template '$templatePath'");
+        if (file_exists($actionTemplatePath)) {
+            // Plan A is to use the named template from the specified template directory
+            $this->logger->debug("Using action template '${actionTemplatePath}'");
         } else {
-            $this->logger->warning("Action template '$templatePath' does not exist, using default");
-            $templatePath = "../templates/default/$action.php";
+            // Plan B is to use the default template directory and the named template
+            $this->logger->warning("Action template '${actionTemplatePath}' does not exist, using default");
+            $actionTemplatePath = self::DEFAULT_TEMPLATE_PATH . "/${action}.php";
+
+            // Plan C is to render to an empty template
+            if (!file_exists($actionTemplatePath)) {
+                $actionTemplatePath = self::DEFAULT_TEMPLATE_PATH . self::EMPTY_TEMPLATE;
+            }
         }
         
-        return $this->templateRenderer->render($templatePath, $this->data[$action]);
+        $actionData = $this->actionData[$action];
+        return $this->templateRenderer->render($actionTemplatePath, $actionData);
     }
 
     public function render() : string
     {
-        // Concatenate rendered output for each action in tile
-        foreach ($this->actions as $tile => $tileActions) {
-            if (!isset($this->viewData[$tile])) {
-                $this->viewData[$tile] = "";
+        foreach ($this->tiles as $name => $actions) {
+            // We need this key to be a string; initialize it to an empty one if not already defined
+            if (!isset($this->tileData[$name]) || !is_string($this->tileData[$name])) {
+                $this->tileData[$name] = '';
             }
             
-            foreach ($tileActions as $action) {
-                $this->viewData[$tile] .= $this->renderAction($action);
+            // Concatenate rendered output for each action in tile
+            foreach ($actions as $action) {
+                $this->tileData[$name] .= $this->renderAction($action);
             }
         }
 
-        $templatePath = "../templates/{$this->templateName}/index.php";
-        return $this->templateRenderer->render($templatePath, $this->viewData);
+        // Render the gathered output using the main template
+        $mainTemplatePath = $this->templatePath . '/index.php';
+        return $this->templateRenderer->render($mainTemplatePath, $this->tileData);
     }
 }

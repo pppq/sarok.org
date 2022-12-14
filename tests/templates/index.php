@@ -1,0 +1,1 @@
+Layout pre <?php echo $main; ?> <?php echo $sidebar; ?> layout post
