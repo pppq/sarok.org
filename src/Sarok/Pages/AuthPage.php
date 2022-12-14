@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\AuthAction;
 
-class AuthPage extends Page
+final class AuthPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,9 +16,9 @@ class AuthPage extends Page
 
     public function init() : void
     {
-        $this->logger->debug('Initializing AuthPage');
-        // parent::init() is not needed
+        // parent::init() is not needed for this page
 
+        $this->logger->debug('Initializing AuthPage');
         $this->setTemplateName('empty');
         $this->addAction(self::TILE_MAIN, AuthAction::class);
     }

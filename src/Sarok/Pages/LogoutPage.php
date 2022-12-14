@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\LogoutAction;
 
-class LogoutPage extends Page
+final class LogoutPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,9 +16,9 @@ class LogoutPage extends Page
 
     public function init() : void
     {
-        $this->logger->debug('Initializing LogoutPage');
         // parent::init() is not needed
-
+        
+        $this->logger->debug('Initializing LogoutPage');
         $this->setTemplateName('empty');
         $this->addAction(self::TILE_MAIN, LogoutAction::class);
     }

@@ -12,7 +12,7 @@ use Sarok\Actions\MailListAction;
 use Sarok\Actions\MailComposeAction;
 use Sarok\Models\MenuItem;
 
-class MailPage extends Page
+final class MailPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -21,14 +21,14 @@ class MailPage extends Page
 
     public function init() : void
     {
-        $this->logger->debug('Initializing MailPage');
         parent::init();
         
-        $firstSegment = $this->getPathSegment(0);
+        $this->logger->debug('Initializing MailPage');
+        $firstSegment = $this->popFirstSegment();
         $action = MailListAction::class;
         
         switch ($firstSegment) {
-            case 'compose':
+            case 'compose': // fall-through
             case 'new':
                 $action = MailComposeAction::class;
                 break;
@@ -41,7 +41,7 @@ class MailPage extends Page
                 
             default:
                 if (preg_match('/^[0-9]+$/', $firstSegment)) {
-                    $secondSegment = $this->getPathSegment(1);
+                    $secondSegment = $this->popFirstSegment();
                     
                     if ($secondSegment === 'reply') {
                         $action = MailComposeAction::class;
@@ -55,8 +55,8 @@ class MailPage extends Page
         $user = $this->getUser();
         $userLogin = $user->getLogin();
         
-        $this->context->setLeftMenuItems(
-            new MenuItem('Bejegyzés irása',   "/users/$userLogin/new/"),
+        $this->setLeftMenuItems(
+            new MenuItem('Bejegyzés irása',   "/users/${userLogin}/new/"),
             new MenuItem('Level irasa',       '/privates/new/'),
             new MenuItem('Beallitasok',       '/settings/'),
             new MenuItem('Könyjelzők',        '/favourites/'),

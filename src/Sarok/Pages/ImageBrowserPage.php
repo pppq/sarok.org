@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\SettingsImagesAction;
 
-class ImageBrowserPage extends Page
+final class ImageBrowserPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,10 +16,10 @@ class ImageBrowserPage extends Page
 
     public function init() : void
     {
-        $this->log->debug('Initializing ImageBrowserPage');
         // parent::init() is not needed
         
-        // Re-using the image browser from the settings page here
+        // Use the image browser action from the settings page here
+        $this->log->debug('Initializing ImageBrowserPage');
         $this->addAction(self::TILE_MAIN, SettingsImagesAction::class);
         $this->setTemplateName('empty');
     }

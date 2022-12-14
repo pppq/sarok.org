@@ -18,34 +18,41 @@ use Sarok\Pages\MailPage;
 use Sarok\Pages\RegistrationPage;
 use Sarok\Pages\SplashPage;
 
-class Context
+final class Context
 {
+    private const SEGMENT_SEPARATOR = '/';
     private const SEGMENT_LIMIT = 15;
 
     /** The currently logged in user */
     private User $user;
-    
     /** The owner of the currently browsed diary */
     private User $blog;
     /** The ID of the currently browsed entry */
     private int $entryID;
 
-    /** 
-     * Path parameters as an associative array 
-     * @var array<string, mixed>
-     */
-    private array $pathParams;
-
-    /** An array of links to be displayed in the sidebar */
-    private array $leftMenuItems;
-
-    /** The master template to use for rendering the current page */
+    /** The template to use for rendering the current page */
     private string $templateName = 'default';
 
     /** Request path */
     private string $path;
-    /** Request path segments */
+
+    /** 
+     * Request path segments 
+     * @var array<string>
+     */
     private array $segments;
+
+    /** 
+     * Extracted request parameters, stored as an associative array 
+     * @var array<string, mixed>
+     */
+    private array $pathParams;
+
+    /** 
+     * An array of links to be displayed in the navigation section 
+     * @var array<MenuItem>
+     */
+    private array $leftMenuItems;
 
     private Logger $logger;
     private DIContainer $container;
@@ -55,6 +62,10 @@ class Context
         $this->logger = $logger;
         $this->container = $container;
     }
+
+    //////////////////////////////
+    // Request state management
+    //////////////////////////////
 
     public function getUser() : User
     {
@@ -68,7 +79,7 @@ class Context
 
     public function isLoggedIn() : bool
     {
-        return $this->user->getID() === User::ID_ANONYMOUS;
+        return isset($this->user) && ($this->user->getID() !== User::ID_ANONYMOUS);
     }
 
     public function getBlog() : User
@@ -106,71 +117,25 @@ class Context
         $this->templateName = $templateName;
     }
 
-    public function getLeftMenuItems() : array
+    public function getPath() : string
     {
-        return $this->leftMenuItems;
+        return $this->path;
     }
 
-    public function getBlogEntries() : array
-    {
-        return $this->blogEntries;
-    }
-
-    public function setBlogEntries(array $blogEntries) : void
-    {
-        $this->blogEntries = $blogEntries;
-    }
-
-    public function getPathParams() : array
-    {
-        return $this->pathParams;
-    }
-
-    public function setPathParams(array $pathParams) : void
-    {
-        $this->pathParams = $pathParams;
-    }
-
-    public function setLeftMenuItems(MenuItem ...$leftMenuItems) : void
-    {
-        $this->leftMenuItems = $leftMenuItems;
-    }
-
-    public function hasLeftMenuItems() : bool
-    {
-        return isset($this->leftMenuItems);
-    }
-
-    public function getPathSegment(int $segment) : string
-    {
-        $pathSegment = array_slice($this->segments, $segment, 1);
-
-        if (count($pathSegment) > 0) {
-            return $pathSegment[0];
-        } else {
-            return '';
-        }
-    }
-
-    public function removeFirstSegment() : string
-    {
-        $firstSegment = array_shift($this->segments);
-        
-        if ($firstSegment !== null) {
-            return $firstSegment;
-        } else {
-            return '';
-        }
-    }
-
+    /**
+     * Stores and parses the specified request path.
+     * 
+     * @return the name of the action page class to use for this path
+     */
     public function parsePath(string $path) : string
     {
-        $this->logger->debug("Parsing request path '$path'");
+        $this->logger->debug("Parsing request path '${path}'");
         $this->path = $path;
 
-        // Split by path separator, remove trailing empty separator
-        $this->segments = explode('/', $path, self::SEGMENT_LIMIT);
+        // Split to segments
+        $this->segments = explode(self::SEGMENT_SEPARATOR, $path, self::SEGMENT_LIMIT);
 
+        // Remove trailing empty segment
         $lastPos = count($this->segments) - 1;
         if ($lastPos >= 0 && strlen($this->segments[$lastPos]) === 0) {
             unset($this->segments[$lastPos]);
@@ -186,7 +151,7 @@ class Context
         }
 
         // Otherwise the first path segment decides which page to display
-        $firstSegment = $this->removeFirstSegment();
+        $firstSegment = $this->popFirstSegment();
 
         switch ($firstSegment) {
             case 'about':
@@ -213,10 +178,63 @@ class Context
         }
     }
 
-    public function getPath() : string
+    public function getPathSegment(int $idx) : string
     {
-        return $this->path;
+        /* 
+         * array_slice allows negative index values, so we can inspect the end of the path
+         * with -1 or -2 as the input parameter.
+         */
+        $pathSegment = array_slice($this->segments, $idx, 1);
+
+        if (count($pathSegment) > 0) {
+            return $pathSegment[0];
+        } else {
+            return '';
+        }
     }
+
+    public function popFirstSegment() : string
+    {
+        $firstSegment = array_shift($this->segments);
+        
+        if ($firstSegment !== null) {
+            return $firstSegment;
+        } else {
+            return '';
+        }
+    }
+
+    public function getPathParams() : array
+    {
+        return $this->pathParams;
+    }
+
+    public function setPathParams(array $pathParams) : void
+    {
+        $this->pathParams = $pathParams;
+    }
+
+    /**
+     * @return array<MenuItem>
+     */
+    public function getLeftMenuItems() : array
+    {
+        return $this->leftMenuItems;
+    }
+
+    public function setLeftMenuItems(MenuItem ...$leftMenuItems) : void
+    {
+        $this->leftMenuItems = $leftMenuItems;
+    }
+
+    public function hasLeftMenuItems() : bool
+    {
+        return isset($this->leftMenuItems);
+    }
+
+    //////////////////////////////////////////////
+    // Methods related to superglobal variables
+    //////////////////////////////////////////////
 
     public function isPOST() : bool
     {
@@ -232,16 +250,29 @@ class Context
         }
     }
 
+    public function getCookie(string $name, string $defaultValue = '') : string
+    {
+        if (isset($_COOKIE[$name])) {
+            return $_COOKIE[$name];
+        } else {
+            return $defaultValue;
+        }
+    }
+
     public function getUpload(string $name) : array {
         return $_FILES[$name];
     }
 
-    public function getAction(string $name) : Action
+    /////////////////////
+    // Everything else
+    /////////////////////
+
+    public function createAction(string $action) : Action
     {
-        if (!is_subclass_of($name, Action::class)) {
-            throw new InvalidArgumentException("Class '$name' is not a subclass of Action.");
+        if (!is_subclass_of($action, Action::class)) {
+            throw new InvalidArgumentException("Class '${action}' is not a subclass of Action.");
         }
         
-        return $this->container->get($name, true);
+        return $this->container->get($action, true);
     }
 }

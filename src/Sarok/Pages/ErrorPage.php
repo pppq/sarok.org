@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\ErrorAction;
 
-class ErrorPage extends Page
+final class ErrorPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,14 +16,15 @@ class ErrorPage extends Page
 
     public function canExecute() : bool
     {
+        // Error pages can be rendered to any user
         return true;
     }
 
     public function init() : void
     {
-        $this->logger->debug('Initializing ErrorPage');
         parent::init();
-        
+      
+        $this->logger->debug('Initializing ErrorPage');
         $this->addAction(self::TILE_MAIN, ErrorAction::class);
     }
 }

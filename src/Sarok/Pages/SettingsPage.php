@@ -20,8 +20,24 @@ use Sarok\Actions\SettingsFriendsAction;
 use Sarok\Actions\SettingsBlogAction;
 use Sarok\Models\MenuItem;
 
-class SettingsPage extends Page
+final class SettingsPage extends Page
 {
+    private const ACTION_MAP = array(
+        'blog'       => SettingsBlogAction::class,
+        // 'uploads'    => SettingsUploadsAction::class,
+        'friends'    => SettingsFriendsAction::class,
+        'skin'       => SettingsSkinAction::class,
+        'ski'        => SettingsSkiMaskAction::class,
+        'images'     => SettingsImagesAction::class,
+        'magic'      => SettingsMagicAction::class,
+        'map'        => SettingsMapAction::class,
+        'other'      => SettingsOtherAction::class,
+        'stats'      => SettingsStatsAction::class,
+        'makeMagic'  => SettingsMakeMagicAction::class,
+        'import'     => SettingsImportAction::class,
+        'makeImport' => SettingsMakeImportAction::class,
+    );
+
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
@@ -29,31 +45,15 @@ class SettingsPage extends Page
 
     public function init() : void
     {
+        // parent::init() is called below
+
         $this->logger->debug('Initializing SettingsPage');
-        // parent::init() is called later
-        
-        $actionMap = array(
-            'blog' => SettingsBlogAction::class,
-            // 'uploads' => SettingsUploadsAction::class,
-            'friends' => SettingsFriendsAction::class,
-            'skin' => SettingsSkinAction::class,
-            'ski' => SettingsSkiMaskAction::class,
-            'images' => SettingsImagesAction::class,
-            'magic' => SettingsMagicAction::class,
-            'map' => SettingsMapAction::class,
-            'other' => SettingsOtherAction::class,
-            'stats' => SettingsStatsAction::class,
-            'makeMagic' => SettingsMakeMagicAction::class,
-            'import' => SettingsImportAction::class,
-            'makeImport' => SettingsMakeImportAction::class,
-        );
+        $firstSegment = $this->popFirstSegment();
 
-        $firstSegment = $this->getPathSegment(0);
-
-        if (!isset($actionMap[$firstSegment])) {
+        if (!isset(self::ACTION_MAP[$firstSegment])) {
             $action = SettingsInfoAction::class;
         } else {
-            $action = $actionMap[$firstSegment];
+            $action = self::ACTION_MAP[$firstSegment];
         }
 
         if ($this->isPOST()) {
@@ -62,16 +62,16 @@ class SettingsPage extends Page
         } else {
             parent::init();
             
-            $this->context->setLeftMenuItems(
-                new MenuItem('Adatok', '/settings/'),
-                new MenuItem('Blog', '/settings/blog/'),
-                new MenuItem('Barátok', '/settings/friends/'),
-                new MenuItem('Képek', '/settings/images/'),
-                new MenuItem('Térkép', '/settings/map/'),
-                new MenuItem('Külső', '/settings/skin/'),
+            $this->setLeftMenuItems(
+                new MenuItem('Adatok',                  '/settings/'),
+                new MenuItem('Blog',                    '/settings/blog/'),
+                new MenuItem('Barátok',                 '/settings/friends/'),
+                new MenuItem('Képek',                   '/settings/images/'),
+                new MenuItem('Térkép',                  '/settings/map/'),
+                new MenuItem('Külső',                   '/settings/skin/'),
                 new MenuItem('Import/Export/Varázslat', '/settings/other/'),
-                new MenuItem('Statisztika', '/settings/stats/'),
-                new MenuItem('Snowboardos arc', '/settings/ski/'),
+                new MenuItem('Statisztika',             '/settings/stats/'),
+                new MenuItem('Snowboardos arc',         '/settings/ski/'),
             );
         }
 

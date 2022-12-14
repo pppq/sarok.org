@@ -5,37 +5,38 @@ namespace Sarok\Pages;
 use Sarok\Pages\Page;
 use Sarok\Logger;
 use Sarok\Context;
-use Sarok\Actions\RegistrationStep2Action;
 use Sarok\Actions\RegistrationStep1Action;
+use Sarok\Actions\RegistrationStep2Action;
 
-class RegistrationPage extends Page
+final class RegistrationPage extends Page
 {
+    private const ACTION_MAP = array(
+        'step1' => RegistrationStep1Action::class,
+        'step2' => RegistrationStep2Action::class,
+    );
+
     public function __construct(Logger $logger, Context $context)
     {
         parent::__construct($logger, $context);
     }
 
-    public function canExecute(): bool
+    public function canExecute() : bool
     {
+        // Registration is only available for users who are not yet logged in
         return !$this->isLoggedIn();
     }
 
-    public function init(): void
+    public function init() : void
     {
-        $this->logger->debug('Initializing RegistrationPage');
         parent::init();
 
-        $actionMap = array(
-            'step1' => RegistrationStep1Action::class,
-            'step2' => RegistrationStep2Action::class,
-        );
+        $this->logger->debug('Initializing RegistrationPage');
+        $path = $this->popFirstSegment();
 
-        $path = $this->getPathSegment(0);
-
-        if (!isset($actionMap[$path])) {
+        if (!isset(self::ACTION_MAP[$path])) {
             $action = RegistrationStep1Action::class;
         } else {
-            $action = $actionMap[$path];
+            $action = self::ACTION_MAP[$path];
         }
 
         $this->addAction(self::TILE_MAIN, $action);

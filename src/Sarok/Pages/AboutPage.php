@@ -8,20 +8,19 @@ use Sarok\Context;
 use Sarok\Actions\UserMapAction;
 use Sarok\Actions\UserListAction;
 use Sarok\Actions\ShowArticleAction;
-use Sarok\Actions\Action;
 
-class AboutPage extends Page
+final class AboutPage extends Page
 {
     private const ENTRY_ABOUT_US = 15287;
     private const ENTRY_MEDIA_OFFER = 20505;
 
-    private const ACTION_MAP = [
+    private const ACTION_MAP = array(
         ''             => self::ENTRY_ABOUT_US,
         'us'           => self::ENTRY_ABOUT_US,
         'mediaajanlat' => self::ENTRY_MEDIA_OFFER,
         'map'          => UserMapAction::class,
         'pacients'     => UserListAction::class,
-    ];
+    );
 
     public function __construct(Logger $logger, Context $context)
     {
@@ -30,15 +29,16 @@ class AboutPage extends Page
 
     public function canExecute() : bool
     {
+        // "About us" pages can be rendered to any user
         return true;
     }
 
     public function init() : void
     {
-        $this->logger->debug('Initializing AboutPage');
         parent::init();
-
-        $firstSegment = $this->removeFirstSegment();
+        
+        $this->logger->debug('Initializing AboutPage');
+        $firstSegment = $this->popFirstSegment();
 
         if (!isset(self::ACTION_MAP[$firstSegment])) {
             $this->logger->warning('Path segment not found in map, using default entry');
@@ -48,12 +48,12 @@ class AboutPage extends Page
         }
         
         if (is_int($action)) {
-            $this->logger->debug("Displaying entry with ID '$action'");
-            $this->context->setEntryID($action);
+            $this->logger->debug("Displaying entry with ID '${action}'");
+            $this->setEntryID($action);
             $action = ShowArticleAction::class;
         }
         
-        $this->logger->debug("Action set to '$action'");
+        $this->logger->debug("Action set to '${action}'");
         $this->addAction(self::TILE_MAIN, $action);
     }
 }

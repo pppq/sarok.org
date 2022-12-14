@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\EmptyAction;
 
-class SplashPage extends Page
+final class SplashPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -21,9 +21,9 @@ class SplashPage extends Page
 
     public function init() : void
     {
-        $this->logger->debug('Initializing SplashPage');
         // parent::init() is not needed
 
+        $this->logger->debug('Initializing SplashPage');
         $this->setTemplateName('splash');
         $this->addAction(self::TILE_MAIN, EmptyAction::class);
     }

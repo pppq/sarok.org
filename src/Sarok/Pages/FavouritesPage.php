@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\FavouritesAction;
 
-class FavouritesPage extends Page
+final class FavouritesPage extends Page
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,15 +16,13 @@ class FavouritesPage extends Page
 
     public function init() : void
     {
+        /* 
+         * TODO: POST requests should update favourites, but this is only available through 
+         * quick actions for now.
+         */
+        parent::init();
+
         $this->logger->debug('Initializing FavouritesPage');
-        
-        if ($this->isPOST()) {
-            // TODO: POST requests should update favourites
-            $this->setTemplateName('empty');
-        } else {
-            parent::init();
-        }
-        
         $this->addAction(self::TILE_MAIN, FavouritesAction::class);
     }
 }

@@ -42,88 +42,112 @@ class BlogPage extends Page
         $this->blogService = $blogService;
     }
 
+    ///////////////////////////////
+    // Request context delegates
+    ///////////////////////////////
+
     private function setBlog(User $blog) : void
     {
         $this->context->setBlog($blog);
     }
 
+    ////////////////////
+    // Page lifecycle
+    ////////////////////
+
     public function init() : void
     {
-        $this->logger->debug('Initializing BlogPage');
-        // parent::init() is called if $needsDefaultActions is not set to false later down
-        $needsDefaultActions = true;
-
-        $firstArg = $this->getPathSegment(0);
-        if (strlen($firstArg) === 0 || $firstArg === 'rss' || $firstArg === 'map') {
-            $this->setBlog($this->userService->getUserByLogin(User::LOGIN_ALL));
-            // process this segment again, below
-        } else {
-            $this->setBlog($this->userService->getUserByLogin($firstArg));
-            $this->removeFirstSegment(); // consume this path segment
-        }
+        // parent::init() is called if $templateName is still set to 'blog' later down
         
+        $this->logger->debug('Initializing BlogPage');
+        $templateName = 'blog';
+
+        // Step 1: Figure out if the first path segment refers to a blog owner
+        $firstArg = $this->getPathSegment(0);
+        
+        if ($firstArg === '' || $firstArg === 'rss' || $firstArg === 'map') {
+            // process this segment again (the blog in this context belongs to "all")
+            $blogLogin = User::LOGIN_ALL;
+        } else {
+            // consume this path segment
+            $blogLogin = $this->popFirstSegment();
+        }
+
+        $blog = $this->userService->getUserByLogin($blogLogin);
+        $this->setBlog($blog);
+        
+        // Step 2: Determine if we are working with a single entry or a list of entries from this blog
         $secondArg = $this->getPathSegment(0);
 
         $matches = array();
         if (preg_match('^m_([1-9][0-9]*)$', $secondArg, $matches)) {
             $entryID = (int) $matches[1];
-            $this->context->setEntryID($entryID);
+            $this->setEntryID($entryID);
             
+            // Step 2a: Single entry. Now what do we do with it? The default is "read it":
             $thirdArg = $this->getPathSegment(1);
             $action = EntryReadAction::class;
 
             if ($thirdArg === 'edit') {
+                // Show an editor that can be used to update this entry
                 $action = EntryEditAction::class;
             } else if ($this->isPOST()) {
+                // Some changes are being submitted that will modify this entry, then redirect
+                $templateName = 'empty';
+
                 switch ($thirdArg) {
                     case 'update': 
-                        $needsDefaultActions = false;
                         $action = EntryUpdateAction::class; 
                         break;
 
                     case 'delete': 
-                        $needsDefaultActions = false;
                         $action = EntryDeleteAction::class; 
                         break;
 
                     case 'insertcomment': 
-                        $needsDefaultActions = false;
                         $action = EntryAddCommentAction::class; 
                         break;
 
                     default: 
-                        // Fallback for POST requests (you don't get RSS or map output using this request method)
+                        // The change kind was not recognized; we will abandon single entry mode as a fallback
+                        $templateName = 'blog';
                         $action = EntryListAction::class; 
                         break;
                 }
             }
         } else if ($secondArg === 'new') {
+            // Show an editor that can be used to create a new entry
             $action = EntryNewAction::class;
         } else if ($secondArg === 'info') {
+            // Show some information about this blog
             $action = EntryInfoAction::class;
         } else if ($this->isPOST() && $secondArg === 'update') {
-            $needsDefaultActions = false;
+            // A new entry was submitted for addition
+            $templateName = 'empty';
             $action = EntryUpdateAction::class;
         } else {
+            // Display a list of entries, unless...
             $action = EntryListAction::class;
 
             $lastArg = $this->getPathSegment(-1);
             $beforeLastArg = $this->getPathSegment(-2);
     
             if ($lastArg === 'rss' || $beforeLastArg === 'rss') {
-                // Render list of entries to RSS XML if requested
-                $this->setTemplateName('rss');
+                // ...we need to render the page to XML
+                $templateName = 'rss';
             } else if ($lastArg === 'map') {
-                // Show pins on the map for geotagged entries
+                // ...we need to show pins on the map for geotagged matches
                 $action = EntryMapAction::class;
             }
         }
 
+        // Step 2b: It's a list of entries; gather remaining information from the request path
         if ($action === EntryListAction::class) {
             $this->parseBlogParams();
         }
 
-        if ($needsDefaultActions) {
+        // Step 3: We need extra actions if the page will generate user-facing content
+        if ($templateName === 'blog') {
             parent::init();
 
             $this->addAction(self::TILE_CALENDAR, MonthAction::class);
@@ -132,30 +156,30 @@ class BlogPage extends Page
             $this->addAction(self::TILE_HEADER, HeaderAction::class);
             $this->addAction(self::TILE_HEADER, CustomCssAction::class);
     
+            /* 
+             * Figure out which blog to file a new entry under (this depends on whether the user has write 
+             * access to the current blog)
+             */
             $user = $this->getUser();
-            $blog = $this->getBlog();
             $userID = $user->getID();
             $blogID = $blog->getID();
             
             if ($this->blogService->canEdit($userID, $blogID)) {
-                $newLogin = $blog->getLogin();
+                $newEntryLogin = $blog->getLogin();
             } else {
-                $newLogin = $user->getLogin();
+                $newEntryLogin = $user->getLogin();
             }
             
-            $this->context->setLeftMenuItems(
-                new MenuItem('Bejegyzés irása', "/users/$newLogin/new/"),
+            $this->setLeftMenuItems(
+                new MenuItem('Bejegyzés irása', "/users/${newEntryLogin}/new/"),
                 new MenuItem('Level irasa', '/privates/new/'),
                 new MenuItem('Beallitasok', '/settings/'),
                 new MenuItem('Könyjelzők', '/favourites/'),
                 new MenuItem('Páciensek listája', '/about/pacients/'),
             );
-
-            $this->setTemplateName('blog');
-        } else {
-            $this->setTemplateName('empty');
         }
 
+        $this->setTemplateName($templateName);
         $this->addAction(self::TILE_MAIN, $action);
     }
 
@@ -165,49 +189,49 @@ class BlogPage extends Page
         $pathParams = array();
 
         /* 
-        * Display entries from diaries of the user's friends:
-        * 
-        * - /users/all (everyone is a friend of "all" by default)
-        * - /users/xyz/friends
-        */
+         * Display entries from diaries of the user's friends:
+         * 
+         * - /users/all (everyone is a friend of "all" by default)
+         * - /users/xyz/friends
+         */
         if ($this->getBlog()->getLogin() === User::LOGIN_ALL || $this->getPathSegment(0) === 'friends') {
             $pathParams['friends'] = true;
             if ($this->getPathSegment(0) === 'friends') {
-                $this->removeFirstSegment();
+                $this->popFirstSegment();
             }
         }
 
         /*
-        * Display entries from the selected year/month/day:
-        * 
-        * - /users/xyz/2022
-        * - /users/xyz/2022/03
-        * - /users/xyz/2022/03/18
-        */
+         * Display entries from the selected year/month/day:
+         * 
+         * - /users/xyz/2022
+         * - /users/xyz/2022/03
+         * - /users/xyz/2022/03/18
+         */
         if (ctype_digit($this->getPathSegment(0))) {
-            $pathParams['year'] = (int) $this->removeFirstSegment();
+            $pathParams['year'] = (int) $this->popFirstSegment();
 
             if (ctype_digit($this->getPathSegment(0))) {
-                $pathParams['month'] = (int) $this->removeFirstSegment();
+                $pathParams['month'] = (int) $this->popFirstSegment();
 
                 if (ctype_digit($this->getPathSegment(0))) {
-                    $pathParams['day'] = (int) $this->removeFirstSegment();
+                    $pathParams['day'] = (int) $this->popFirstSegment();
                 }
             }
         }
 
         /*
-        * Display entries matching the search expression with match highlighting:
-        * 
-        * - /users/xyz/search (keyword is received via POST data)
-        * - /users/xyz/search/algernon (keyword is the next path parameter)
-        */
+         * Display entries matching the search expression with match highlighting:
+         * 
+         * - /users/xyz/search (keyword is received via POST data)
+         * - /users/xyz/search/algernon (keyword is the next path parameter)
+         */
         if ($this->getPathSegment(0) === 'search') {
             $pathParams['search'] = true;
-            $this->removeFirstSegment();
+            $this->popFirstSegment();
 
-            if (strlen($this->getPathSegment(0)) > 0) {
-                $pathParams['keyword'] = $this->removeFirstSegment();
+            if ($this->getPathSegment(0) !== '') {
+                $pathParams['keyword'] = $this->popFirstSegment();
             } else {
                 // Will be empty if not a POST request or the parameter is missing
                 $pathParams['keyword'] = $this->getPOST('keyword');
@@ -215,17 +239,17 @@ class BlogPage extends Page
         }
 
         /*
-        * Display entries with matching tag
-        * 
-        * - /users/xyz/tags (tag is received via POST data)
-        * - /users/xyz/tags/howto (tag is the next path parameter)
-        */
+         * Display entries with matching tag
+         * 
+         * - /users/xyz/tags (tag is received via POST data)
+         * - /users/xyz/tags/howto (tag is the next path parameter)
+         */
         if ($this->getPathSegment(0) === 'tags') {
             $pathParams['tags'] = true;
-            $this->removeFirstSegment();
+            $this->popFirstSegment();
 
-            if (strlen($this->getPathSegment(0)) > 0) {
-                $pathParams['tagword'] = $this->removeFirstSegment();
+            if ($this->getPathSegment(0) !== '') {
+                $pathParams['tagword'] = $this->popFirstSegment();
             } else {
                 // Will be empty if not a POST request or the parameter is missing
                 $pathParams['tagword'] = $this->getPOST('tagword');
@@ -233,12 +257,13 @@ class BlogPage extends Page
         }
 
         /*
-        * Skip first "N" matching entries
-        * 
-        * - /users/xyz/skip/300
-        */
-        if ($this->removeFirstSegment() === 'skip') {
-            $skip = $this->removeFirstSegment();
+         * Skip first "N" matching entries
+         * 
+         * - /users/xyz/skip/300
+         */
+        if ($this->popFirstSegment() === 'skip') {
+            $skip = $this->popFirstSegment();
+            
             if (ctype_digit($skip)) {
                 $pathParams['skip'] = (int) $skip;
             } else {
@@ -247,10 +272,10 @@ class BlogPage extends Page
         }
 
         /* 
-        * ...or any combination of the above, but also in the order listed above.
-        * 
-        * - /users/xyz/friend/2022/02/search/hairbrush/skip/50
-        */
+         * ps. Combinations are alloved, but only in the order listed above.
+         * 
+         * - /users/xyz/friend/2022/02/search/hairbrush/skip/50
+         */
         $this->setPathParams($pathParams);
     }
 }
