@@ -35,7 +35,7 @@ final class TextProcessor
 
     public function preFormat(string $text) : string 
     {
-        $this->logger->debug("Preformatting '$text'");
+        $this->logger->debug("Preformatting '${text}'");
         
         if (strlen($text) > 0) {
             $text = strip_tags($text, self::ALLOWED_TAGS);
@@ -58,7 +58,7 @@ final class TextProcessor
 
     public function postFormat(string $text, string $searchKeyword = '') : string 
     {
-        $this->logger->debug("Post-formatting '$text'");
+        $this->logger->debug("Post-formatting '${text}'");
         
         if (strlen($text) > 0) {
             $text = str_replace(' -- ', ' &ndash; ', $text);
@@ -87,7 +87,7 @@ final class TextProcessor
 
     public function tidy(string $text, array $tidy_config = self::DEFAULT_TIDY_CONFIG) : string 
     {
-        $this->logger->debug("HTML Tidy-ing '$text'");
+        $this->logger->debug("HTML Tidy-ing '${text}'");
         
         if (strlen($text) > 0) {
             $tidy = new tidy();
