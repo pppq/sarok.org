@@ -5,18 +5,18 @@ namespace Sarok\Repository;
 use Sarok\Util;
 use Sarok\DB;
 use Sarok\Repository\FriendRepository;
-use Sarok\Repository\AbstractRepository;
+use Sarok\Repository\Repository;
 use Sarok\Models\FriendType;
 use Sarok\Models\CommentDigestCategory;
 use Sarok\Models\CommentDigest;
 use Sarok\Models\AccessType;
 use DateTime;
 
-class CommentDigestRepository extends AbstractRepository
+final class CommentDigestRepository extends Repository
 {
-    const TABLE_NAME = 'cache_commentlist';
+    public const TABLE_NAME = 'cache_commentlist';
     
-    private const COLUMN_NAMES = array(
+    public const COLUMN_NAMES = array(
         CommentDigest::FIELD_CATEGORY,
         CommentDigest::FIELD_ID,
         CommentDigest::FIELD_OWNER_ID,
@@ -37,56 +37,51 @@ class CommentDigestRepository extends AbstractRepository
         $this->friendRepository = $friendRepository;
     }
     
-    protected function getTableName() : string
+    private function deleteByIdColumn(string $column, int $value) : int
     {
-        return self::TABLE_NAME;
-    }
-    
-    protected function getColumnNames() : array
-    {
-        return self::COLUMN_NAMES;
-    }
-    
-    private function deleteByColumn(string $column, int $value) : int
-    {
-        $t_cache_commentlist = $this->getTableName();
-        
-        $q = "DELETE FROM `$t_cache_commentlist` WHERE `$column` = ?";
+        $t_cache_commentlist = self::TABLE_NAME;
+        $q = "DELETE FROM `${t_cache_commentlist}` WHERE `${column}` = ?";
         return $this->db->execute($q, 'i', $value);
     }
     
     public function deleteById(int $ID) : int
     {
-        return $this->deleteByColumn(CommentDigest::FIELD_ID, $ID);
+        return $this->deleteByIdColumn(CommentDigest::FIELD_ID, $ID);
     }
     
     public function deleteByEntryId(int $entryID) : int
     {
-        return $this->deleteByColumn(CommentDigest::FIELD_ENTRY_ID, $entryID);
+        return $this->deleteByIdColumn(CommentDigest::FIELD_ENTRY_ID, $entryID);
     }
     
     public function deleteByOwnerId(int $ownerID) : int
     {
-        return $this->deleteByColumn(CommentDigest::FIELD_OWNER_ID, $ownerID);
+        return $this->deleteByIdColumn(CommentDigest::FIELD_OWNER_ID, $ownerID);
     }
     
     public function deleteByCategoryAndOwnerId(CommentDigestCategory $category, int $ownerID) : int
     {
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $c_category = CommentDigest::FIELD_CATEGORY;
         $c_ownerID = CommentDigest::FIELD_OWNER_ID;
         
-        $q = "DELETE FROM `$t_cache_commentlist` WHERE `$c_category` = ? AND `$c_ownerID` = ?";
-        return $this->db->execute($q, 'si', $category->value, $ownerID);
+        $q = "DELETE FROM `${t_cache_commentlist}` " . 
+            "WHERE `${c_category}` = ? AND `${c_ownerID}` = ?";
+
+        return $this->db->execute($q, 'si', 
+            $category->value, $ownerID);
     }
     
     public function deleteLastUsedBefore(DateTime $lastUsed) : int
     {
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $c_lastUsed = CommentDigest::FIELD_LAST_USED;
         
-        $q = "DELETE FROM `$t_cache_commentlist` WHERE `$c_lastUsed` < ?";
-        return $this->db->execute($q, 's', Util::dateTimeToString($lastUsed));
+        $q = "DELETE FROM `${t_cache_commentlist}` " . 
+            "WHERE `${c_lastUsed}` < ?";
+
+        return $this->db->execute($q, 's', 
+            Util::dateTimeToString($lastUsed));
     }
     
     public function updateLastUsed(DateTime $lastUsed, CommentDigestCategory $category, array $IDs, int $friendOf = 0) : int
@@ -101,7 +96,7 @@ class CommentDigestRepository extends AbstractRepository
         if ($category === CommentDigestCategory::COMMENTS && $friendOf > 0) {
             $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
             $c_diaryID = CommentDigest::FIELD_DIARY_ID;
-            $friendsOnlyClause = "AND `$c_diaryID` IN ($friendsSubQuery) ";
+            $friendsOnlyClause = "AND `${c_diaryID}` IN (${friendsSubQuery}) ";
             $friendType = FriendType::FRIEND;
             
             $values[] = $friendOf;
@@ -110,14 +105,15 @@ class CommentDigestRepository extends AbstractRepository
             $friendsOnlyClause = '';
         }
 
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $c_lastUsed = CommentDigest::FIELD_LAST_USED;
         $c_category = CommentDigest::FIELD_CATEGORY;
         $c_ID = CommentDigest::FIELD_ID;
         $placeholderList = $this->toPlaceholderList($IDs);
         
-        $q = "UPDATE `$t_cache_commentlist` SET `$c_lastUsed` = ? WHERE `$c_category` = ? $friendsOnlyClause" .
-            "AND `$c_ID` IN ($placeholderList)";
+        $q = "UPDATE `${t_cache_commentlist}` SET `${c_lastUsed}` = ? " . 
+            "WHERE `${c_category}` = ? ${friendsOnlyClause}" .
+            "AND `${c_ID}` IN (${placeholderList})";
         
         array_push($values, ...$IDs);
         return $this->db->executeWithParams($q, $values);
@@ -125,12 +121,13 @@ class CommentDigestRepository extends AbstractRepository
     
     public function updateAccess(AccessType $access, array $entryIDs) : int
     {
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $c_access = CommentDigest::FIELD_ACCESS;
         $c_entryID = CommentDigest::FIELD_ENTRY_ID;
         $placeholderList = $this->toPlaceholderList($entryIDs);
         
-        $q = "UPDATE `$t_cache_commentlist` SET `$c_access` = ? WHERE `$c_entryID` IN ($placeholderList)";
+        $q = "UPDATE `${t_cache_commentlist}` SET `${c_access}` = ? " . 
+            "WHERE `${c_entryID}` IN (${placeholderList})";
         
         // Prepend first parameter (access type)
         $values = array($access->value, ...$entryIDs);
@@ -164,9 +161,9 @@ class CommentDigestRepository extends AbstractRepository
         // Get the shared comment digests as well for the "all comments" section (ownerID is 0 in that case)
         $c_ownerID = CommentDigest::FIELD_OWNER_ID;
         if ($category === CommentDigestCategory::COMMENTS) {
-            $ownerClause = "`$c_ownerID` IN (0, ?)";
+            $ownerClause = "`${c_ownerID}` IN (0, ?)";
         } else {
-            $ownerClause = "`$c_ownerID` = ?";
+            $ownerClause = "`${c_ownerID}` = ?";
         }
 
         $values = array(
@@ -179,11 +176,11 @@ class CommentDigestRepository extends AbstractRepository
         $c_diaryID = CommentDigest::FIELD_DIARY_ID;
         if ($category === CommentDigestCategory::COMMENTS && $friendsOnly === true) {
             $friendsSubQuery = $this->friendRepository->getDestinationLoginsQuery();
-            $friendsOnlyClause = "AND `$c_diaryID` IN ($friendsSubQuery) ";
+            $friendsOnlyClause = "AND `${c_diaryID}` IN (${friendsSubQuery}) ";
             
             // Parameter 4 (index 3) should be the ownerID again, followed by the association type
             $values[] = $ownerID;
-            $values[] = FriendType::FRIEND;
+            $values[] = FriendType::FRIEND->value;
         } else {
             $friendsOnlyClause = '';
         }
@@ -195,7 +192,7 @@ class CommentDigestRepository extends AbstractRepository
         $c_userID = CommentDigest::FIELD_USER_ID;
         if ($category !== CommentDigestCategory::MY_COMMENTS && count($bannedLogins) > 0) {
             $placeholderList = $this->toPlaceholderList($bannedLogins);
-            $bannedClause = "AND `$c_userID` NOT IN ($placeholderList) AND `$c_diaryID` NOT IN ($placeholderList) ";
+            $bannedClause = "AND `${c_userID}` NOT IN (${placeholderList}) AND `${c_diaryID}` NOT IN (${placeholderList}) ";
             
             // Parameters 5 and up (index 4+) should be the banned login list, but twice!
             array_push($values, ...$bannedLogins, ...$bannedLogins);
@@ -215,13 +212,13 @@ class CommentDigestRepository extends AbstractRepository
         );
         
         $columnList = $this->toColumnList($selectColumns);
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $c_category = CommentDigest::FIELD_CATEGORY;
         $c_createDate = CommentDigest::FIELD_CREATE_DATE;
         
-        $q = "SELECT `$columnList` FROM `$t_cache_commentlist` ".
-             "WHERE $ownerClause AND `$c_category` = ? AND `$c_createDate` <= ? {$friendsOnlyClause}{$bannedClause}" .
-             "ORDER BY `$c_createDate` DESC LIMIT ?";
+        $q = "SELECT `${columnList}` FROM `${t_cache_commentlist}` ".
+             "WHERE ${ownerClause} AND `${c_category}` = ? AND `${c_createDate}` <= ? ${friendsOnlyClause}${bannedClause}" .
+             "ORDER BY `${c_createDate}` DESC LIMIT ?";
         
         // Last parameter is the limit
         $values[] = $limit;
@@ -230,7 +227,7 @@ class CommentDigestRepository extends AbstractRepository
     
     public function save(CommentDigest $commentDigest) : int
     {
-        $t_cache_commentlist = $this->getTableName();
+        $t_cache_commentlist = self::TABLE_NAME;
         $commentDigestArray = $commentDigest->toArray();
         $insertColumns = array_keys($commentDigestArray);
         $columnList = $this->toColumnList($insertColumns);
@@ -238,12 +235,15 @@ class CommentDigestRepository extends AbstractRepository
         $c_body = CommentDigest::FIELD_BODY;
         $c_lastUsed = CommentDigest::FIELD_LAST_USED;
         
-        $q = "INSERT INTO `$t_cache_commentlist` (`$columnList`) VALUES ($placeholderList) ON DUPLICATE KEY UPDATE `$c_body` = ?, `$c_lastUsed` = ?";
+        $q = "INSERT INTO `${t_cache_commentlist}` (`${columnList}`) VALUES (${placeholderList}) " . 
+            "ON DUPLICATE KEY UPDATE `${c_body}` = ?, `${c_lastUsed}` = ?";
 
         // Values for the ON DUPLICATE KEY parts are repeated
         $values = array_values($commentDigestArray);
         $values[] = $commentDigest->getBody();
         $values[] = Util::dateTimeToString($commentDigest->getLastUsed());
-        return $this->db->execute($q, 'siississssss', ...$values);
+
+        return $this->db->execute($q, 'siississssss', 
+            ...$values);
     }
 }

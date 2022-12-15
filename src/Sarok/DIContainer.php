@@ -43,7 +43,7 @@ final class DIContainer
     /**
      * Looks up an instance by symbolic name, returning null if it is not already registered.
      */
-    public function getOptional(string $name) : ?mixed 
+    public function getOptional(string $name) : mixed 
     {
         $key = $this->getKey($name);
 

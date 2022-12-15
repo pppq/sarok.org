@@ -49,7 +49,7 @@ final class AccessLogRepositoryTest extends RepositoryTest
         $al1->setNumQueries(123);
         $al1->setReferrer("https://www.example.com/");
         $al1->setRunTime(123456);
-        $al1->setSessid("123456789012345678");
+        $al1->setSessid(123456789012345678);
         $al1->setUserCode(123456789);
         $this->alr->save($al1);
         
@@ -61,7 +61,7 @@ final class AccessLogRepositoryTest extends RepositoryTest
         $al2->setNumQueries(321);
         $al2->setReferrer("https://www.example.org/");
         $al2->setRunTime(654321);
-        $al2->setSessid("1122334455");
+        $al2->setSessid(1122334455);
         $al2->setUserCode(10002);
         $this->alr->save($al2);
 
@@ -73,7 +73,7 @@ final class AccessLogRepositoryTest extends RepositoryTest
         $al3->setNumQueries(123);
         $al3->setReferrer("https://www.example.com/");
         $al3->setRunTime(123456);
-        $al3->setSessid("123456789012345678");
+        $al3->setSessid(123456789012345678);
         $al3->setUserCode(123456789);
         $this->alr->save($al3);        
 
@@ -115,7 +115,7 @@ final class AccessLogRepositoryTest extends RepositoryTest
         $al->setNumQueries(123);
         $al->setReferrer("https://www.example.com/");
         $al->setRunTime(123456);
-        $al->setSessid("123456789012345678");
+        $al->setSessid(123456789012345678);
         $al->setUserCode(123456789);
 
         $affectedRows = $this->alr->save($al);

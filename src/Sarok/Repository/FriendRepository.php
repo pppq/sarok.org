@@ -7,11 +7,11 @@ use Sarok\Models\User;
 use Sarok\Models\FriendType;
 use Sarok\Models\Friend;
 
-class FriendRepository extends AbstractRepository
+final class FriendRepository extends Repository
 {
-    const TABLE_NAME = 'friends';
+    public const TABLE_NAME = 'friends';
     
-    private const COLUMN_NAMES = array(
+    public const COLUMN_NAMES = array(
         Friend::FIELD_FRIEND_OF, // source
         Friend::FIELD_USER_ID, // destination
         Friend::FIELD_FRIEND_TYPE,
@@ -22,16 +22,6 @@ class FriendRepository extends AbstractRepository
         parent::__construct($db);
     }
     
-    protected function getTableName() : string
-    {
-        return self::TABLE_NAME;
-    }
-    
-    protected function getColumnNames() : array
-    {
-        return self::COLUMN_NAMES;
-    }
-    
     ////////////////////////////////////////////////
     // Queries (also used by other repositories)
     ////////////////////////////////////////////////
@@ -40,52 +30,55 @@ class FriendRepository extends AbstractRepository
      * Returns a query that can be used to collect the ID of users who chose `userID` 
      * as their friend/enemy/reader. Uses the table alias `'f'`.
      * 
-     * Requires adding `'is'` parameters to the statement (for `userID` and `friendType`).
+     * Requires adding extra `'is'` (integer and string) parameters to the statement 
+     * (for `userID` and `friendType`).
      */ 
     public function getSourceUserIdsQuery()
     {
         $c_friendOf = Friend::FIELD_FRIEND_OF;
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $c_userID = Friend::FIELD_USER_ID;
         $c_friendType = Friend::FIELD_FRIEND_TYPE;
         
-        
-        return "SELECT `$c_friendOf` FROM `$t_friends` AS `f` " .
-            "WHERE `f`.`$c_userID` = ? AND `f`.`$c_friendType` = ?";
+        return "SELECT `${c_friendOf}` FROM `${t_friends}` AS `f` " .
+            "WHERE `f`.`${c_userID}` = ? AND `f`.`${c_friendType}` = ?";
     }
     
     /**
      * Returns a query that can be used to collect the ID of users who were chosen 
      * by `friendOf` as their friend/enemy/reader. Uses the table alias `'f'`.
      * 
-     * Requires adding `'is'` parameters to the statement (for `friendOf` and `friendType`).
+     * Requires adding extra `'is'` (integer and string) parameters to the statement 
+     * (for `friendOf` and `friendType`).
      */ 
     public function getDestinationUserIdsQuery()
     {
         $c_userID = Friend::FIELD_USER_ID;
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $c_friendOf = Friend::FIELD_FRIEND_OF;
         $c_friendType = Friend::FIELD_FRIEND_TYPE;
         
-        return "SELECT `$c_userID` FROM `$t_friends` AS `f` " .
-            "WHERE `f`.`$c_friendOf` = ? AND `f`.`$c_friendType` = ?";
+        return "SELECT `${c_userID}` FROM `${t_friends}` AS `f` " .
+            "WHERE `f`.`${c_friendOf}` = ? AND `f`.`${c_friendType}` = ?";
     }
     
     /**
      * Returns a query that can be used to check the existence of an association between
      * `friendOf` and `userID`, with type `friendType`. Uses the table alias `'f'`.
      * 
-     * Requires adding `'iis'` parameters to the statement (for `friendOf`, `userID` and `friendType`).
+     * Requires adding extra `'iis'` (2×integer and 1×string) parameters to the statement 
+     * (for `friendOf`, `userID` and `friendType`).
      */
     public function getAssociationExistsQuery()
     {
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $c_friendOf = Friend::FIELD_FRIEND_OF;
         $c_userID = Friend::FIELD_USER_ID;
         $c_friendType = Friend::FIELD_FRIEND_TYPE;
         
-        return "SELECT 1 FROM `$t_friends` AS `f` " .
-            "WHERE `f`.`$c_friendOf` = ? AND `f`.`$c_userID` = ? AND `f`.`$c_friendType` = ? LIMIT 1";
+        return "SELECT 1 FROM `${t_friends}` AS `f` " .
+            "WHERE `f`.`${c_friendOf}` = ? AND `f`.`${c_userID}` = ? AND `f`.`${c_friendType}` = ? " . 
+            "LIMIT 1";
     }
     
     /**
@@ -93,21 +86,22 @@ class FriendRepository extends AbstractRepository
      * by `friendOf` as their friend/enemy/reader. If no login name can be retrieved with the ID, 
      * falls back to returning the userID. Uses the table alias `'f'` and `'u'`.
      * 
-     * Requires adding `'is'` parameters to the statement (for `friendOf` and `friendType`).
+     * Requires adding extra `'is'` (integer and string) parameters to the statement 
+     * (for `friendOf` and `friendType`).
      */ 
     public function getDestinationLoginsQuery()
     {
         $c_login = User::FIELD_LOGIN;
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $t_users = UserRepository::USER_TABLE_NAME;
         $c_userID = Friend::FIELD_USER_ID;
         $c_ID = User::FIELD_ID;
         $c_friendOf = Friend::FIELD_FRIEND_OF;
         $c_friendType = Friend::FIELD_FRIEND_TYPE;
         
-        return "SELECT IFNULL(`u`.`$c_login`, `f`.`$c_userID`) FROM `$t_friends` AS `f` " .
-            "LEFT JOIN `$t_users` AS `u` ON `f`.`$c_userID` = `u`.`$c_ID` " .
-            "WHERE `f`.`$c_friendOf` = ? AND `f`.`$c_friendType` = ?";
+        return "SELECT IFNULL(`u`.`${c_login}`, `f`.`${c_userID}`) FROM `${t_friends}` AS `f` " .
+            "LEFT JOIN `${t_users}` AS `u` ON `f`.`${c_userID}` = `u`.`${c_ID}` " .
+            "WHERE `f`.`${c_friendOf}` = ? AND `f`.`${c_friendType}` = ?";
     }
     
     ///////////////////////////
@@ -135,11 +129,13 @@ class FriendRepository extends AbstractRepository
 
     private function deleteById(string $column, int $sourceOrDestinationID, FriendType $friendType) : int
     {
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $t_friendType = Friend::FIELD_FRIEND_TYPE;
         
-        $q = "DELETE FROM `$t_friends` WHERE `$column` = ? AND `$t_friendType` = ?";
-        return $this->db->execute($q, 'is', $sourceOrDestinationID, $friendType->value);
+        $q = "DELETE FROM `${t_friends}` WHERE `${column}` = ? AND `${t_friendType}` = ?";
+        
+        return $this->db->execute($q, 'is', 
+            $sourceOrDestinationID, $friendType->value);
     }
 
     public function deleteBySourceUserId(int $friendOf, FriendType $friendType) : int
@@ -158,13 +154,14 @@ class FriendRepository extends AbstractRepository
     
     public function save(Friend $friend) : int
     {
-        $t_friends = $this->getTableName();
+        $t_friends = self::TABLE_NAME;
         $friendArray = $friend->toArray();
         $insertColumns = array_keys($friendArray);
         $columnList = $this->toColumnList($insertColumns);
         $placeholderList = $this->toPlaceholderList($insertColumns);
         
-        $q = "INSERT IGNORE INTO `$t_friends` (`$columnList`) VALUES ($placeholderList)";
+        $q = "INSERT IGNORE INTO `${t_friends}` (`${columnList}`) VALUES (${placeholderList})";
+        
         $values = array_values($friendArray);
         return $this->db->execute($q, 'iis', ...$values);
     }
