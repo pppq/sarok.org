@@ -8,7 +8,7 @@ use Throwable;
 /**
  * Thrown when an issue is encountered while adding an entry to the application log.
  */
-class LogException extends Exception 
+final class LogException extends Exception 
 {
     public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null) 
     {
