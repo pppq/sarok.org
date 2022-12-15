@@ -26,15 +26,17 @@ final class SettingsPage extends Page
         'blog'       => SettingsBlogAction::class,
         // 'uploads'    => SettingsUploadsAction::class,
         'friends'    => SettingsFriendsAction::class,
-        'skin'       => SettingsSkinAction::class,
-        'ski'        => SettingsSkiMaskAction::class,
         'images'     => SettingsImagesAction::class,
-        'magic'      => SettingsMagicAction::class,
         'map'        => SettingsMapAction::class,
         'other'      => SettingsOtherAction::class,
+        'ski'        => SettingsSkiMaskAction::class,
+        'skin'       => SettingsSkinAction::class,
         'stats'      => SettingsStatsAction::class,
-        'makeMagic'  => SettingsMakeMagicAction::class,
+        // We land on these pages using POST requests, but we still need a UI
         'import'     => SettingsImportAction::class,
+        'magic'      => SettingsMagicAction::class,
+        // These perform the update with POST + redirect (no UI)
+        'makeMagic'  => SettingsMakeMagicAction::class,
         'makeImport' => SettingsMakeImportAction::class,
     );
 
@@ -56,8 +58,7 @@ final class SettingsPage extends Page
             $action = self::ACTION_MAP[$firstSegment];
         }
 
-        if ($this->isPOST()) {
-            // TODO: POST requests should update corresponding settings
+        if ($firstSegment === 'makeMagic' || $firstSegment === 'makeImport') {
             $this->setTemplateName('empty');
         } else {
             parent::init();
