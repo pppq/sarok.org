@@ -58,12 +58,8 @@ final class DIContainer
      * Looks up an instance by symbolic name, creating a new instance if it is not already registered
      * and not in prototype mode (the default is singleton mode). Constructor parameters are injected
      * from the container during instance creation.
-     * 
-     * If you want to use singleton dependencies for a prototype instance, make sure to register or
-     * instantiate those first! The prototype flag is propagated for instances created as part of
-     * constructor injection.
      */
-    public function get(string $name, bool $prototype = false) : mixed 
+    public function get(string $name, bool $prototype = false, bool $protoDeps = false) : mixed 
     {
         if ($prototype === false) {
             // If we already have a singleton instance for the key, return it
@@ -74,7 +70,8 @@ final class DIContainer
         }
 
         if (!class_exists($name)) {
-            throw new DIException("Requested class '${name}' does not exist.");
+            throw new DIException("Requested class '${name}' does not exist.", 
+                DIException::CLASS_NOT_EXISTS);
         }
 
         $reflection = new ReflectionClass($name);
@@ -85,7 +82,8 @@ final class DIContainer
             try {
                 $instance = $reflection->newInstance();
             } catch (ReflectionException $e) {
-                throw new DIException("Failed to create new instance of '${name}' using 0-arg constructor.", 0, $e);
+                throw new DIException("Failed to create new instance of '${name}' using 0-arg constructor.", 
+                    DIException::ZERO_ARG_CONSTRUCTOR, $e);
             }
         } else {
             // Inject dependencies via constructor parameters
@@ -101,11 +99,13 @@ final class DIContainer
                 $value = $this->getOptional($paramName);
 
                 // Second attempt: find via type name, if it is not a built-in type (apply injection)
-                if ($value === null) {
-                    if ($paramType instanceof ReflectionNamedType) {
-                        if (!$paramType->isBuiltin()) {
-                            // XXX: Scope is propagated here
-                            $value = $this->get($paramType->getName(), $prototype);
+                if ($value === null && $paramType instanceof ReflectionNamedType && !$paramType->isBuiltin()) {
+                    try {
+                        $value = $this->get($paramType->getName(), $protoDeps);
+                    } catch (DIException $e) {
+                        // Ignore "no value found" exceptions here
+                        if ($e->getCode() !== DIException::NO_VALUE_FOUND) {
+                            throw $e;
                         }
                     }
                 }
@@ -119,7 +119,8 @@ final class DIContainer
 
                 // If we still don't have any value, that is a problem.
                 if ($value === null) {
-                    throw new DIException("Couldn't find value to inject for parameter '${paramType} ${paramName}' of class '${name}'.");
+                    throw new DIException("Couldn't find value to inject for parameter '${paramType} ${paramName}' of class '${name}'.",
+                        DIException::NO_VALUE_FOUND);
                 }
 
                 $values[] = $value;
@@ -129,7 +130,8 @@ final class DIContainer
             try {
                 $instance = $reflection->newInstanceArgs($values);
             } catch (ReflectionException $e) {
-                throw new DIException("Failed to create new instance of '${name}' with arguments ${values}.", 0, $e);
+                throw new DIException("Failed to create new instance of '${name}' with arguments ${values}.", 
+                    DIException::OTHER_CONSTRUCTOR, $e);
             }
         }
 
