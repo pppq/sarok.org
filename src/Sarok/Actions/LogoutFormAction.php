@@ -6,7 +6,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class LogoutFormAction extends Action
+final class LogoutFormAction extends Action
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -15,7 +15,7 @@ class LogoutFormAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug("Running LogoutFormAction");
+        $this->log->debug('Executing LogoutFormAction');
 
         $user = $this->getUser();
         $name = $user->getLogin();

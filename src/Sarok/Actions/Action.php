@@ -19,6 +19,10 @@ abstract class Action
         $this->context = $context;
     }
 
+    ///////////////////////////////
+    // Request context delegates
+    ///////////////////////////////
+
     protected function setTemplateName(string $templateName) : void
     {
         $this->context->setTemplateName($templateName);
@@ -37,6 +41,11 @@ abstract class Action
     protected function getBlog() : User
     {
         return $this->context->getBlog();
+    }
+
+    protected function getEntryID() : int
+    {
+        return $this->context->getEntryID();
     }
     
     protected function getPathSegment(int $segment) : string
@@ -58,6 +67,25 @@ abstract class Action
     {
         return $this->context->getPathParams();
     }
+
+    protected function getCookie(string $name, string $defaultValue = '') : string
+    {
+        return $this->context->getCookie($name, $defaultValue);
+    }
+
+    protected function hasLeftMenuItems() : bool
+    {
+        return $this->context->hasLeftMenuItems();
+    }
+
+    protected function getLeftMenuItems() : array
+    {
+        return $this->context->getLeftMenuItems();
+    }
+
+    ////////////////////
+    // Action lifecycle
+    ////////////////////
 
     abstract public function execute() : array;
 }

@@ -6,7 +6,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class EmptyAction extends Action
+final class EmptyAction extends Action
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -15,7 +15,7 @@ class EmptyAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug("Running EmptyAction");
+        $this->log->debug('Executing EmptyAction');
         return Action::NO_DATA;
     }
 }

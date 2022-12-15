@@ -6,17 +6,21 @@ use Sarok\Models\User;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
+use Sarok\Service\UserService;
 
-class CustomCssAction extends Action
+final class CustomCssAction extends Action
 {
-    public function __construct(Logger $logger, Context $context)
+    private UserService $userService;
+
+    public function __construct(Logger $logger, Context $context, UserService $userService)
     {
         parent::__construct($logger, $context);
+        $this->userService = $userService;
     }
 
     public function execute() : array
     {
-        $this->log->debug("Running CustomCssAction");
+        $this->log->debug('Executing CustomCssAction');
         
         $user = $this->getUser();
         $blog = $this->getBlog();
@@ -24,6 +28,7 @@ class CustomCssAction extends Action
         $blogID = $blog->getID();
         
         if ($userID === User::ID_ANONYMOUS || $userID === $blogID) {
+            $this->userService->populateUserData($blog, User::KEY_CSS);
             $css = $blog->getUserData(User::KEY_CSS);
         } else {
             $css = '';

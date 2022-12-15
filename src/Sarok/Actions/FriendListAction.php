@@ -10,10 +10,9 @@ use Sarok\Logger;
 use Sarok\Models\User;
 use Sarok\Util;
 
-class FriendListAction extends Action
+final class FriendListAction extends Action
 {
     private UserService $userService;
-    private SessionService $sessionService;
 
     public function __construct(
         Logger $logger,
@@ -23,22 +22,21 @@ class FriendListAction extends Action
     ) {
         parent::__construct($logger, $context);
         $this->userService = $userService;
-        $this->sessionService = $sessionService;
     }
 
     public function execute() : array
     {
-        $this->log->debug("Running FriendListAction");
+        $this->log->debug('Executing FriendListAction');
 
         $user = $this->getUser();
         $userID = $user->getID();
-        $userLogin= $user->getLogin();
+        $userLogin = $user->getLogin();
 
         $lastActive = Util::utcDateTimeFromString();
         $lastActive->modify('-1 hour');
 
         $friends = $this->userService->getFriendsActivity($userID);
-        $onlineFriends = array_filter($friends, function(User $f) use (&$lastActive) { 
+        $onlineFriends = array_filter($friends, function(User $f) use ($lastActive) { 
             return $f->getActivationDate() >= $lastActive; 
         });
 

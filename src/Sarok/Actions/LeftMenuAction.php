@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class LeftMenuAction extends Action
+final class LeftMenuAction extends Action
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -16,18 +16,18 @@ class LeftMenuAction extends Action
     
     public function execute() : array
     {
-        $this->log->debug("Running LeftMenuAction");
+        $this->log->debug('Executing LeftMenuAction');
 
-        if ($this->context->hasLeftMenuItems()) {
+        if ($this->hasLeftMenuItems()) {
             // If the page registered some links for display, use those...
-            $menu = $this->context->getLeftMenuItems();
+            $menu = $this->getLeftMenuItems();
         } else {
             // ...display default links otherwise
-            $menu = [
+            $menu = array(
                 new MenuItem('Bemutató',            '/about/'),
                 new MenuItem('Páciensek listája',   '/about/pacients/'),
                 new MenuItem('Felhasználói térkép', '/about/map/'),
-            ];
+            );
         }
         
         return compact('menu');

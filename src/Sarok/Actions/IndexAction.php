@@ -6,7 +6,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class IndexAction extends Action
+final class IndexAction extends Action
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -15,7 +15,7 @@ class IndexAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug("Running IndexAction");
+        $this->log->debug('Executing IndexAction');
         // Everything is loaded asynchronously on the front page
         return Action::NO_DATA;
     }

@@ -10,7 +10,7 @@ use Sarok\Service\BlogService;
 use Sarok\Service\UserService;
 use Sarok\TextProcessor;
 
-class EntryListAction extends Action
+final class EntryListAction extends Action
 {
 	private BlogService $blogService;
 	private UserService $userService;
@@ -31,14 +31,17 @@ class EntryListAction extends Action
 
 	public function execute(): array
 	{
-		$this->log->debug("Running EntryListAction");
+		$this->log->debug('Executing EntryListAction');
 
 		$blog = $this->getBlog();
+		$blogID = $blog->getID();
 		$blogLogin = $blog->getLogin();
+		$this->userService->populateUserData($blog, User::KEY_BLOG_NAME);
 		$blogName = $blog->getUserData(User::KEY_BLOG_NAME);
 
 		$user = $this->getUser();
-		$entries = $this->blogService->getEntries($user->getID(), $blog->getID(), $this->getPathParams());
+		$userID = $user->getID();
+		$entries = $this->blogService->getEntries($userID(), $blogID(), $this->getPathParams());
 
 		$entryIDs = array();
 		$userIDs = array();
@@ -54,7 +57,7 @@ class EntryListAction extends Action
 		}
 
 		$tags = $this->blogService->getTagCloudForEntries($entryIDs);
-		$logins = $this->userService->getLogins($userIDs);
+		$logins = $this->userService->getLogins(array_unique($userIDs));
 
 		// Convert method to a callable so it can be used in the action template
 		$canChangeEntry = $this->blogService->canChangeEntry(...);

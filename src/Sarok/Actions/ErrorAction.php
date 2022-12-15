@@ -6,7 +6,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class ErrorAction extends Action
+final class ErrorAction extends Action
 {
     public function __construct(Logger $logger, Context $context)
     {
@@ -15,7 +15,7 @@ class ErrorAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug("Running ErrorAction");
+        $this->log->debug('Executing ErrorAction');
         // We render a static template on error that uses no variables
         return Action::NO_DATA;
     }
