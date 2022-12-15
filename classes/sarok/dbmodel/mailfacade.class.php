@@ -50,7 +50,7 @@ class mailfacade {
 				throw new dbFacadeException("User $recipientID or user $senderID does not exist");
 			}
 			$this->db->mquery("insert into mail(recipient, sender,replyOn,title, body, Date) values ('$recipientID','$senderID','$replyOn','$title',encode('$body','$mail_secretWord'),now())");
-			$mailID = mysql_insert_id();
+			$mailID = mysqli_insert_id();
 			$this->df->setUserProperty($recipientID, "newMail",  $this->getNewMailCount($recipientID));
 			$this->unCacheMailList($recipientID);
 			$this->unCacheMailList($senderID);
@@ -229,8 +229,8 @@ class mailfacade {
 		$this->log->info("setReadFlag($mailID)");
 		try {
 			$res = $this->db->mquery("update mail set isRead='Y' where ID='$mailID' limit 1");
-			if (mysql_affected_rows() != 0) {
-				$this->log->debug("Affected rows: ".mysql_affected_rows());
+			if (mysqli_affected_rows() != 0) {
+				$this->log->debug("Affected rows: ".mysqli_affected_rows());
 				$row = $this->db->queryone("select sender, recipient from mail where ID='$mailID' limit 1");
 				$this->df->setUserProperty($row["recipient"], "newMail", $this->df->getUserProperty($row["recipient"], "newMail") - 1, true);
 				$this->unCacheMailList($row["recipient"]);

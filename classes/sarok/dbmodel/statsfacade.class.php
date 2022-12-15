@@ -39,7 +39,7 @@ class statsfacade {
 		$q="select datum, sessid, action, referrer, ip, userCode from accesslog where datum>='$this->lastCollectionDate' and action like 'users/_%' order by datum limit $limit";
 		$result=$this->db->mquery($q);
 //		$this->log->debug2("received ".sizeof($rows)." rows to process");
-		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) 
+		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) 
 		{
 			extract($row);
 			$ip=$this->resolveIP($ip);

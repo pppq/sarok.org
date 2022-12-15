@@ -212,7 +212,7 @@ function weekend($num)
 {
 $n=($num-1)*7;
 $result=mquery("select '2002-01-06' + interval $n day  as d");
-$d=mysql_fetch_array($result);
+$d=mysqli_fetch_array($result);
 return($d["d"]);
 }
 

@@ -7,26 +7,26 @@ class mysql {
 		global $db_host, $db_name, $db_user, $db_password, $db_port;
 		$this->log = singletonloader :: getInstance("log");
 		$this->log->debug("Connecting to $db_host:$db_port ($db_name) with user $db_user, password $db_password");
-		$this->dbcon = mysql_connect($db_host, $db_user, $db_password);
+		$this->dbcon = mysqli_connect($db_host, $db_user, $db_password);
 		if ($this->dbcon === FALSE) {
-			$this->log->halt("dbFacade initilization failed. Error: ".mysql_error());
+			$this->log->halt("dbFacade initilization failed. Error: ".mysqli_error());
 			exit;
 		}
-		mysql_select_db($db_name,$this->dbcon);
+		mysqli_select_db($db_name,$this->dbcon);
 		$this->log->debug("mysql initialized, database connected");
 	}
 
 	public function close() {
 		$this->log->debug2("closing db connection, $this->counter connections made");
-		mysql_close($this->dbcon);
+		mysqli_close($this->dbcon);
 	}
 
 	public function mquery($query) {
 		$this->log->debug("mquery: ".$query);
-		$result = mysql_query($query);
-		if (mysql_errno()) {
-			$this->log->security("$query mquery: error ".mysql_errno().": ".mysql_error());
-			throw new mysqlException(mysql_errno().": ".mysql_error());
+		$result = mysqli_query($query);
+		if (mysqli_errno()) {
+			$this->log->security("$query mquery: error ".mysqli_errno().": ".mysqli_error());
+			throw new mysqlException(mysqli_errno().": ".mysqli_error());
 		}
 		$this->counter++;
 		return ($result);
@@ -34,8 +34,8 @@ class mysql {
 
 	public function queryone($query) {
 		$res = $this->mquery($query);
-		$row = mysql_fetch_array($res, MYSQL_ASSOC);
-		mysql_free_result($res);
+		$row = mysqli_fetch_array($res, MYSQLI_ASSOC);
+		mysqli_free_result($res);
 		return ($row);
 	}
 
@@ -57,11 +57,11 @@ class mysql {
 		$i = 0;
 
 		$result = $this->mquery($query);
-		while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+		while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
 			$resrow[$i] = $row;
 			$i ++;
 		}
-		mysql_free_result($result);
+		mysqli_free_result($result);
 		$this->log->debug("queryall: returned $i rows");
 		return (isset ($resrow) ? $resrow : null);
 	}
@@ -89,7 +89,7 @@ class mysql {
 	public function weekend($num) {
 		$n = ($num -1) * 7;
 		$result = $this->mquery("select '2002-01-06' + interval $n day  as d");
-		$d = mysql_fetch_array($result);
+		$d = mysqli_fetch_array($result);
 		return ($d["d"]);
 	}
 

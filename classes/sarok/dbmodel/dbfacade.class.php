@@ -30,7 +30,7 @@ class dbFacade {
 		$this->log->info("addUser: adding user $ID with password '$password', email $email");
 		try {
 			$this->db->mquery("insert into users (login, pass, createDate) values('$login',old_password('$password'),now())");
-			$ID=mysql_insert_id();
+			$ID=mysqli_insert_id();
 			//TODO add to all's friends, add different data's''
 			$this->db->mquery("insert into userdata values ('$ID','email','$email')");
 		} catch (mysqlException $e) {
@@ -142,7 +142,7 @@ class dbFacade {
 			//$q = "replace userdata set value='$property' , userID='$ID' , name='$name'";
 			$q = "insert into userdata values('$ID','$name','$property') on duplicate key update value='$property'";
 			$this->db->mquery($q);
-			$num = mysql_affected_rows();
+			$num = mysqli_affected_rows();
 		} catch (mysqlException $e) {
 			if ($e->getMessage() != 1062)
 				$this->log->error("setUserProperty: failure: ".$e->getMessage());

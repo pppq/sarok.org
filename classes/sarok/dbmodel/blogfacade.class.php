@@ -573,7 +573,7 @@ class blogfacade
 			$q= "insert into entries(diaryID,userID,createDate,access,comments,title,body,body2,dayDate,posX,posY, rssURL) values ('$blogId','$userId','$createDate','$access','$comments','$title','$body','$body2','$createDate','$posX','$posY','$rssURL')";
 			$this->log->info($q);
 			$this->db->mquery($q);
-			$entryID= mysql_insert_id();
+			$entryID= mysqli_insert_id();
 			$this->unlinkBlog($blogId);
 			if ($access == 'LIST' && is_array($accessList))
 			{
@@ -898,7 +898,7 @@ class blogfacade
 			}
 
 			$this->db->mquery("update entries set access='$access', comments='$comments', title='$title', body='$body', body2='$body2', diaryID='$diaryID', posX='$posX', posY='$posY', modifyDate=now() where ID='$entryID' and isTerminated='N' limit 1");
-			if (mysql_affected_rows() == 0)
+			if (mysqli_affected_rows() == 0)
 			{
 				$this->log->warning("No such entry or entry is terminated, nothing was changed");
 				throw new dbFacadeException("No such entry or entry is terminated, nothing was changed");
@@ -1038,7 +1038,7 @@ class blogfacade
 				return false;
 			}
 			$this->db->mquery("insert into comments (parentID, entryID, userID, createDate, body, IP, dayDate) values ('$parentID', '$entryID', '$userID', '$createDate', '$body', '".gethost()."', '$createDate')");
-			$commentID= mysql_insert_id();
+			$commentID= mysqli_insert_id();
 			$this->cacheComment($commentID);
 			$numcomments= $this->db->querynum("select count(*) from comments where entryID='$entryID' and isTerminated='N' limit 1");
 			$this->db->mquery("update entries set numComments='$numcomments', lastComment=now() where ID='$entryID' and isTerminated='N'");
@@ -1315,7 +1315,7 @@ class blogfacade
 					where e.access='FRIENDS' and date_format(e.createDate, '%Y-%c-%e')=concat(c.y,'-',c.m,'-',c.d)
 					and c.userID=e.diaryID and isTerminated='N') where userID='$ID' and concat(c.y,'-',c.m,'-',c.d)='$date'";
 		$this->db->mquery($q);
-		if(!mysql_affected_rows())
+		if(!mysqli_affected_rows())
 		{
 			if($recursion==0)
 			{
@@ -1435,7 +1435,7 @@ class blogfacade
 	{
 		$q= "update favourites set lastVisited=now() where userID='$userID' and entryID='$entryID' limit 1";
 		$this->db->mquery($q);
-		return (mysql_affected_rows());
+		return (mysqli_affected_rows());
 	}
 	
 	public function getUserCommentRates($commentIDs,$userID)

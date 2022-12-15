@@ -125,7 +125,7 @@ class sessionclass
 		$this->log->debug("Cleaning up sessions");
 		$q= "delete from sessions where activationDate< (now() - interval 1 hour)";
 		$this->db->mquery($q);
-		$this->log->debug(mysql_affected_rows()." sessions where deleted");
+		$this->log->debug(mysqli_affected_rows()." sessions where deleted");
 	}
 
 	public function sendHeaders()
