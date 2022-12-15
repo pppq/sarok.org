@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class LoginAction extends Action
+final class LoginAction extends Action
 {
     private SessionService $sessionService;
 
@@ -19,9 +19,9 @@ class LoginAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug('Running LoginAction');
+        $this->log->debug('Executing LoginAction');
 
-        if (!$this->isPOST()) {
+        if ($this->isPOST() === false) {
             $location = '/';
             return compact('location');
         }
@@ -30,7 +30,7 @@ class LoginAction extends Action
         $password = $this->getPOST('pass');
         $location = $this->getPOST('from', '/');
 
-        $success = $this->sessionService->loginUser($loginName, $password);
+        $success = $this->sessionService->login($loginName, $password);
 
         if ($success) {
             return compact('location');

@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class LogoutAction extends Action
+final class LogoutAction extends Action
 {
     private SessionService $sessionService;
 
@@ -19,7 +19,7 @@ class LogoutAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug('Running LogoutAction');
+        $this->log->debug('Executing LogoutAction');
 
         $this->sessionService->logout();
         $location = '/';

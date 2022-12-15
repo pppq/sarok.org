@@ -8,7 +8,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class EntryInfoAction extends Action
+final class EntryInfoAction extends Action
 {
     private UserService $userService;
     
@@ -20,7 +20,7 @@ class EntryInfoAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug('Running EntryInfoAction');
+        $this->log->debug('Executing EntryInfoAction');
 
         $user = $this->getUser();
         $blog = $this->getBlog();

@@ -6,20 +6,31 @@ use Sarok\Models\User;
 use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
+use Sarok\Service\UserService;
 
-class HeaderAction extends Action
+final class HeaderAction extends Action
 {
-    public function __construct(Logger $logger, Context $context)
+    private UserService $userService;
+
+    public function __construct(Logger $logger, Context $context, UserService $userService)
     {
         parent::__construct($logger, $context);
+        $this->userService = $userService;
     }
 
     public function execute() : array
     {
-        $this->log->debug('Running HeaderAction');
+        $this->log->debug('Executing HeaderAction');
 
 		$blog = $this->getBlog();
 		$login = $blog->getLogin();
+        
+        $this->userService->populateUserData($blog, 
+            User::KEY_BLOG_NAME, 
+            User::KEY_ENTRIES_PER_PAGE,
+            User::KEY_GOOGLE
+        );
+
 		$blogName = $blog->getUserData(User::KEY_BLOG_NAME, $login);
 		$entriesPerPage = (int) $blog->getUserData(User::KEY_ENTRIES_PER_PAGE, '10');
         
@@ -28,8 +39,8 @@ class HeaderAction extends Action
             $robots = '';
         // }
 
-        $title = "$blogName - Sarok.org";
-        $rss = $this->context->getPath();
+        $title = "${blogName} - Sarok.org";
+        $rss = $this->getPath();
 
         if ($rss[strlen($rss) - 1] !== '/') {
             $rss .= '/rss/';
@@ -37,8 +48,14 @@ class HeaderAction extends Action
             $rss .= 'rss/';
         }
 
-        $entries = $this->context->getBlogEntries();
-        $params = $this->context->getBlogParams();
-        return compact('entriesPerPage', 'robots', 'title', 'rss', 'entries', 'params');
+        $params = $this->getPathParams();
+
+        return compact(
+            'entriesPerPage', 
+            'robots', 
+            'title', 
+            'rss', 
+            'params'
+        );
     }
 }

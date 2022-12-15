@@ -7,7 +7,7 @@ use Sarok\Logger;
 use Sarok\Context;
 use Sarok\Actions\Action;
 
-class EntryDeleteAction extends Action
+final class EntryDeleteAction extends Action
 {
     private BlogService $blogService;
 
@@ -19,17 +19,17 @@ class EntryDeleteAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug('Running EntryDeleteAction');
+        $this->log->debug('Executing EntryDeleteAction');
 
         $user = $this->getUser();
-        $blog = $this->getBlog();
-
         $userID = $user->getID();
+        
+        $blog = $this->getBlog();
         $blogID = $blog->getID();
         $blogLogin = $blog->getLogin();
 
         // Default redirect location after POST is the blog's main page
-        $location = "/users/$blogLogin/";
+        $location = "/users/${blogLogin}/";
 
         if (!$this->isPOST()) {
             return compact('location');
@@ -43,15 +43,15 @@ class EntryDeleteAction extends Action
                 $commentID = (int) $thirdSegment;
 
                 if ($this->blogService->canDeleteComment($userID, $entryID, $commentID)) {
-                    $this->log->debug("Deleting comment #$commentID");
+                    $this->log->debug("Deleting comment #${commentID}");
                     $this->blogService->removeComment($commentID);
 
                     // Go back to the entry after deleting the comment
-                    $location = "/users/$blogLogin/m_$entryID";
+                    $location = "/users/${blogLogin}/m_${entryID}";
                 }
             } else {
                 if ($this->blogService->canChangeEntry($userID, $entryID)) {
-                    $this->log->debug("Deleting entry #$entryID");
+                    $this->log->debug("Deleting entry #${entryID}");
                     $this->blogService->removeEntry($entryID);
                 }
             }

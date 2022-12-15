@@ -35,7 +35,7 @@ final class EntryAddCommentAction extends Action
 
     public function execute() : array
     {
-        $this->log->debug('Running EntryAddCommentAction');
+        $this->log->debug('Executing EntryAddCommentAction');
 
         $user = $this->getUser();
         $userID = $user->getID();

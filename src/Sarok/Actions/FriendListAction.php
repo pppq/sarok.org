@@ -17,8 +17,7 @@ final class FriendListAction extends Action
     public function __construct(
         Logger $logger,
         Context $context,
-        UserService $userService,
-        SessionService $sessionService
+        UserService $userService
     ) {
         parent::__construct($logger, $context);
         $this->userService = $userService;

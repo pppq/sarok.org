@@ -83,6 +83,11 @@ abstract class Action
         return $this->context->getLeftMenuItems();
     }
 
+    protected function getPath() : string
+    {
+        return $this->context->getPath();
+    }
+
     ////////////////////
     // Action lifecycle
     ////////////////////
