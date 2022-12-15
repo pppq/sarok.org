@@ -1,5 +1,14 @@
 <?
 class textProcessor{
+
+	// TODO: convert both XHTML and non-XHTML options to an associative array
+	const DEFAULT_TIDY_CONFIG = array(
+        'clean' => true,
+        'output-xhtml' => true,
+        'show-body-only' => true,
+        'wrap' => 120, 
+    );
+
 	private $text;
 	private $log;
 	function textProcessor()
@@ -30,11 +39,11 @@ class textProcessor{
 	$str=str_replace("???????????????","Idióta vagyok? Valaki lőjön le engem!",$str);
 
 	$expr="Tegnap megismerkedtem egy fiúval és azóta csak rá gondolok. Gyönyörű göndör haja van, kék szeme és vastag farka, amely alig fér be a se... Bocs, azt hiszem rossz ablakba írtam!";
-	$str=eregi_replace(" lol ",$expr,$str);
+	$str=preg_replace("/ lol /i",$expr,$str);
 //$this->log->debug2("Replace idiots $str");
-	$str=ereg_replace("(<br/>)*!!![! \n\r]+","!!!",$str);
-	$str=ereg_replace("(<br/>)*\?\?\?[\? \n\r]+","???",$str);
-	$str=ereg_replace("(<br/>)*\?!\?![\?! \n]+","?!?!",$str);
+	$str=preg_replace("/(<br/>)*!!![! \n\r]+/","!!!",$str);
+	$str=preg_replace("/(<br/>)*\?\?\?[\? \n\r]+/","???",$str);
+	$str=preg_replace("/(<br/>)*\?!\?![\?! \n]+/","?!?!",$str);
 //	$str=preg_replace("/([^ ]+)\\1{7,}/","\\1",$str); 
 //	$this->log->debug2("Replace multiline $str");
 
@@ -56,50 +65,37 @@ public function postFormat($str="")
 	$str=str_replace(" -- "," &ndash; ",$str);
 	$str=str_replace(",-- "," &ndash; ",$str);
 	$str=str_replace(" --,"," &ndash; ",$str);
-	$str=ereg_replace("uid_([A-Za-z0-9]+)","<a href=/users/\\1/ class=personid>\\1</a>",$str);
+	$str=preg_replace("/uid_([A-Za-z0-9]+)/","<a href=/users/\\1/ class=personid>\\1</a>",$str);
 	if(isset($search_keyword) && strlen($search_keyword)>0) $str=str_ireplace($search_keyword,"<span class='search'>$search_keyword</span>",$str);
 	return($str);
 }
 
 public function tidy($text)
 {
-	global $tidy_cmd, $tidy_cmd_xhtml, $xhtmlMode;
-	if(!isset($xhtmlMode) or $xhtmlMode)
-	{
-		$cmd=$tidy_cmd_xhtml;
-	}
-	else
-	{
-		$cmd=$tidy_cmd;
-	}
-	//$cmd=$tidy_cmd;
+	// global $tidy_cmd, $tidy_cmd_xhtml, $xhtmlMode;
+	// if(!isset($xhtmlMode) or $xhtmlMode)
+	// {
+	// 	$cmd=$tidy_cmd_xhtml;
+	// }
+	// else
+	// {
+	// 	$cmd=$tidy_cmd;
+	// }
+	// $cmd=$tidy_cmd;
 
 	$this->log->debug("textProcessor->tidy()");
 	if(!sizeof($text)) $text=$this->text;
-	   $descriptorspec = array(
-           0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-           1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
-           2 => array("pipe", "a") // stderr is a file to write to
-                             );
-    $this->log->debug("proc_opening $cmd");
-    $pipes=array();
-    $process = proc_open($cmd, $descriptorspec, $pipes);
-	$this->log->debug("The result of proc_open is: $process");
-    fwrite($pipes[0], $text);
-    fclose($pipes[0]);
-	$this->log->debug("closed input");
-	$stro="";
-       while (!feof($pipes[1])) {
-           $stra=fgets($pipes[1], 1024);
-				//	 $this->log->debug("Out: ".$stra);
-					 $stro.=$stra;
-       }
-       fclose($pipes[1]);
-       $return_value = proc_close($process);
-       $this->log->debug("Return value is $return_value");
-       $this->log->debug("Output is ".strlen($stro)." bytes long");
-       $this->log->debug("Output is: ".$stro);
-       return($stro);
+
+	$tidy_config = self::DEFAULT_TIDY_CONFIG;
+	$tidy = new tidy();
+    $tidy->parseString($text, $tidy_config, 'utf8');
+    $tidy->cleanRepair();
+    $stro = tidy_get_output($tidy);
+
+	$this->log->debug("Output is ".strlen($stro)." bytes long");
+    $this->log->debug("Output is: ".$stro);
+    
+	return $stro;
 }
 
 public function cleanUp($text="")
@@ -113,9 +109,9 @@ public function cleanUp($text="")
 	//$text=str_replace("\r","",$text);
 	//$this->log->debug("Output is ".$text);
 	$this->log->debug("removing headers, leaving only body content");
-	$text=ereg_replace(".*<body>","",$text);
-	$text=ereg_replace("</body>.*","",$text);
-	//$text=ereg_replace(".*<body>(.*)</body>.*","\\1",$text);   <-- this is very fucking slow!
+	$text=preg_replace("/.*<body>/","",$text);
+	$text=preg_replace("/</body>.*/","",$text);
+	//$text=preg_replace("/.*<body>(.*)</body>.*/","\\1",$text);   <-- this is very fucking slow!
 	$this->log->debug("cleanup() <--");
 	return($text);
 }
