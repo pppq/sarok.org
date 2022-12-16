@@ -162,5 +162,8 @@ class mysql {
 		return ($query);
 	}
 
+	public function mysqli_affected_rows() {
+		return mysqli_affected_rows($this->dbcon);
+	}
 }
 ?>

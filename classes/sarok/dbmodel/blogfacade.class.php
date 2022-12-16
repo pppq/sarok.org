@@ -898,7 +898,7 @@ class blogfacade
 			}
 
 			$this->db->mquery("update entries set access='$access', comments='$comments', title='$title', body='$body', body2='$body2', diaryID='$diaryID', posX='$posX', posY='$posY', modifyDate=now() where ID='$entryID' and isTerminated='N' limit 1");
-			if (mysqli_affected_rows() == 0)
+			if ($this->db->mysqli_affected_rows() == 0)
 			{
 				$this->log->warning("No such entry or entry is terminated, nothing was changed");
 				throw new dbFacadeException("No such entry or entry is terminated, nothing was changed");
@@ -1315,7 +1315,7 @@ class blogfacade
 					where e.access='FRIENDS' and date_format(e.createDate, '%Y-%c-%e')=concat(c.y,'-',c.m,'-',c.d)
 					and c.userID=e.diaryID and isTerminated='N') where userID='$ID' and concat(c.y,'-',c.m,'-',c.d)='$date'";
 		$this->db->mquery($q);
-		if(!mysqli_affected_rows())
+		if(!$this->db->mysqli_affected_rows())
 		{
 			if($recursion==0)
 			{
@@ -1435,7 +1435,7 @@ class blogfacade
 	{
 		$q= "update favourites set lastVisited=now() where userID='$userID' and entryID='$entryID' limit 1";
 		$this->db->mquery($q);
-		return (mysqli_affected_rows());
+		return ($this->db->mysqli_affected_rows());
 	}
 	
 	public function getUserCommentRates($commentIDs,$userID)

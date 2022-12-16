@@ -142,7 +142,7 @@ class dbFacade {
 			//$q = "replace userdata set value='$property' , userID='$ID' , name='$name'";
 			$q = "insert into userdata values('$ID','$name','$property') on duplicate key update value='$property'";
 			$this->db->mquery($q);
-			$num = mysqli_affected_rows();
+			$num = $this->db->mysqli_affected_rows();
 		} catch (mysqlException $e) {
 			if ($e->getMessage() != 1062)
 				$this->log->error("setUserProperty: failure: ".$e->getMessage());

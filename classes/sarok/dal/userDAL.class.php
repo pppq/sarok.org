@@ -139,7 +139,7 @@ static public function findID($login)
 			$this->db->mquery($q);
 		}
 		/*
-				if(mysqli_affected_rows()==0)
+				if($this->db->mysqli_affected_rows()==0)
 				{
 
 					$this->dbFacade->addUser($this->data["login"]["value"],$this->data["pass"]["value"],$this->data["pass"]["email"]);
