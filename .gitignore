@@ -4,6 +4,7 @@ cache/comments/*
 cache/mail/*
 cache/stats/*
 logs/*
+www/userimages/*
 
 # ...except for a few files we'd like to keep around.
 !logs/README.txt
@@ -14,3 +15,4 @@ logs/*
 !cache/comments/README.txt
 !cache/mail/README.txt
 !cache/stats/README.txt
+!www/userimages/README.txt
