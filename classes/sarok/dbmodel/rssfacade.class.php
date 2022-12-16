@@ -140,7 +140,7 @@ class rssfacade {
 		try{
 			$q="insert into feeds (feedURL, blogID, lastUpdate, nextUpdate, contactEmail) values ('$url','$blogID', now() - interval 1 day, now(), '$email')";
 			$this->db->mquery($q);
-			$feedID=mysqli_insert_id();
+			$feedID=$this->db->mysqli_insert_id();
 			$this->log->debug("adding successfull, feed ID is $feedID");
 			return($feedID);
 		}

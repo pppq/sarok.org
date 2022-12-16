@@ -573,7 +573,7 @@ class blogfacade
 			$q= "insert into entries(diaryID,userID,createDate,access,comments,title,body,body2,dayDate,posX,posY, rssURL) values ('$blogId','$userId','$createDate','$access','$comments','$title','$body','$body2','$createDate','$posX','$posY','$rssURL')";
 			$this->log->info($q);
 			$this->db->mquery($q);
-			$entryID= mysqli_insert_id();
+			$entryID= $this->db->mysqli_insert_id();
 			$this->unlinkBlog($blogId);
 			if ($access == 'LIST' && is_array($accessList))
 			{
@@ -1038,7 +1038,7 @@ class blogfacade
 				return false;
 			}
 			$this->db->mquery("insert into comments (parentID, entryID, userID, createDate, body, IP, dayDate) values ('$parentID', '$entryID', '$userID', '$createDate', '$body', '".gethost()."', '$createDate')");
-			$commentID= mysqli_insert_id();
+			$commentID= $this->db->mysqli_insert_id();
 			$this->cacheComment($commentID);
 			$numcomments= $this->db->querynum("select count(*) from comments where entryID='$entryID' and isTerminated='N' limit 1");
 			$this->db->mquery("update entries set numComments='$numcomments', lastComment=now() where ID='$entryID' and isTerminated='N'");

@@ -50,7 +50,7 @@ class mailfacade {
 				throw new dbFacadeException("User $recipientID or user $senderID does not exist");
 			}
 			$this->db->mquery("insert into mail(recipient, sender,replyOn,title, body, Date) values ('$recipientID','$senderID','$replyOn','$title',encode('$body','$mail_secretWord'),now())");
-			$mailID = mysqli_insert_id();
+			$mailID = $this->db->mysqli_insert_id();
 			$this->df->setUserProperty($recipientID, "newMail",  $this->getNewMailCount($recipientID));
 			$this->unCacheMailList($recipientID);
 			$this->unCacheMailList($senderID);

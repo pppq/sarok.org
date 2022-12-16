@@ -162,6 +162,10 @@ class mysql {
 		return ($query);
 	}
 
+	public function mysqli_insert_id() {
+		return mysqli_insert_id($this->dbcon);
+	}
+
 	public function mysqli_affected_rows() {
 		return mysqli_affected_rows($this->dbcon);
 	}
