@@ -1,1 +1,16 @@
-*.log
+# These directories are populated with data at runtime...
+cache/blogs/*
+cache/comments/*
+cache/mail/*
+cache/stats/*
+logs/*
+
+# ...except for a few files we'd like to keep around.
+!logs/README.txt
+!cache/bannedip.txt
+!cache/public_blogs.php
+!cache/README.txt
+!cache/blogs/README.txt
+!cache/comments/README.txt
+!cache/mail/README.txt
+!cache/stats/README.txt
