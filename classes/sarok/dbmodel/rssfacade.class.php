@@ -109,7 +109,7 @@ class rssfacade {
 				$tags=array();
 				if(strlen($entry["category"]))
 				{
-					$tags=split("[ ,;]+",$entry["category"]);
+					$tags=preg_split("/[ ,;]+/",$entry["category"]);
 				}
 				
 				$this->bf->addEntry($blogID, $blogID, date("Y-m-d H:i:s",$entry["sysdate"]), strtoupper($messageAccess), array(),strtoupper($commentAccess), $entry["title"], $entry["description"],"", $tags,0,0,$entry["link"]);

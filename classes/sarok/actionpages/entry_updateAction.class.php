@@ -16,11 +16,11 @@ protected $bf,$mysql,$df;
 		$userList=array();
 		extract($data);
 		$this->log->debug("updating entry");
-		$tags=split("[, ;]+",strip_tags($tags));
+		$tags=preg_split("/[, ;]+/",strip_tags($tags));
 		$tags=array_unique($tags);
 		if(strlen($list))
 		{
-			$userList1=split("[ ,;]+",$list);
+			$userList1=preg_split("/[ ,;]+/",$list);
 			foreach($userList1 as $userLogin){
 				if($this->df->userExists($this->sessionFacade->getUserCode($userLogin)))
 				 {

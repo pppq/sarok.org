@@ -28,7 +28,7 @@ protected $blogFacade;
 		}
 		if(isset($tags) and strlen($tags))
 		{
-			$tagList=split("[, ;]+",strip_tags($tags));
+			$tagList=preg_split("/[, ;]+/",strip_tags($tags));
 			$this->log->debug("Tags is $tags, Taglist is: ".implode(", ",$tagList));
 		}
 		try{

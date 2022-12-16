@@ -241,13 +241,13 @@ function getAvailableBlogs($text, $num) {
 
 function findTagNum($text, $pos) {
 	$left = substr($text, 0, $pos +1);
-	$tags = split("[ ,;]+", $left);
+	$tags = preg_split("/[ ,;]+/", $left);
 	return (sizeof($tags) - 1);
 }
 
 function getTags($text, $pos) {
 	$db = singletonloader :: getInstance("mysql");
-	$tags = split("[ ,;]+", $text);
+	$tags = preg_split("/[ ,;]+/", $text);
 	if ($pos <= 1)
 		$tagNum = 0;
 	else
@@ -267,7 +267,7 @@ function getTags($text, $pos) {
 
 function getUserList($text, $pos) {
 	$db = singletonloader :: getInstance("mysql");
-	$tags = split("[ ,;]+", $text);
+	$tags = preg_split("/[ ,;]+/", $text);
 	if ($pos <= 1)
 		$tagNum = 0;
 	else

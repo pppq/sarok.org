@@ -54,7 +54,7 @@ protected $sessionFacade;
 		if(strlen($dateto) and ereg("[0-9]{4}-[0-9]{2}-[0-9]{2}",$dateto)) $q.=" and createDate<='$dateto' ";
 		if(strlen($tags)>1)
 		{
-			$t=split("[, ;]+",strip_tags($tags));
+			$t=preg_split("/[, ;]+/",strip_tags($tags));
 			if(sizeof($t)){
 			foreach($t as $v) $tagstr[]="'".$v."'";
 			$q.=" and ID in (select entryID from categories where Name in (".implode(", ",$tagstr).")) ";
