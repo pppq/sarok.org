@@ -75,7 +75,7 @@ for($i=1921;$i<1995;$i++)
 ?>
 </select>,
 <?
-$dates=split("/",$birthDate);
+$dates=explode("/",$birthDate);
 if(sizeof($dates)>1)
 {
 	$month=(int)$dates[0];

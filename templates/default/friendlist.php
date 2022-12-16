@@ -1,6 +1,6 @@
 <?if(is_array($list) and sizeof($list))
 {
-    $oldDate=split(" ",$list[0]["activationDate"]);
+    $oldDate=explode(" ",$list[0]["activationDate"]);
     $oldDate=$oldDate[0];
 
     ?>
@@ -15,7 +15,7 @@ cellspacing="0" cellpadding="0">
 for($i=0;$i<sizeof($list);$i++)
 {
     $row=$list[$i];
-    $date=split(" ",$row["activationDate"]);
+    $date=explode(" ",$row["activationDate"]);
     $time=$date[1];
     $date=$date[0];
 

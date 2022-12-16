@@ -152,7 +152,7 @@ function splitByDates($data,$dateField="datum")
 
 	foreach($data as $value)
 	{
-		$dates=split(" ",$value[$dateField]);
+		$dates=explode(" ",$value[$dateField]);
 		if(is_array($dates) and sizeof($dates>=2))
 		{
 			$value[$dateField]=$dates[1];
