@@ -26,7 +26,7 @@ protected $db;
 			$mailrow=$this->mf->getMail($this->context->ActionPage->mailCode,$this->context->user->ID);
 			if(substr($mailrow["title"],0,2)!="RE")
 				$mailrow["title"]="RE: ".$mailrow["title"];
-			$mailrow["body"]="<br>\n<blockquote>".eregi_replace("<blockquote>.*</blockquote>","",$mailrow["body"])."</blockquote><br>\n<br>\n";
+			$mailrow["body"]="<br>\n<blockquote>".preg_replace("/<blockquote>.*<\/blockquote>/i","",$mailrow["body"])."</blockquote><br>\n<br>\n";
 			$mailrow["recipientLogin"]=$this->sf->getUserLogin($mailrow["sender"]);
 			$mailrow["senderLogin"]=$login;
 			$mailrow["replyOn"]=$mailrow["ID"];

@@ -309,16 +309,16 @@ function checkLogin($login) {
 		echo "<span class=error>Nem megmondtam hogy max 15 karakter es min 2 karakter lehet a hossza?</span>";
 		return;
 	}
-	if (!ereg("^[a-z][a-z0-9_]{1,14}$", $login)) {
+	if (!preg_match("/^[a-z][a-z0-9_]{1,14}$/", $login)) {
 		echo "<span class=error>Valamit elcseszted. Mondjuk vannak benne ekezetek? Vagy szammal kezdodik? Mondok valamit: <b>^[a-z][a-z0-9_]{1,14}\$</b></span>";
 		return;
 	}
 	$regs = array ();
-	if (ereg("((nyuszi)|(angyal)|(lany)|(angel))", $login, $regs)) {
+	if (preg_match("/((nyuszi)|(angyal)|(lany)|(angel))/", $login, $regs)) {
 		echo "<span class=error>Tele vagyunk {$regs[1]} felhasználókkal, legyél már egy picit kreativabb. Az nem art, ha blogot akarsz vezetni.</span>";
 		return;
 	}
-	if (ereg("(szar)|(punci)|(pocs)|(fasz)|(picsa)|(geci)|(segg)", $login)) {
+	if (preg_match("/(szar)|(punci)|(pocs)|(fasz)|(picsa)|(geci)|(segg)/", $login)) {
 		echo "<span class=error>Ez egy beteg loginnev, $login. Ezt nem fogadom el.</span>";
 		return;
 	}
@@ -329,10 +329,10 @@ function checkLogin($login) {
 		echo "<span class=error>Sajnálom, $login már foglalt. Probálkozz egy másik névvel.</span>";
 	} else {
 
-		if (ereg("([6-9][0-9])$", $login, $regs))
+		if (preg_match("/([6-9][0-9])$/", $login, $regs))
 			echo "Tippelek: ". ((int) ((int) year() - 1900 - (int) $regs[1]))." éves vagy, $login. Amugy jo lesz loginnevnek. Mondjuk röhögni fognak, ám legyen, ha ragaszkodz hozzá.";
-		elseif (ereg("[0-9]", $login)) echo "Ezen a felhasználónéven röhögni fognak, ám legyen, ha ragaszkodz hozzá";
-		elseif (ereg("(buzi)", $login)) echo "Nem buzulunk! Buzulas tilos!";
+		elseif (preg_match("/[0-9]/", $login)) echo "Ezen a felhasználónéven röhögni fognak, ám legyen, ha ragaszkodz hozzá";
+		elseif (preg_match("/(buzi)/", $login)) echo "Nem buzulunk! Buzulas tilos!";
 		else
 			echo "Ez a felhasználónév nagyon szep, $login!";
 	}
@@ -341,7 +341,7 @@ function checkLogin($login) {
 
 function checkEmail($email) {
 	$email = strtolower($email);
-	if (!ereg("^.+@.+\..+$", $email)) {
+	if (!preg_match("/^.+@.+\..+$/", $email)) {
 		echo "<span class=error>Ha ez Neked egy email cim, akkor én egy helikopter vagyok.</span>";
 		return;
 	}

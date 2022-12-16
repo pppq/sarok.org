@@ -1388,7 +1388,7 @@ class blogfacade
 		{
 			$body1= substr($body, 0, $pos);
 			$this->log->debug("splitBodies: body1 is $body1");
-			$body2= eregi_replace("<hr[^>]*>", "", $body);
+			$body2= preg_replace("/<hr[^>]*>/i", "", $body);
 			$body2= substr($body2, $pos);
 			$this->log->debug("splitBodies: body2 is $body2");
 			return array ($body1, $body2);

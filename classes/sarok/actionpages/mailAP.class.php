@@ -38,14 +38,14 @@ private $params;
 				$this->fromto=$this->params[2];
 			}
 		default:
-		if(ereg("([0-9]{4})-([0-9]{2})-([0-9]{2})",$this->params[1],$regs))
+		if(preg_match("/([0-9]{4})-([0-9]{2})-([0-9]{2})/",$this->params[1],$regs))
 		{
 			$this->year=$regs[1];
 			$this->month=$regs[2];
 			$this->day=$regs[3];
 			$action="mail_list";
 		}
-		elseif(ereg("[0-9]+",$this->params[1]))
+		elseif(preg_match("/[0-9]+/",$this->params[1]))
 		{
 			$this->log->debug("Mail code is specified");
 			$this->mailCode=$this->params[1];

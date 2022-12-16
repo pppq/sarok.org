@@ -141,7 +141,7 @@ class imageFacade {
 /*                if(is_dir($dirname.$file))
                       list_dir($dirname.$file.'\\');
                 else                                   */
-			if(eregi("jpg",$file) || eregi("gif",$file) || eregi("png",$file)  ){
+			if (str_ends_with($file, '.jpg') || str_ends_with($file, '.gif') || str_ends_with($file, '.png')) {
 
                         $result_array[]=$file;
                         $this->log->debug("listDir: added $file to list");

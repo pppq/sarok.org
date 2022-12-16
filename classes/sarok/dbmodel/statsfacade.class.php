@@ -202,7 +202,7 @@ private function gethost($ip)
 	private function getUserCode($string)
 	{
 		$this->log->debug("extracting user Code from $string");
-		if(ereg("users/([0-9A-Za-z_]+).*",$string,$regs))
+		if(preg_match("/users\/([0-9A-Za-z_]+).*/",$string,$regs))
 		{
 			$login=$regs[1];
 			$this->log->debug("login is $login");
@@ -215,7 +215,7 @@ private function gethost($ip)
 	private function getEntryCode($string)
 	{
 		$this->log->debug("extracting user Code from $string");
-		if(ereg("users/([0-9A-Za-z_]+).*/m_([0-9]+)",$string,$regs))
+		if(preg_match("/users\/([0-9A-Za-z_]+).*\/m_([0-9]+)/",$string,$regs))
 		{
 			$mCode=$regs[2];
 			$this->log->debug("mCode is $mCode");

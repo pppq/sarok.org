@@ -41,9 +41,9 @@ class textProcessor{
 	$expr="Tegnap megismerkedtem egy fiúval és azóta csak rá gondolok. Gyönyörű göndör haja van, kék szeme és vastag farka, amely alig fér be a se... Bocs, azt hiszem rossz ablakba írtam!";
 	$str=preg_replace("/ lol /i",$expr,$str);
 //$this->log->debug2("Replace idiots $str");
-	$str=preg_replace("/(<br/>)*!!![! \n\r]+/","!!!",$str);
-	$str=preg_replace("/(<br/>)*\?\?\?[\? \n\r]+/","???",$str);
-	$str=preg_replace("/(<br/>)*\?!\?![\?! \n]+/","?!?!",$str);
+	$str=preg_replace("/(<br\/>)*!!![! \n\r]+/","!!!",$str);
+	$str=preg_replace("/(<br\/>)*\?\?\?[\? \n\r]+/","???",$str);
+	$str=preg_replace("/(<br\/>)*\?!\?![\?! \n]+/","?!?!",$str);
 //	$str=preg_replace("/([^ ]+)\\1{7,}/","\\1",$str); 
 //	$this->log->debug2("Replace multiline $str");
 
@@ -110,7 +110,7 @@ public function cleanUp($text="")
 	//$this->log->debug("Output is ".$text);
 	$this->log->debug("removing headers, leaving only body content");
 	$text=preg_replace("/.*<body>/","",$text);
-	$text=preg_replace("/</body>.*/","",$text);
+	$text=preg_replace("/<\/body>.*/","",$text);
 	//$text=preg_replace("/.*<body>(.*)</body>.*/","\\1",$text);   <-- this is very fucking slow!
 	$this->log->debug("cleanup() <--");
 	return($text);

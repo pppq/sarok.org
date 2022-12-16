@@ -30,16 +30,16 @@ protected $sessionFacade;
 		{
 			$canReg=false;
 		}
-		if(!ereg("^[a-z][a-z0-9_]{1,14}$",$login))
+		if(!preg_match("/^[a-z][a-z0-9_]{1,14}$/",$login))
 		{
 			$canReg=false;
 		}
-		if(ereg("((nyuszi)|(angyal)|(lany)|(angel))",$login,$regs))
+		if(preg_match("/((nyuszi)|(angyal)|(lany)|(angel))/",$login,$regs))
 		{
 			$canReg=false;
 
 		}
-		if(ereg("(szar)|(punci)|(pocs)|(fasz)|(picsa)|(geci)|(segg)",$login))
+		if(preg_match("/(szar)|(punci)|(pocs)|(fasz)|(picsa)|(geci)|(segg)/",$login))
 		{
 			$canReg=false;
 		}
@@ -64,7 +64,7 @@ protected $sessionFacade;
 	//check email
 		$this->log->debug("Checking email");
 		$email=$_POST["email"];
-		if(!ereg("^.+@.+\..+$",$email)) $canRun=false;
+		if(!preg_match("/^.+@.+\..+$/",$email)) $canRun=false;
 
 		if($canReg)
 			$this->log->debug("Check successfull");

@@ -36,7 +36,7 @@ public function readXML($xmlFile)
 	/*if(!ereg("http://",$xmlFile))
 	 return 4;*/
 	$data=file_get_contents($xmlFile);
-	$data=ereg_replace(".*<\?xml ","<?xml ",$data);
+	$data=preg_replace("/.*<\?xml /","<?xml ",$data);
 	$this->log->debug("read ".strlen($data)." bytes from file");
 	//echo $data;
     $this->log->debug("parsing file");

@@ -50,8 +50,8 @@ protected $sessionFacade;
 		if(isset($input_search) and strlen($input_search)>0) $input_search=" concat(title,body) like '%".strip_tags($input_search)."%'"; else $input_search="true";
 
 		$q.=" ( ( $input_all or $input_registered or $input_friends or $input_private ) and $input_search ) ";
-		if(strlen($datefrom) and ereg("[0-9]{4}-[0-9]{2}-[0-9]{2}",$datefrom)) $q.=" and createDate>='$datefrom' ";
-		if(strlen($dateto) and ereg("[0-9]{4}-[0-9]{2}-[0-9]{2}",$dateto)) $q.=" and createDate<='$dateto' ";
+		if(strlen($datefrom) and preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2}/",$datefrom)) $q.=" and createDate>='$datefrom' ";
+		if(strlen($dateto) and preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2}/",$dateto)) $q.=" and createDate<='$dateto' ";
 		if(strlen($tags)>1)
 		{
 			$t=preg_split("/[, ;]+/",strip_tags($tags));

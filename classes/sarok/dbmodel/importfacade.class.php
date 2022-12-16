@@ -153,7 +153,7 @@ public function postProcess($entries,$diaryID)
 				$entries[$index]["createDate"]=now();
 				$entry["createDate"]=now();
 			}
-			if(!ereg("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}",$entry["createDate"]))
+			if(!preg_match("/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}/",$entry["createDate"]))
 			{
 				$entries[$index]["createDate"]=date("Y-m-d G:i:s",strtotime($entry["createDate"]));
 			}
@@ -177,7 +177,7 @@ private function getDiaryFromXML($xmlFile){
 
 	$this->log->debug("getting content of $xmlFile");
 	$data=file_get_contents($xmlFile);
-	$data=ereg_replace(".*<\?xml","<?xml",$data);
+	$data=preg_replace("/.*<\?xml/","<?xml",$data);
 	//echo $data;
 	$this->log->debug("Parsing XML");
      if(!xml_parse($xmlParser, $data))
