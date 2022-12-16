@@ -16,7 +16,7 @@ class headerAction extends Action{
 		$out["title"]="$blogName Sarok.org";
 		$out["login"]=$this->context->blog->login;
 		$addr=$_GET['p'];
-		if($addr{strlen($addr)-1}!='/') $addr.="/";
+		if($addr[strlen($addr)-1]!='/') $addr.="/";
 		$addr.="rss/";
 		$out["rss"]="/".$addr;
 		
