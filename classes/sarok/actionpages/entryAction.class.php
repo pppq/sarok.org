@@ -24,7 +24,7 @@ public function execute() {
 		$count=0;
 		for($i=0;$i<sizeof($rows);$i++)
 		{
-			$this->log->debug("Processing entry #".$rows[$i][ID]);
+			$this->log->debug("Processing entry #".$rows[$i]["ID"]);
 			if(!$this->bf->canViewEntry2($rows[$i],$this->context->user)) {continue; };
 			$rows2[$count]=$rows[$i];
 			$rows2[$count]["body"]=$tp->postFormat($rows[$i]["body"]);

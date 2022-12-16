@@ -1257,7 +1257,7 @@ class blogfacade
 		if ($access == 'ALL' or $access == 'REGISTERED')
 		{
 			$this->log->debug("Inserting single entry for all users");
-			$q= "insert into cache_commentlist values('comments','$ID','0','{$user->login}','".$diary->login."','$entryID','$createDate','".$entry[access]."','$body',now())";
+			$q= "insert into cache_commentlist values('comments','$ID','0','{$user->login}','".$diary->login."','$entryID','$createDate','".$entry["access"]."','$body',now())";
 			$this->db->mquery($q);
 		}
 		else
@@ -1284,7 +1284,7 @@ class blogfacade
 			$this->log->debug("Inserting multiply entries for each user: ".implode(", ", $userList));
 			foreach ($userList as $u)
 			{
-				$q= "insert into cache_commentlist values('comments','$ID','$u','{$user->login}','".$diary->login."','$entryID','$createDate','".$entry[access]."','$body',now())";
+				$q= "insert into cache_commentlist values('comments','$ID','$u','{$user->login}','".$diary->login."','$entryID','$createDate','".$entry['access']."','$body',now())";
 				$this->db->mquery($q);
 			}
 		}

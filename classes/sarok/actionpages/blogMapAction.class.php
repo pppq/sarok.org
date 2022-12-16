@@ -35,7 +35,7 @@ if(sizeof($rows)>0)
 				$coord["posX"]=$row["posX"];
 				$coord["posY"]=$row["posY"];
 				//$text=
-				$coord["text"]="<a href=/users/{$this->context->blog->login}/m_{$row['ID']}/ >#".$row[ID].": ".$this->context->blog->login."</a><br/>".iconv_substr(strtr(strip_tags($row["title"]." ".$row["createDate"]." ".$row["body"]),$trans),0,50);
+				$coord["text"]="<a href=/users/{$this->context->blog->login}/m_{$row['ID']}/ >#".$row['ID'].": ".$this->context->blog->login."</a><br/>".iconv_substr(strtr(strip_tags($row["title"]." ".$row["createDate"]." ".$row["body"]),$trans),0,50);
 				$this->log->debug("popup text is:"+$coord["text"]);
 			$coords[]=$coord;
 			}
