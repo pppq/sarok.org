@@ -3,7 +3,7 @@ class sessionclass
 {
 	public $ID, $userID;
 	private $log, $db, $context,$banFC;
-	public function sessionclass($ID, $IP)
+	public function __construct($ID, $IP)
 	{
 		$this->log= singletonloader :: getInstance("log");
 		$this->db= singletonloader :: getInstance("mysql");

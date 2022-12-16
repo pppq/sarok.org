@@ -11,7 +11,7 @@ class textProcessor{
 
 	private $text;
 	private $log;
-	function textProcessor()
+	function __construct()
 	{
 		$this->log=singletonloader::getInstance("log");
 	}

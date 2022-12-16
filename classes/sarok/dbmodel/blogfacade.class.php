@@ -10,7 +10,7 @@ class blogfacade
 	private $ownBlogTab= array ();
 	private $friendBlogTab= array ();
 
-	function blogfacade()
+	function __construct()
 	{
 		global $day_range;
 		$this->log= singletonloader :: getInstance("log");

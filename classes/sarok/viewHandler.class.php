@@ -5,7 +5,7 @@ class viewHandler {
 	private $buf, $log;
 	private $templateName;
 	private $tiles;
-	public function viewHandler() {
+	public function __construct() {
 		$this->buf = singletonloader :: getInstance("outputHandler");
 		$this->log = singletonloader :: getInstance("log");
 		$this->log->debug2("viewHandler initialized");

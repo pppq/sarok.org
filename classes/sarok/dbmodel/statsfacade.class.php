@@ -8,7 +8,7 @@ class statsfacade {
 	private $ipTab;
 	
 	private $userMonths;
-	function statsfacade() {
+	function __construct() {
 		$this->log = singletonloader :: getInstance("log");
 		$this->db = singletonloader :: getInstance("mysql");
 		$this->context = singletonloader :: getInstance("contextClass");

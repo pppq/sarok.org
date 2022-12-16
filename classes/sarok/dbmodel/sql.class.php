@@ -3,7 +3,7 @@ class mysql {
 	public $counter = 0;
 	public $dbcon;
 	public $log;
-	public function mysql() {
+	public function __construct() {
 		global $db_host, $db_name, $db_user, $db_password, $db_port;
 		$this->log = singletonloader :: getInstance("log");
 		$this->log->debug("Connecting to $db_host:$db_port ($db_name) with user $db_user, password $db_password");

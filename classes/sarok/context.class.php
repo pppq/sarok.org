@@ -11,7 +11,7 @@ class contextClass {
 	private $log; // logger class
 	public $params; // paramaeters from the URL
 	public $ActionPage; //action to execute
-	public function contextClass() {
+	public function __construct() {
 		$this->log = singletonloader :: getInstance("log");
 		}
 

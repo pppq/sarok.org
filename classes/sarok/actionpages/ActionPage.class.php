@@ -5,7 +5,7 @@ public $actionList=array();
 public $templateName="default";
 protected $log, $context;
 
-    function ActionPage() {
+    function __construct() {
 		$this->log=singletonloader::getInstance("log");
 		$this->context=singletonloader::getInstance("contextClass");
 		$this->context->ActionPage=$this;

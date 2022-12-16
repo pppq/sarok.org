@@ -12,7 +12,7 @@ class imageFacade {
 	private $dbcon;
 	private $log;
 	private $db;
-	public function imageFacade() {
+	public function __construct() {
 
 		$this->log = singletonloader :: getInstance("log");
 		$this->db = singletonloader :: getInstance("mysql");

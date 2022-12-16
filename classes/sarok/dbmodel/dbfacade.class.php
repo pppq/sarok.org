@@ -12,7 +12,7 @@ class dbFacade {
 	private $dbcon;
 	private $log;
 	private $db;
-	public function dbFacade() {
+	public function __construct() {
 
 		$this->log = singletonloader :: getInstance("log");
 		$this->db = singletonloader :: getInstance("mysql");

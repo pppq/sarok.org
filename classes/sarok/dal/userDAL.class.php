@@ -3,7 +3,7 @@ class userDAL extends dal {
 	protected $values = array ("ID", "login", "pass", "createDate", "loginDate", "activationDate", "isTerminated");
 	//protected $userDataLoaded=false;
 	protected $propertiesLoaded=false;
-	public function userDAL($ID = null) {
+	public function __construct($ID = null) {
 		parent :: dal();
 		$this->log->debug2("Started userDAL");
 		if ($ID != null) {

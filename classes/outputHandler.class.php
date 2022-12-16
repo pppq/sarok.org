@@ -2,7 +2,7 @@
 class outputHandler {
 private $buf;
 private $log;
-    function outputHandler() {
+    function __construct() {
     	$this->log=singletonloader::getInstance("log");
     	$this->log->debug2("init outputHandler");
     	$this->buf="";

@@ -8,7 +8,7 @@ class banfacade {
 	public $bannedIPs;
 
 
-	function banfacade() {
+	function __construct() {
 		global $day_range;
 		$this->log = singletonloader :: getInstance("log");
 		$this->sf = singletonloader :: getInstance("sessionfacade");

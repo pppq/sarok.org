@@ -8,7 +8,7 @@ class sessionfacade {
 	private $dayRange=7;
 	private $key="fm4jklde84";
 
-  function sessionfacade() {
+  function __construct() {
 		global $day_range;
 		$this->log=singletonloader::getInstance("log");
 		$this->db=singletonloader::getInstance("mysql");

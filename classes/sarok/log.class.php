@@ -12,7 +12,7 @@ class log {
 	private $file;
 	private $file2;
 
-	public function log($level = false) {
+	public function __construct($level = false) {
 		global $logfile, $general_logfile,$log_level;
 		if($level==false) $level=$log_level;
 		$this->logfile = $logfile;
