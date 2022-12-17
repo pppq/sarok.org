@@ -27,8 +27,8 @@ public $params;
 	}
 
 	public function canRun() {
-		return false;
-	//	return !$this->context->props["loggedin"];
+		// Registration page is available for not-yet-logged in users
+		return !$this->context->props["loggedin"];
 	}
 }
 ?>
