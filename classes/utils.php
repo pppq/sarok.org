@@ -245,8 +245,7 @@ function dayInMonth($month, $year)
 }
 
 function weeknumber ($y, $m, $d) {
-    $wn = strftime("%W",mktime(0,0,0,$m,$d,$y));
-    $wn += 0; # wn might be a string value
+    $wn = (int) date("W",mktime(0,0,0,$m,$d,$y));
     $firstdayofyear = getdate(mktime(0,0,0,1,1,$y));
     if ($firstdayofyear["wday"] != 1)    # if 1/1 is not a Monday, add 1
         $wn += 1;
