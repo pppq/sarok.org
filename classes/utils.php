@@ -211,14 +211,6 @@ $out=$dd[1].", ".human_date($dd[0]);
 return($out);
 }
 
-function weekend($num)
-{
-$n=($num-1)*7;
-$result=mquery("select '2002-01-06' + interval $n day  as d");
-$d=mysqli_fetch_array($result);
-return($d["d"]);
-}
-
 function year()
 {
 return(date("Y"));
