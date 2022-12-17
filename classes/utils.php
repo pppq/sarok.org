@@ -10,7 +10,10 @@ require_once ("sarok/dbmodel/sessionfacade.class.php");
 require_once ("sarok/actionpages/ActionPage.class.php");
 require_once ("sarok/actionpages/action.class.php");
 $log = singletonloader :: getInstance("log");
-function __autoload($class_name) {
+
+spl_autoload_register('autoload');
+
+function autoload($class_name) {
 	$log = singletonloader :: getInstance("log");
 	$classPath["dbFacade"] = "dbmodel/dbfacade";
 	$classPath["blogfacade"] = "dbmodel/blogfacade";
