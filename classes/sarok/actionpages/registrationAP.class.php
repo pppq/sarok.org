@@ -14,7 +14,7 @@ public $params;
 		$login=$user->login;
 		$action="step1";
 		//print_r($this->context->params);
-		if(isset($this->context->params[0]) and isset($_POST) and sizeof($_POST>1))
+		if(isset($this->context->params[0]) and isset($_POST) and sizeof($_POST) > 1)
 		{
 			$action=$this->context->params[0];
 		}
