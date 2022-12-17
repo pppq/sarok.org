@@ -18,7 +18,7 @@ public function execute() {
 		if(!strlen($data["blogTitle"])) $data["blogTitle"]=$data["blogName"];
 		$data["email"]=$this->context->blog->email;
 		$data["entriesPerPage"]=$this->context->blog->entriesPerPage;
-		$data["numRows"]=sizeof($this->context->ActionPage->rows);
+		$data["numRows"]=sizeof($this->context->ActionPage->rows ?? array());
 		$data["params"]=$params;
 		//$path=$bf->analyzePath($params,$this->context->user,$this->context->blog);
 		$data=array_merge($data,$params);

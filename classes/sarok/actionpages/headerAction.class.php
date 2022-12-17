@@ -21,7 +21,7 @@ class headerAction extends Action{
 		$out["rss"]="/".$addr;
 		
 		$out["entriesPerPage"]=$this->context->blog->entriesPerPage;
-		$out["numRows"]=sizeof($this->context->ActionPage->rows);
+		$out["numRows"]=sizeof($this->context->ActionPage->rows ?? array());
 		$out["blogName"]=$this->context->blog->login;
 		$params=$this->context->ActionPage->params;
 		if(!is_array($params)) $params=array();
