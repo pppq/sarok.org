@@ -39,9 +39,9 @@ class mysql
 		$this->log->debug("mquery: ${query}");
 		
 		$result = mysqli_query($this->dbcon, $query);
-		$errno = $this->mysqli_errno();
-
-		if ($errno > 0) {
+		
+		if ($result === false) {
+			$errno = $this->mysqli_errno();
 			$error = $this->mysqli_error();
 			$this->log->security("${query} mquery: error ${errno}: ${error}");
 			throw new mysqlException("${errno}: ${error}");
