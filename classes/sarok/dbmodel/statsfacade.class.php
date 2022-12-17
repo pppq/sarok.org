@@ -19,7 +19,7 @@ class statsfacade {
 	{
 		list ($usec, $sec) = explode(" ", microtime());
 		$usec=(int)($usec*1000);
-		$nq=$this->db->counter+1;
+		$nq=$this->db->getCounter() + 1;
 		$referrer=addslashes(substr($_SERVER['HTTP_REFERER'],0,110));
 		$action=addslashes(substr($_GET['p'],0,64));
 		
