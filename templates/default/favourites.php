@@ -18,7 +18,7 @@ foreach($newFavourites as $f)
 ?>
 
 <?
-if(is_array($favourites) and sizeof($favourites))
+if(count($favourites) > 0)
 {
 ?>
 <h2>Változatlan könyvjelzők</h2>

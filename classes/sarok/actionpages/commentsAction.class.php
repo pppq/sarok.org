@@ -27,7 +27,7 @@ if(sizeof($row)>1)
 			//print_r($row);
 			$row["body"]=$tp->postFormat($row["body"]);
 			$commentList=$this->bf->getComments($this->context->ActionPage->entryCode,$this->context->user);
-			if(is_array($commentList))
+			if(count($commentList) > 0)
 			{
 			foreach($commentList as $k=>$v)
 			{
@@ -54,7 +54,7 @@ if(sizeof($row)>1)
 				$logtable=$session->getUserLogins($logins);
 			}
 			$cList=array();
-			if(is_array($commentList))
+			if(count($commentList) > 0) 
 			foreach($commentList as $comment)
 			{
 				if(!in_array($comment["userID"],$this->context->user->bans) and !in_array($comment["userID"],$this->context->user->banOfs))
@@ -84,4 +84,3 @@ else
     	return $data;
     }
 }
-?>

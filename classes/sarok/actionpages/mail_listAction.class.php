@@ -29,7 +29,7 @@ protected $db;
 			$skip=$this->context->ActionPage->skip;
  		$mails=$this->mf->getMailList($sender,$recipient,$date,$keyword,$skip, $num);
  		$out["login"]=$login;
- 		if(is_array($mails))
+ 		if(count($mails) > 0)
  		{
  			for($i=0;$i<sizeof($mails);$i++)
  			{
@@ -41,7 +41,7 @@ protected $db;
 
  		$mails=$this->mf->getMailList($recipient,$sender,$date,$keyword,$skip, $num,false);
  		$out["login"]=$login;
- 		if(is_array($mails))
+ 		if(count($mails) > 0)
  		{
  			for($i=0;$i<sizeof($mails);$i++)
  			{
@@ -54,4 +54,3 @@ protected $db;
 		return $out;
  	}
 }
-?>

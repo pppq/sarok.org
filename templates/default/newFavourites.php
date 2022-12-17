@@ -1,5 +1,5 @@
 <?
-if(is_array($favourites) and sizeof($favourites))
+if(count($favourites) > 0)
 {
 ?>
 <h3><a href="/favourites/" >Könyvjelzők</a></h3>

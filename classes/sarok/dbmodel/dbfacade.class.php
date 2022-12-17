@@ -296,7 +296,7 @@ class dbFacade {
 			$q="select entryID from favourites as f where userID='$userID' and exists (select ID from entries where ID=f.entryID and isTerminated='N'  and lastComment<f.lastVisited)";
 		}
 		$favourites=$this->db->queryall($q);
-		if(is_array($favourites))
+		if(count($favourites) > 0)
 		{
 			$favouritesList=array();
 			foreach($favourites as $f)
@@ -344,4 +344,3 @@ public function getUserStats()
 	 * END
 	 */
 }
-?>
