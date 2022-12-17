@@ -134,7 +134,7 @@ static public function findID($login)
 		if ($this->data["activationDate"]["isDirty"])
 			$updates[] = "activationDate=now()";
 		if (sizeof($updates)) {
-			$ups = implode($updates, ", ");
+			$ups = implode(", ", $updates);
 			$q .= $ups. " where ID='$ID' limit 1";
 			$this->db->mquery($q);
 		}
