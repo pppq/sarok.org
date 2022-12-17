@@ -29,7 +29,7 @@ class dbFacade {
 	public function addUser($login, $password, $email) {
 		$this->log->info("addUser: adding user $ID with password '$password', email $email");
 		try {
-			$this->db->mquery("insert into users (login, pass, createDate) values('$login',old_password('$password'),now())");
+			$this->db->mquery("insert into users (login, pass, createDate) values('$login',sha1('$password'),now())");
 			$ID=$this->db->mysqli_insert_id();
 			//TODO add to all's friends, add different data's''
 			$this->db->mquery("insert into userdata values ('$ID','email','$email')");

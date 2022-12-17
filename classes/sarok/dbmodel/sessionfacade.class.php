@@ -21,7 +21,7 @@ public function getSession($sessid=0){
 }
 
 public function getUserCredentials($login,$pass){
-	$q="select ID as num from users where login='$login' and pass=old_password('$pass')";
+	$q="select ID as num from users where login='$login' and pass=sha1('$pass')";
   	$ID=$this->db->querynum($q);
   	if($ID<1)
   	{
@@ -35,7 +35,7 @@ public function getUserCredentials($login,$pass){
   public function loginUser($login, $pass)
   {
 	$this->log->debug2("Logging user $login with pass $pass");
-	$q="select ID as num from users where login='$login' and pass=old_password('$pass')";
+	$q="select ID as num from users where login='$login' and pass=sha1('$pass')";
   	$ID=$this->db->querynum($q);
   	if($ID<1)
   	{

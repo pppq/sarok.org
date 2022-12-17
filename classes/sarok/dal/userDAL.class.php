@@ -126,7 +126,7 @@ static public function findID($login)
 		$ID = $this->data["ID"]["value"];
 		$q = "update users set ";
 		if ($this->data["pass"]["isDirty"])
-			$updates[] = "pass=old_password('".$this->data["pass"]["value"]."') ";
+			$updates[] = "pass=sha1('" . $this->data["pass"]["value"] . "') ";
 		if ($this->data["createDate"]["isDirty"])
 			$updates[] = "createDate=now()";
 		if ($this->data["loginDate"]["isDirty"])
