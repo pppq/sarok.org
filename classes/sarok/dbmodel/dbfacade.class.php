@@ -155,22 +155,26 @@ class dbFacade {
 	 */
 
 	public function setUserProperties($ID, $properties) {
-		$this->log->info("setUserProperties($ID,$properties)");
+		if (!is_array($properties)) {
+			$this->log->error('properties is not an array');
+			throw new dbFacadeException('properties is not an array');
+		}
+
+		$propertiesJson = json_encode($properties);
+		$this->log->info("setUserProperties(${ID},${propertiesJson})");
+
 		try {
-			if (!is_array($properties)) {
-				$this->log->error("properties is not an array");
-				throw new dbFacadeException("properties is not an array");
-			}
+			
 			foreach ($properties as $key => $value) {
 				$this->setUserProperty($ID, $key, $value);
 			}
 
 		} catch (mysqlException $e) {
-			if ($e->getCode() != 1062)
-				$this->log->error("setUserProperties($ID,$properties): failure: ".$e->getMessage());
-
+			if ($e->getCode() != 1062) {
+                $message = $e->getMessage();
+				$this->log->error("setUserProperties(${ID},${properties}): failure: ${message}");
+            }
 		}
-
 	}
 
 	/**
