@@ -1,117 +1,91 @@
-<?
-class banfacade {
-	private $log;
-	private $db,$df,$sf;
-	private $context;
-	public $query;
-	public $spamwords;
-	public $bannedIPs;
+<?php
 
+class banfacade 
+{
+    private const BANNED_IPS_FILE = '../cache/bannedip.txt';
+    private const SEPARATOR = ';';
 
-	function __construct() {
-		global $day_range;
-		$this->log = singletonloader :: getInstance("log");
-		$this->sf = singletonloader :: getInstance("sessionfacade");
-		
-		$this->context = singletonloader :: getInstance("contextClass");
+	private log $log;
+    private mysql $db;
+	private $bannedIPs = array();
+
+	public function __construct() 
+    {
+		$this->log = singletonloader::getInstance('log');
 		$this->loadBannedIPs();
-		$this->log->info("banfacade initialized");
+		$this->log->info('banfacade initialized');
+    }
+
+	private function loadBannedIPs() : void
+	{
+		$this->log->info('Loading banned IPs');
+
+		// format is "IP;reason", one per line
+		$bannedLines = file(self::BANNED_IPS_FILE);
+        if ($bannedLines === false) {
+            $this->log->warning('Failed to load banned IPs file');
+            return;
+        }
+
+		foreach ($bannedLines as $line) {
+			$line = trim($line);
+			$row = explode(self::SEPARATOR, $line, 2);
+			$this->bannedIPs[$row[0]] = $row[1];
+		}
+
+        $numBanned = count($this->bannedIPs);
+		$this->log->debug("Loaded ${numBanned} banned IP(s)");
+	}
+	
+	private function saveBannedIPs() : void
+	{
+		$this->log->info('Saving banned IPs');
+
+        $contents = '';
+		foreach ($this->bannedIPs as $ip => $reason) {
+			$contents .= "${ip};${reason}\n";
+		}
 		
+        $result = file_put_contents(self::BANNED_IPS_FILE, $contents);
+        if ($result === false) {
+            $this->log->warning('Failed to save banned IPs file');
+        }
+	}
+	
+	public function getBanReason(string $ip) : string
+	{
+		$this->log->info("Checking IP ${ip} for being banned");
+		
+		if (array_key_exists($ip, $this->bannedIPs)) {
+			return $this->bannedIPs[$ip];
+		} else {
+            return '';
+        }
+	}
+	
+    private function getDb() : mysql
+    {
+        if (!isset($this->db)) {
+            $this->db = singletonloader::getInstance("mysql");
+        }
+
+        return $this->db;
+    }
+
+	public function banIP(string $ip, string $reason, bool $store = true) : void
+	{
+        $existingReason = $this->getBanReason($ip);
+		$reason = strtr($reason, "\n\r\t;", '   ');
+        $currentDate = date('Y-m-d G:i:s');
+		
+        $this->log->info("Banning ${ip}. Reason: ${reason}");
+		$this->bannedIPs[$ip] = "${existingReason} ${reason}@${currentDate}";
+		
+		$q = "DELETE FROM `sessions` where `IP` = '${ip}'";
+		$this->getDb()->mquery($q);
+
+		if ($store) {
+			$this->saveBannedIPs();
+        }
+	}
 }
-
-	private function loadBannedIPs()
-	{
-		//format is next: IP;reason
-		
-		$this->log->info("loading bannedIPs");
-		$banned=file($_SERVER["DOCUMENT_ROOT"]."/../cache/bannedip.txt");
-		foreach($banned as $line)
-		{
-			$line=trim($line);
-			$row=explode(";",$line);
-			$this->bannedIPs[$row[0]]=$row[1];
-		}
-		$this->log->debug("Loaded ".sizeof($this->bannedIPs)." banned IPs");
-	}
-	
-	public function  storeBannedIPs()
-	{
-		$this->log->info("storing banned ip's'");
-		foreach($this->bannedIPs as $ip=>$reason)
-		{
-			$line="$ip;$reason\n";
-			$s.=$line;
-		}
-		
-		$fp = fopen($_SERVER["DOCUMENT_ROOT"]."/../cache/bannedip.txt", "w");
-  		fwrite($fp, $s);
-  		fclose($fp);
-	}
-	
-	public function isIPBanned($ip=false)
-	{
-		if($ip==false)
-		{
-			$ip=$_SERVER["REMOTE_ADDR"];
-		}
-		$this->log->info("Checking ip $ip for beeing banned");
-		
-		if( array_key_exists($ip, $this->bannedIPs))
-		{
-			$this->log->debug("$ip is banned, reason is: ".$this->bannedIPs[$ip]);
-			return true;
-		}
-		else return false;
-	}
-					
-	
-	public function banIP($ip,$reason,$store=true)
-	{
-		$reason=strtr($reason,"\n\r\t;","   ");
-		$this->log->info("Banning $ip. Reason: $reason");
-		$this->bannedIPs[$ip]=$this->bannedIPs[$ip].$reason."@".date("Y-m-d G:i:s")." ";
-		$this->db=singletonloader :: getInstance("mysql");		
-		$q="delete from sessions where IP='$ip'";
-		$this->db->mquery($q);
-		if($store)
-			$this->storeBannedIPs();
-	}
-
-	public function banUser($userID,$reason)
-		{
-			$banUser=$this->context->requestUserDAL($userID);
-			$this->log->info("Banning user ".$banUser->login.",reason: $reason");
-			$banUser->banned==date("Y-m-d G:i:s")." $reason";
-			$banUser->commit();
-			$ipList=$this->getAllIpForUser($userID);
-			foreach($ipList as $ip)
-			{
-				$this->banIP($ip,$banUser->login." ban. $reason",false);
-			}
-			$this->storeBannedIPs();
-			
-		}
-	public function getAllIpForUser($userID)
-	{
-		$this->db=singletonloader :: getInstance("mysql");
-		$q="select distinct ip from  accesslog where userCode='$userID'";
-		$rows=$this->db->queryall($q);
-		$ipList=array();
-		if(is_array($rows)){
-		foreach($rows as $ip) 
-		{	
-			$this->log->debug(" $ip");
-			$ipList[]=$ip;
-		}
-		}
-		return($ip);
-	}	
-	
-
-	
-	
-		
-
-
-}
-?>

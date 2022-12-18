@@ -30,9 +30,10 @@ class sessionclass
 			//if (rand(1, 100) < 5)
 			$this->cleanup();
 			$this->banFC=singletonloader:: getInstance("banfacade");
-			if($this->banFC->isIPBanned($IP))
+            $banReason = $this->banFC->getBanReason($IP);
+			if ($banReason !== '')
 			{
-				//$this->log->security("Accessing website from banned IP $IP, reason is: ".$this->banFC->bannedIPs[$IP]);
+				//$this->log->security("Accessing website from banned IP $IP, reason is: ${banReason}");
 				exit;
 			}	
 			$time= abs((int) ($this->log->getmicrotime() * 1000));
@@ -147,4 +148,3 @@ class sessionclass
 		//setcookie("your_mommy",$this->ID, time()+7200, '/',  $cookiedomain);
 	}
 }
-?>
