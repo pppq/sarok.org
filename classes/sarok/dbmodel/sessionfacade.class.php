@@ -72,7 +72,7 @@ public function getUserCredentials($login,$pass){
    public function encrypt($str,$key) {
 	$str=addslashes($str);
 	$key=addslashes($key);
-   $q="select encode('$str','$key') as val";
+   $q="select aes_encrypt('$str','$key') as val";
    $passcrypt=$this->db->querynum($q);
    $passcrypt = base64_encode($passcrypt);
    $passcrypt = base64_encode($passcrypt);
@@ -86,7 +86,7 @@ public function getUserCredentials($login,$pass){
    $str = addslashes($str);
    $key=addslashes($key);
    
-   $q="select decode('$str','$key') as val";
+   $q="select aes_decrypt('$str','$key') as val";
    $decrypted=$this->db->querynum($q);
  	return $decrypted;
  } 
