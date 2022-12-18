@@ -250,7 +250,7 @@ private function gethost($ip)
 			$obj= unserialize($s);
 			if($obj->year!=$year or $obj->month!=$month or $obj->user!=$userCode)
 			{
-				$this->log->error("serialized statmonth $userCode-$year-$smonth is not consistent!");
+				$this->log->error("serialized statmonth $userCode-$year-$month is not consistent!");
 			}
 		}
 		else
