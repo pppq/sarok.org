@@ -2,6 +2,14 @@
 class textProcessor{
 
 	// TODO: convert both XHTML and non-XHTML options to an associative array
+
+    // $tidy_cmd="D:/php/tidy -ashtml -q -utf8 -i";
+    // $tidy_cmd = "/usr/bin/tidy -ashtml --char-encoding utf8 --alt-text sarok.org --doctype transitional --alt-text sarok.org -q  --force-output yes";
+    // $tidy_cmd="D:/php/tidy --char-encoding utf8 --alt-text sarok.org --doctype transitional --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+    // $tidy_cmd_xhtml="D:/php/tidy --char-encoding utf8 --doctype strict --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+    // $tidy_cmd_xhtml = "/usr/bin/tidy --char-encoding utf8 --alt-text sarok.org --doctype transitional --tidy-mark no --clean yes --logical-emphasis yes --output-xml yes --output-xhtml yes --quote-marks yes --wrap-asp no --wrap-jste no --wrap-php no -q";
+    // $tidy_cmd_xhtml = "/usr/bin/tidy -ashtml --char-encoding utf8 --alt-text sarok.org --doctype transitional --alt-text sarok.org -q --force-output yes";
+
 	const DEFAULT_TIDY_CONFIG = array(
         'clean' => true,
         'output-xhtml' => true,
