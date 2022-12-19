@@ -1359,20 +1359,27 @@ class blogfacade
 		return ($rows);
 	}
 
-	public function getBlogDays($blog, $year, $month, $friends= false)
+	public function getBlogDays($blog, $year, $month, $friends = false)
 	{
 //		$this->log->debug("getBlogDays($blog,$year, $month, $friends)");
+        $blogID = $blog->ID;
+
 		if ($friends != true)
 		{
-			$q= "select *  from calendar as c where userID='{$blog->ID}' and c.y='$year' and c.m='$month' order by c.y desc, c.m desc";
+			$q = "SELECT * FROM `calendar` AS `c` " . 
+                "WHERE `userID` = '${blogID}' AND `c`.`y` = '${year}' AND `c`.`m` = '${month}' " . 
+                "ORDER BY `c`.`y` DESC, `c`.`m` DESC";
 		}
 		else
 		{
-			$q= "select y,m,d, sum(numAll) as numAll from calendar where y='$year' and m='$month'
-							and userID in (select userID from friends where friendOf='{$blog->ID}' and friendType='friend') group by concat(y,'-',m,'-',d)";
+			$q = "SELECT `y`, `m`, `d`, SUM(`numAll`) AS `numAll` FROM `calendar` " . 
+                "WHERE `y` = '${year}' AND `m` = '${month}' " .
+                "AND `userID` IN (SELECT `userID` FROM `friends` WHERE `friendOf` = '${$blogID}' AND `friendType` = 'friend') " .
+                "GROUP BY CONCAT(`y`, '-', `m`, '-', `d`), d";
 		}
-		$rows= $this->db->queryall($q);
-		return ($rows);
+
+		$rows = $this->db->queryall($q);
+		return $rows;
 	}
 
 	public function splitBodies($body)
