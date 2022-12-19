@@ -1,1 +1,2 @@
-<img src="https://www.sarok.org/images/dragon.jpg" />
+<?php global $protocol, $gen_hostname; ?>
+<img src="<?=$protocol?>://<?=$gen_hostname?>/images/dragon.jpg" />

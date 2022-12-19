@@ -40,9 +40,9 @@ $tidy_check = false;
 ///////////////////
 
 $appRoot = "/srv/app";
-$gen_hostname = "www.sarok.org";
-$img_hostname = "img.sarok.org";
-$cookiedomain = "sarok.org";
+$gen_hostname = "www.lsarok.org";
+$img_hostname = "img.lsarok.org";
+$cookiedomain = "lsarok.org";
 
 $gmap_key = "SECRET";
 

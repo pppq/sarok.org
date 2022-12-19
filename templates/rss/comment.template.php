@@ -1,4 +1,6 @@
-<?extract($item);
+<?php
+global $protocol, $gen_hostname;
+extract($item);
 if($access!="ALL")
 {
 	$title=$title." ($access)";
@@ -6,10 +8,9 @@ if($access!="ALL")
 ?>
 <item>
       <title><?=$userLogin;?></title>
-      <link>https://www.sarok.org/users/<?=$diaryLogin;?>/m_<?=$entryID;?>/#a_<?=$ID;?></link>
+      <link><?=$protocol?>://<?=$gen_hostname?>/users/<?=$diaryLogin;?>/m_<?=$entryID;?>/#a_<?=$ID;?></link>
       <description><![CDATA[<?=stripslashes($body);?>]]></description>
       <dc:subject><?=$userLogin;?></dc:subject>
       <dc:date><?=date("r",strtotime($createDate));?></dc:date>
       <pubDate><?=date("r",strtotime($createDate));?></pubDate>
 </item>
-
