@@ -501,6 +501,73 @@ CREATE TABLE `users` (
 --   PRIMARY KEY (`sessionID`)
 -- ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+/* Initial data */
+
+INSERT INTO `users` (`ID`, `login`, `createDate`) VALUES (1, 'Anonim', '2001-01-01 00:00:00');
+
+INSERT INTO `entries` (`ID`, `diaryID`, `userID`, `createDate`, `access`, `comments`, `title`, `body`, `dayDate`)
+VALUES (15287, 1, 1, '2001-01-01 00:00:00', 'ALL', 'PRIVATE', 'Az oldalról', '
+<h1>Sarok.org</h1>
+EGY IGAZI GYÖNGYSZEM A DISZNÓK KÖZÖTT!!<br>
+<br>
+Örömmel és büszkén mutatjuk be ÖNNEK az új <strong>SAROK
+BLOG</strong> termékcsaládot!
+<p>A legújabb kutatások eredményét bemutató, a mai kor elvárásainak
+megfelelő, ápoló-védő és környezetbarát összetevőkből készült új
+termékcsalád - az ukrán-francia-mongol igényesség és elegancia
+tükre.<br>
+Egyszóval blog.<br>
+<br></p>
+<h3>Előnyei más blogokkal szemben:</h3>
+<ul>
+<li>kimondottan rugalmas, épp ezért a blogot tetszőleges helyre
+lehet felrakni, tekintet nélkül az alakra és a felszínre (igen,
+akár az izületekre is)</li>
+<li>a blog felrakása nem igényli sem tűz sem más nyomásképző
+felszerelések használatát sem, néha sem.</li>
+<li>könnyű a használata, saját magunk is elhelyezhetjük írásainkat
+a tetszőlegesen kiválasztott pontokra (kis segítséggel, még a hátra
+is)</li>
+<li>a szívás erősségét is lehet szabályozni bizonyos dolgok
+összenyomásától függően</li>
+<li>a blog nem korlátozza a mozgást, használhatja a munkahelyén,
+sétáláskor, horgászáskor, vagy autóvezetés közben</li>
+<li>a blog könnyű, nem törékeny, ütésálló, ami lehetővé teszi, hogy
+kirándulásokra, SŐT táncolni is magával vigye</li>
+<li>az ukrán-francia-mongol minőségi alapanyagok tartóssága
+garantálja a hosszú használati időt</li>
+<li>könnyű a tisztántartása is: szappanos vízzel moshatja őket (de
+könyörgünk, <font face="Arial" size="2">ne tegye ki semmi esetre
+sem sugárzó hőnek, például a radiátor, grizzly, kemence vagy extrém
+hőmennyiséget termelő apparátus mellé! JAJ!</font>)<br></li>
+<li>a készlet számtalan méretet tartalmaz, ami lehetővé teszi, hogy
+gyerekek és felnőttek is egyaránt használhassák<br></li>
+</ul>
+<p><br>
+A Sarok mindenen és mindenkin segít!<br>
+<br>
+Hogy egy közkeletű példával éljünk, és hogy mindenki könnyen el
+tudja képzelni, olyan ez az egész, mint a tűz nélkül használatos
+gumiköpöly. Mondjuk annál azért egy kicsikét kisebb. Bár egy
+<font size="-1">sugárvédelmi dózisteljesítmény-mérőnél viszont
+jóval nagyobb, szóval ez baromira relatív.</font><br>
+<br></p>
+<h4>Használati utasítás.</h4>
+<p>Kozmetikai tampon segítségével vigyük fel a blogot az arc és a
+nyak bőrére. A szem tisztításánál vigyázzon, hogy a blog ne
+kerüljön a könnyzacskóba. A gondos tisztítás után az
+blog-igazgyöngy szérummal frissítse bőrét, ajkait.<br>
+Utána, sőt közben is használhatja a buta bejegyzések elleni
+igazgyöngy krémet, amit postai utánvétellel megkaphat, ha
+regisztrál <strong>ITT, MOST, AZONNAL!</strong><br></p>
+Figyelem! Használata közben az agy elvesztheti elasztikusságát! MI
+előre szóltunk! Ja, és ne vegye le a készülék burkolatát. Soha. És
+azt ugye mondanunk sem kell már, hogy tűzbe dobni még üres
+állapotban is tilos!
+<p><br>
+És Grizzlyk pedig nincsenek! Ez is tény.</p>
+', '2001-01-01');
+
 /* Restore saved variables in reverse order */
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
