@@ -6,13 +6,13 @@ services:
       dockerfile: .docker/Dockerfile
     image: sarok3
     ports:
-      - 8080:80
+      - 80:80
     volumes:
       - .:/srv/app
   mysql:
     image: mysql:8.0
     ports:
-      - 13306:3306
+      - 3306:3306
     environment:
       MYSQL_DATABASE: sarok
       MYSQL_USER: sarok
@@ -20,3 +20,7 @@ services:
       MYSQL_ROOT_PASSWORD: admin
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  mailcatcher:
+    image: sj26/mailcatcher:v0.8.2
+    ports:
+      - 1080:1080

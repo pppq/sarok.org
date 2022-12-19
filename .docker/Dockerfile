@@ -3,7 +3,7 @@ FROM php:8.1-apache
 LABEL org.opencontainers.image.authors="pppq <pppq@users.noreply.github.com>"
 
 RUN apt-get update \
-    && apt-get install -y libtidy-dev libpng-dev libjpeg62-turbo-dev \
+    && apt-get install -y libtidy-dev libpng-dev libjpeg62-turbo-dev msmtp msmtp-mta \
 	&& docker-php-ext-configure tidy \
     && docker-php-ext-install -j$(nproc) tidy \
     && docker-php-ext-install mysqli \
@@ -12,6 +12,7 @@ RUN apt-get update \
 
 COPY . /srv/app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY .docker/msmtprc /etc/msmtprc
 
 WORKDIR /srv/app
 
