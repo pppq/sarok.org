@@ -1,4 +1,4 @@
-<?
+<?php
 error_reporting(0);
 
 class rssfacade {
@@ -75,7 +75,7 @@ class rssfacade {
 			$feed->readXML($url);
 			$itemCount=0;
 			$entries=array();
-			$blogObj=$this->context->requestUserDAL($blogID);
+			$blogObj=$this->context->getUser($blogID);
 			
 			foreach($feed->items as $entry)
 			{
@@ -160,4 +160,3 @@ class rssfacade {
 		}
 
    }
-?>

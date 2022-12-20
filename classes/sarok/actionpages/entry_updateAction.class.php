@@ -39,7 +39,7 @@ protected $bf,$mysql,$df;
 		if(isset($ID) and is_numeric($ID))
 		{
 			$this->log->debug("changing entry #".$ID);
-			$newBlog=$this->context->requestUserDAL($diaryLogin);
+			$newBlog=$this->context->getUser($diaryLogin);
 			$data["userID"]=$this->mysql->querynum("select userID from entries where ID='$ID' limit 1");
 			$data["diaryID"]=$this->sessionFacade->getUserCode($diaryLogin);
 			if($this->bf->canChangeEntry($data,$user->ID) and $this->bf->canAddEntry($user,$newBlog))
@@ -61,7 +61,7 @@ protected $bf,$mysql,$df;
 		else
 		{
 			if(strlen($diaryLogin))
-				$diary=$this->context->requestUserDAL($diaryLogin);
+				$diary=$this->context->getUser($diaryLogin);
 			else
 				$diary=$blog;
 			if($this->bf->canAddEntry($user,$diary))
@@ -88,4 +88,3 @@ protected $bf,$mysql,$df;
 		return $out;
  	}
 }
-?>

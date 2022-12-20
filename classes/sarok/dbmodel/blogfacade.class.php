@@ -322,8 +322,8 @@ class blogfacade
 	public function canViewEntry2($entry, $user)
 	{
 		$this->log->debug2("canViewEntry2((".$entry["diaryID"]."|".$entry["userID"]."),$user->ID)");
-		$entryAuthor= $this->context->requestUserDAL($entry["userID"]);
-		$entryOwner= $this->context->requestUserDAL($entry["diaryID"]);
+		$entryAuthor= $this->context->getUser($entry["userID"]);
+		$entryOwner= $this->context->getUser($entry["diaryID"]);
 		if($entryAuthor->ID==$entry["diaryID"] or $entryAuthor->ID==$user->ID) 
 		{
 		$this->log->debug($user->ID." can view the entry ".$entry["ID"]);
@@ -443,7 +443,7 @@ class blogfacade
 				return ($ID != "1");
 			case "FRIENDS" :
 				//$this->log->debug("Choosed friends");
-				$blog= $this->context->requestUserDAL($entry["diaryID"]);
+				$blog= $this->context->getUser($entry["diaryID"]);
 				//$friends=$blog->friends;
 				//$this->log->debug("Friends of alma: ".implode(", ",$friends));
 				//$this->log->debug("Result: ".in_array($ID,$friends));
@@ -551,8 +551,8 @@ class blogfacade
 		$body= addslashes($body);
 		$this->log->info("After addslashes:".$body);
 		$body2= addslashes($body2);
-		$user= $this->context->requestUserDAL($userId);
-		$diary= $this->context->requestUserDAL($blogId);
+		$user= $this->context->getUser($userId);
+		$diary= $this->context->getUser($blogId);
 		$user->backup= "";
 		$user->commit();
 		if(!is_numeric($posX)) $posX=0;
@@ -757,7 +757,7 @@ class blogfacade
 
 	public function genTagList($blogID)
 	{
-		$blog= $this->context->requestUserDAL($blogID);
+		$blog= $this->context->getUser($blogID);
 		$blogLogin= $blog->login;
 		if ($blogLogin != 'all')
 			$q= "select Name, count(*) as num from categories where entryID in (select ID from entries where diaryID='$blogID' and isTerminated='N' and access!='PRIVATE') group by Name";
@@ -794,7 +794,7 @@ class blogfacade
 
 	/*	public function genTagList($blogID)
 		{
-			$blog=$this->context->requestUserDAL($blogID);
+			$blog=$this->context->getUser($blogID);
 			$blogLogin=$blog->login;
 			if($blogLogin!='all')
 				$q="select Name, count(*) as num from categories where entryID in (select ID from entries where diaryID='$blogID' and isTerminated='N' and access!='PRIVATE') group by Name";
@@ -940,7 +940,7 @@ class blogfacade
 			return;
 
 		$codeList= implode(",", $codes);
-		$user=$this->context->requestUserDAL($diaryID);
+		$user=$this->context->getUser($diaryID);
 		$login=$user->login;
 		try
 		{
@@ -985,7 +985,7 @@ class blogfacade
 			return;
 
 		$codeList= implode(",", $codes);
-		$user=$this->context->requestUserDAL($diaryID);
+		$user=$this->context->getUser($diaryID);
 		$login=$user->login;
 		try
 		{
@@ -1190,8 +1190,8 @@ class blogfacade
 			return;
 		extract($row);
 		$body= iconv_substr(strip_tags($title." ".$body),0,30);
-		$user= $this->context->requestUserDAL($userID);
-		$diary= $this->context->requestUserDAL($diaryID);
+		$user= $this->context->getUser($userID);
+		$diary= $this->context->getUser($diaryID);
 
 		if ($access == 'ALL' or $access == 'REGISTERED')
 		{
@@ -1243,8 +1243,8 @@ class blogfacade
 		if (!is_array($row) or sizeof($row) <= 2 or !is_array($entry) or sizeof($entry) <= 2)
 			return;
 		extract($row);
-		$user= $this->context->requestUserDAL($userID);
-		$diary= $this->context->requestUserDAL($entry["diaryID"]);
+		$user= $this->context->getUser($userID);
+		$diary= $this->context->getUser($entry["diaryID"]);
 		$diaryID=$entry["diaryID"];
 		$body= addslashes(iconv_substr(strip_tags($body),0, 30));
 		$q= "insert into cache_commentlist values('myComments','$ID','$userID','{$user->login}','".$diary->login."','$entryID','$createDate','".$entry["access"]."','$body',now())";
@@ -1490,4 +1490,3 @@ class blogfacade
 		return($result);
 	}
 }
-?>

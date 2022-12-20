@@ -1,4 +1,4 @@
-<?
+<?php
 class sessionfacade {
 	private $dbcon;
 	private $log;
@@ -45,7 +45,7 @@ public function getUserCredentials($login,$pass){
   	//TODO: check whether user is banned
 
   	$this->context->session->changeUser($ID);
-	$this->context->user=$this->context->requestUserDAL($ID);
+	$this->context->user=$this->context->getUser($ID);
 	if($this->context->user->isTerminated=='Y')
 		{
                 $this->log->mail("Bot Login failed");
@@ -355,7 +355,7 @@ public function getUserLogins($logins)
 public function cacheComments($ID)
 {
 	$this->log->debug2("Caching comments for $ID");
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	if($user->commentsLoaded=="2") return;
 	$user->commentsLoaded="2";
 	$user->commit();
@@ -385,7 +385,7 @@ public function cacheComments($ID)
 public function cacheEntries($ID)
 {
 	$this->log->debug2("Caching entries for $ID");
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	if($user->entriesLoaded=="2") return;
 	$user->entriesLoaded="2";
 	$user->commit();
@@ -415,7 +415,7 @@ public function cacheEntries($ID)
 public function cacheCommentsOfEntries($ID)
 {
 	$this->log->debug2("Caching comments for entries of $ID");
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	if($user->commentsOfEntriesLoaded=="2") return;
 	$user->commentsOfEntriesLoaded="2";
 	$user->commit();
@@ -437,7 +437,7 @@ public function cacheCommentsOfEntries($ID)
 public function cacheMyComments($ID)
 {
 	$this->log->debug2("Caching comments for entries of $ID");
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	if($user->myCommentsLoaded=="2") return;
 	$user->myCommentsLoaded="2";
 	$user->commit();
@@ -487,7 +487,7 @@ public function cleanCache($ID)
 
 private function genCommentsQuery($ID,$fields,$dateCriteria,$banstr,$banstr2,$friendstr)
 {
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	$friendL=$user->friendOfs;
 				if(sizeof($friendL))
 				{
@@ -517,7 +517,7 @@ return($q);
 
 private function genEntriesQuery($ID,$fields,$dateCriteria,$banstr2,$friendstr)
 {
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	$friendL=$user->friendOfs;
 				if(sizeof($friendL))
 				{
@@ -547,7 +547,7 @@ public function loadComments($ID)
 
 	$this->log->debug2("Loading comments");
 	$fields="c.ID, c.entryID, c.userID,c.createDate, c.body, e2.diaryID, e2.access from comments as c left join entries as e2 on c.entryID=e2.ID";
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	$bans=$user->bans;
 	$bans=array_merge($bans,$user->banOfs);
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
@@ -584,7 +584,7 @@ public function loadEntries($ID)
 	$friendstr=$dateCriteria=$banstr=$banstr2="";
 	$this->log->debug2("Loading comments");
 	$fields="e2.ID, e2.userID, e2.diaryID, e2.createDate, concat(e2.title, ' ',e2.body) as body, e2.access from entries as e2 ";
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	$bans=$user->bans;
 	$bans=array_merge($bans,$user->banOfs);
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
@@ -623,7 +623,7 @@ public function loadCommentsOfEntries($ID)
 		$this->log->debug("No entries written by user, returning empty array");
 		return(array());
 	}
-	$user=$this->context->requestUserDAL($ID);
+	$user=$this->context->getUser($ID);
 	$bans=$user->bans;
 	$bans=array_merge($bans,$user->banOfs);
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
@@ -672,4 +672,3 @@ public function loadMyComments($ID)
 
 
 }
-?>

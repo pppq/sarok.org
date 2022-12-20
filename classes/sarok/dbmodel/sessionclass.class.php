@@ -63,7 +63,7 @@ class sessionclass
 			$q= "update users set activationDate=now() where ID='$userID' limit 1";
 			$this->db->mquery($q);
 		}
-		$this->context->user= $this->context->requestUserDAL($userID);
+		$this->context->user= $this->context->getUser($userID);
 		$this->ID= $ID;
 		$this->userID= $userID;
 		if(strlen($this->context->user->skinName))
@@ -90,7 +90,7 @@ class sessionclass
 	public function changeUser($ID)
 	{
 		$this->log->debug2("changeUser($ID)");
-		$user=$this->context->requestUserDAL($ID);
+		$user=$this->context->getUser($ID);
 		if($ID!=1 and $user->banned!="")
 		{
 		  $this->banFC=singletonloader:: getInstance("banfacade");

@@ -75,7 +75,7 @@ protected $sessionFacade;
 		if($canReg)
 		{
 			$df->addUser($login,$pass1,$email);
-			$newUser=$this->context->requestUserDAL($login);
+			$newUser=$this->context->getUser($login);
 			$newUser->entriesPerPage=10;
 			$newUser->messageAccess="ALL";
 			$newUser->commentAccess="ALL";
@@ -96,4 +96,3 @@ protected $sessionFacade;
 		return $out;
  	}
 }
-?>

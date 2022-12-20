@@ -60,7 +60,7 @@ public $entryCode,$rows,$tags,$numComments,$month, $year;
 				if($tempUser>1)
 				{
 				$this->log->info("Using auth via rss secret code $secret!");	
-					$this->context->user=$this->context->requestUserDAL($tempUser);
+					$this->context->user=$this->context->getUser($tempUser);
 					$user=$this->context->user;
 				}
 				unset($p[sizeof($p)-1]);
@@ -280,4 +280,3 @@ public $entryCode,$rows,$tags,$numComments,$month, $year;
 		return true;
 	}
 }
-?>

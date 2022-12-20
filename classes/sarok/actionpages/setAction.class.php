@@ -106,7 +106,7 @@ private function setFriends($data)
 	if(strlen($newFriend))
 	{
 		//add new friend;
-		$newUser=$this->context->requestUserDAL($newFriend);
+		$newUser=$this->context->getUser($newFriend);
 		$this->context->user->friends=array_merge($this->context->user->friends,array($newUser->ID));
 		$this->log->debug("new Friends: ".implode(", ",$this->context->user->friends));
 		$dirtylist[]=$newFriend;
@@ -115,7 +115,7 @@ private function setFriends($data)
 	if(strlen($newBan))
 	{
 		//add new friend;
-		$newUser=$this->context->requestUserDAL($newBan);
+		$newUser=$this->context->getUser($newBan);
 		$this->context->user->bans=array_merge($this->context->user->bans,array($newUser->ID));
 		$dirtylist[]=$newBan;
 	}
@@ -149,7 +149,7 @@ $this->log->debug("DirtyList: ".implode(", ",$dirtylist));
 	$num=$db->querynum("select count(*) from sessions where userID='$ID' and activationDate>now() - interval 1 hour");
 	if($num)   //this is the first login to the system
 	{
-	  $u=$this->context->requestUserDAL($ID);	
+	  $u=$this->context->getUser($ID);	
 	  $u->commentsLoaded="0";
 	  $u->entriesLoaded="0";
 	  $u->commentsOfEntriesLoaded="0";
@@ -273,4 +273,3 @@ private function setMap($data)
 	$user->commit();
 }
 }
-?>

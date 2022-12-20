@@ -1,4 +1,4 @@
-<?
+<?php
 class importfacade {
 	private $dbcon;
 	private $log;
@@ -24,7 +24,7 @@ class importfacade {
 	public function setUserData($userID,$props)
 	{
 		$this->log->debug("Setting user data");
-		$user=$this->context->requestUserDAL($userID);
+		$user=$this->context->getUser($userID);
 		foreach($props as $name=>$value)
 		{
 			$user->$name=$value;
@@ -274,4 +274,3 @@ private function getDiaryFromXML($xmlFile){
          }
 
    }
-?>
