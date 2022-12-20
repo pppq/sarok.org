@@ -3,13 +3,6 @@
 @import url(/css/default/settings.css);
 @import url(/css/default/sidebar.css);
 @import url(/css/default/stats.css);
-input {
-    behavior: url(/javascript/selection.htc);
-  }
-input .checkbox{
-	behavior: none;
-	}
-
 
 /*
 Main page

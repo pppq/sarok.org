@@ -16,7 +16,6 @@ subject=obj;
 subject.onkeyup=dropdownChange;
 subject.onkeydown=dropdownNavigate;
 subject.autocomplete="off";
-//if (window.ActiveXObject) subject.addBehaviour("/javascript/selection.htc");
 //subject.onfocusout=deactivateDropdown;
 dropdown.onclick=dropdownClick;
 //dropdown.ondblclick=dropdownClick;

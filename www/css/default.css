@@ -7,11 +7,6 @@ body.container{
 	background-color: White;
 }
 
-input {
-    behavior: url(/javascript/selection.htc);
-  }
-
-
 .container{
 	background: White;
 	background-image: url(../images/background.png);
