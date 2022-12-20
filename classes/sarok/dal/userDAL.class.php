@@ -3,28 +3,12 @@ class userDAL extends dal {
 	protected $values = array ("ID", "login", "pass", "createDate", "loginDate", "activationDate", "isTerminated");
 	//protected $userDataLoaded=false;
 	protected $propertiesLoaded=false;
-	public function __construct($ID = null) {
+	public function __construct($ID) {
 		parent :: dal();
 		$this->log->debug2("Started userDAL");
-		if ($ID != null) {
-			if (array_key_exists($ID, $this->context->users)) {
-				//return($this->context->users[$login]);
-				throw new Exception("DAL already exists in context");
-			} else {
-				$this->context->users[$ID] = $this;
-			}
-			$this->log->debug2("ID is $ID");
-			$this->ID = $ID;
-
-		}
+		$this->ID = $ID;
 	}
 
-static public function findID($login)
-{
-	if(is_numeric($login)) return($login);
-	$db = singletonloader :: getInstance("mysql");
-	return($db->querynum("select ID as num from users where login='$login' limit 1"));
-}
 
 	public function __get($member) {
 		//$this->log->debug2("Calling getter for $member");

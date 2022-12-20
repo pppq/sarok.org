@@ -11,19 +11,35 @@ class contextClass {
 	private $log; // logger class
 	public $params; // paramaeters from the URL
 	public $ActionPage; //action to execute
-	public function __construct() {
+
+    public function __construct() 
+    {
 		$this->log = singletonloader :: getInstance("log");
-		}
+	}
 
-	public function requestUserDAL($ida) {
-		$this->log->debug2("requestUserDAL($ida)");
-		$id=userDAL::findID($ida);
+    private function getUserID(int|string $IDOrLogin) : int
+    {
+        if (is_numeric($IDOrLogin)) {
+            return (int) $IDOrLogin;
+        } 
+
+        $db = singletonloader::getInstance('mysql');
+        $userID = (int) $db->querynum("SELECT `ID` FROM `users` WHERE `login` = '${IDOrLogin}' LIMIT 1");
+        return $userID;
+    }
+
+	public function getUser(int|string $IDOrLogin) : object
+    {
+		$this->log->debug2("getUser(${IDOrLogin})");
+		
+        $id = $this->getUserID($IDOrLogin);
 		if (!array_key_exists($id, $this->users)) {
-			new userDAL($id);
-			$this->log->debug("$id added to container");
+			$user = new userDAL($id);
+            $this->users[$id] = $user;
+			$this->log->debug("${id} added to container");
 		}
 
-		return ($this->users[$id]);
+		return $this->users[$id];
 	}
 
 	public function getProperty($name){
@@ -48,12 +64,12 @@ class contextClass {
 		if ($p[0] == "users") {
 			if(sizeof($p) > 1 and $p[1]!='rss')
 			{
-				$this->blog = $this->requestUserDAL($p[1]);
+				$this->blog = $this->getUser($p[1]);
 				array_shift($p);
 			}
 			else
 			{
-				$this->blog = $this->requestUserDAL("all");
+				$this->blog = $this->getUser("all");
 			}
 			$this->props["blog"] = true;
 			$this->log->debug("blog is set");
@@ -82,4 +98,3 @@ class contextClass {
 	}
 
 }
-?>
