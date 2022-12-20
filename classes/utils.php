@@ -117,27 +117,6 @@ function putEditable($name,$value,$params,$idStyle="entry")
 	}
 }
 
-function putEditable3($name,$value,$params,$idStyle="entry")
-{
-	global $xhtmlMode;
-	$xhtmlMode=false;
-	//$xhtmlMode=true;
-	require("../www/fckeditable/fck/fckeditor.php");
-
-$ed=new FCKeditor($name);
-
-$ed->BasePath = '/fckeditable/fck/';
-if($idStyle=="comment")
-	$ed->Config['CustomConfigurationsPath']='/editable/commentConfig.js';
-else
-	$ed->Config['CustomConfigurationsPath']='/editable/entryConfig.js';
-	
-$ed->Value=$value;
-$ed->Height = '400';
-
-$ed->Create();
-}
-
 function putEditable2($name,$value,$params,$idStyle="entry")
 {
 	global $xhtmlMode;
