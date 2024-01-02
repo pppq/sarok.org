@@ -1,6 +1,22 @@
 <?php
-class contextClass {
-	public $users = array (); //hash of loaded users
+
+use sarok\models\TrackedMap;
+
+class contextClass 
+{
+    /**
+     * Users referenced during the request, keyed by user ID (integer)
+     * @var array<int, userDAL>
+     */
+	public $users = array();
+
+    /**
+     * User properties referenced during the request, keyed by 
+     * user ID (integer)
+     * @var array<int, TrackedMap>
+     */
+	public $userProperties = array();
+
 	public $session; // sessionClass that stores current session values
 	public $entries = array (); // hash of loaded entries
 	public $comments = array (); //hash of loaded comments
@@ -40,6 +56,39 @@ class contextClass {
 		}
 
 		return $this->users[$id];
+	}
+
+    public function getUserData(int $id, array $keys = array()) : TrackedMap
+    {
+        $this->log->debug("getUserData({$id}, {$keys})");
+
+        if (!isset($this->userProperties[$id])) {
+            
+            if (!empty($keys)) {
+                $df = singletonloader::getInstance('dbfacade');
+                $props = $df->getUserProperties($id, $keys);
+            } else {
+                $props = array();
+            }
+
+            $trackedProps = new TrackedMap($props);
+            $this->userProperties[$id] = $trackedProps;
+        }
+
+        return $this->userProperties[$id];
+    }
+
+    public function saveUserData(int $id) : void
+    {
+        $this->log->debug("saveUserData({$id})");
+
+        if (!isset($this->userProperties[$id])) {
+            return;
+        }
+
+        $df = singletonloader::getInstance('dbfacade');
+        $changedProps = $this->userProperties[$id]->flush();
+        $df->setUserProperties($id, $changedProps);
 	}
 
 	public function getProperty($name){
@@ -96,5 +145,4 @@ class contextClass {
 		$this->log->debug("Action Page is {$ActionPage}");
 	return $ActionPage;
 	}
-
 }

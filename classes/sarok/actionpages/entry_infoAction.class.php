@@ -1,8 +1,10 @@
 <?php
 
-class entry_infoAction extends Action{
-protected $sessionFacade;
-protected $bf,$mysql;
+class entry_infoAction extends Action
+{
+    protected $sf;
+    protected $bf;
+    protected $mysql;
 
  	function execute()
  	{
@@ -14,22 +16,57 @@ protected $bf,$mysql;
 		$params=$this->context->ActionPage->params;
 		$this->log->debug("Info Action inited");
 
-		$out["blogName"]=$this->context->blog->blogName;
 		$out["blogLogin"]=$this->context->blog->login;
 		$out["friends"]=$this->context->blog->friends;
 		$out["friendOfs"]=$this->context->blog->friendOfs;
 		$out["myFriends"]=$this->context->user->friends;
-		$props=array("ID","login","createDate","loginDate","activationDate","name","blogName","occupation","hairColor","eyeColor","blogName","description","sex","district","country","city","email","WIW","MSN","ICQ","skype","phone","birthYear","birthDate");
-		foreach($props as $prop)
+
+        // Core properties of each user
+        $userKeys = array(
+            'ID',
+            'login',
+            'createDate',
+            'loginDate',
+            'activationDate',
+        );
+
+        // Keys for metadata key-value pairs stored in a separate table
+        $userDataKeys = array(
+            'name',
+            'blogName',
+            'occupation',
+            'hairColor',
+            'eyeColor',
+            'blogName',
+            'description',
+            'sex',
+            'district',
+            'country',
+            'city',
+            'email',
+            'WIW',
+            'MSN',
+            'ICQ',
+            'skype',
+            'phone',
+            'birthYear',
+            'birthDate'
+        );
+
+		foreach ($userKeys as $key)
 		{
-			$this->log->debug("getting $prop");
-			$out[$prop]=$blog->$prop;
+			$this->log->debug("getting {$key}");
+			$out[$key] = $blog->$key;
 		}
-		$out["props"]=$props;
-		$out["logins"]=$this->sf->getUserLogins(array_merge($out["friends"],$out["friendOfs"]));
 
-
+        $userData = $this->context->getUserData($this->context->blog->ID);
+        foreach ($userDataKeys as $key) {
+            $out[$key] = $userData[$key];
+        }
+		
+        // For debugging purposes only (keys are used to enumerate all values available within the template)
+        $out["props"] = array_merge($userKeys, $userDataKeys);
+		$out["logins"] = $this->sf->getUserLogins(array_merge($out["friends"], $out["friendOfs"]));
 		return $out;
  	}
 }
-?>

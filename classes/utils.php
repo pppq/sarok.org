@@ -66,9 +66,14 @@ function autoload($class_name) {
 	   }
 
 	if (strpos($class_name, "Exception")) {
-		$hint = "../classes/sarok/exceptions/".$class_name.".class.php";
-		if (class_hint($hint))
-			return true;
+		$hint = "../classes/sarok/exceptions/" . $class_name . ".class.php";
+		if (class_hint($hint)) return true;
+	}
+
+    // Does the class name contain a namespace separator?
+    if (strpos($class_name, '\\')) {
+        $hint = '../classes/' . str_replace('\\', '/', $class_name) . '.php';
+        if (class_hint($hint)) return true;
 	}
 
 	$log->error("autoload: could not find file for the $class_name");

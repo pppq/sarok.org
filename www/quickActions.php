@@ -83,8 +83,9 @@ function saveBackup($text) {
 
 	$user = $context->user;
 	if ($user->login != 'Anonim') {
-		$user->backup = addslashes($text);
-		$user->commit();
+        $userData = $context->getUserData($user->ID, false);
+        $userData['backup'] = addslashes($text);
+		$context->saveUserData($user->ID);
 		echo now();
 	} else {
 		echo "Server hiba miatt ki lettél léptetve. Legyszi, másold ki a szöveget és lépj be újra";
