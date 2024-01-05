@@ -15,6 +15,7 @@ spl_autoload_register('autoload');
 
 function autoload($class_name) {
 	$log = singletonloader :: getInstance("log");
+
 	$classPath["dbFacade"] = "dbmodel/dbfacade";
 	$classPath["blogfacade"] = "dbmodel/blogfacade";
 	$classPath["exportfacade"] = "dbmodel/exportfacade";
@@ -36,34 +37,26 @@ function autoload($class_name) {
 	$classPath["textProcessor"] = "text/textProcessor";
 	$classPath["monthstat"]="dbmodel/stats/monthstat";
 
-	if(isset($classPath[$class_name]))
-	{
-	$hint = "../classes/sarok/".$classPath[$class_name].".class.php";
-
-	$log->debug("autoload: searching for $class_name");
-
-	if (class_hint($hint))
-		return true;
+	if (isset($classPath[$class_name])) {
+	    $hint = "../classes/sarok/" . $classPath[$class_name] . ".class.php";
+        $log->debug("autoload: searching for $class_name");
+	    if (class_hint($hint)) return true;
 	}
-	if(strpos($class_name,"DAL"))
-	   {
-	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/dal/".$class_name.".class.php";
-	   	if(class_hint($hint)) return true;
-	   }
 
-	if(strpos($class_name,"AP"))
-	   {
-	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/actionpages/".$class_name.".class.php";
-	   	if(class_hint($hint)) return true;
-	   }
-	if(strpos($class_name,"Action"))
-	   {
-	   	//$log->debug("GFEIOWNGIOWENGWEIONIGOWE");
-	   	$hint="../classes/sarok/actionpages/".$class_name.".class.php";
-	   	if(class_hint($hint)) return true;
-	   }
+	if (strpos($class_name,"DAL")) {
+	   	$hint = "../classes/sarok/dal/" . $class_name . ".class.php";
+	   	if (class_hint($hint)) return true;
+	}
+
+	if (strpos($class_name,"AP")) {
+	   	$hint = "../classes/sarok/actionpages/" . $class_name . ".class.php";
+	   	if (class_hint($hint)) return true;
+    }
+
+	if (strpos($class_name,"Action")) {
+	   	$hint = "../classes/sarok/actionpages/" . $class_name . ".class.php";
+	   	if (class_hint($hint)) return true;
+    }
 
 	if (strpos($class_name, "Exception")) {
 		$hint = "../classes/sarok/exceptions/" . $class_name . ".class.php";
@@ -74,7 +67,7 @@ function autoload($class_name) {
     if (strpos($class_name, '\\')) {
         $hint = '../classes/' . str_replace('\\', '/', $class_name) . '.php';
         if (class_hint($hint)) return true;
-	}
+    }
 
 	$log->error("autoload: could not find file for the $class_name");
 	return false;
