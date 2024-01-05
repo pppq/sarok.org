@@ -8,7 +8,7 @@ if($access!="ALL")
 $body=$body.$body2;
 if($posX!=0 && $posY!=0)
 {
-$body.="<br /><br />Google Map: <a href=${protocol}://${gen_hostname}/users/$diaryLogin/m_$ID/map/ >$posX; , $posY </a>";
+$body.="<br /><br />Google Map: <a href={$protocol}://{$gen_hostname}/users/$diaryLogin/m_$ID/map/ >$posX; , $posY </a>";
 }
 ?>
 <item>

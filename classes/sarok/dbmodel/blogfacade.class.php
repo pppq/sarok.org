@@ -1376,14 +1376,14 @@ class blogfacade
 		if ($friends != true)
 		{
 			$q = "SELECT * FROM `calendar` AS `c` " . 
-                "WHERE `userID` = '${blogID}' AND `c`.`y` = '${year}' AND `c`.`m` = '${month}' " . 
+                "WHERE `userID` = '{$blogID}' AND `c`.`y` = '{$year}' AND `c`.`m` = '{$month}' " . 
                 "ORDER BY `c`.`y` DESC, `c`.`m` DESC";
 		}
 		else
 		{
 			$q = "SELECT `y`, `m`, `d`, SUM(`numAll`) AS `numAll` FROM `calendar` " . 
-                "WHERE `y` = '${year}' AND `m` = '${month}' " .
-                "AND `userID` IN (SELECT `userID` FROM `friends` WHERE `friendOf` = '${$blogID}' AND `friendType` = 'friend') " .
+                "WHERE `y` = '{$year}' AND `m` = '{$month}' " .
+                "AND `userID` IN (SELECT `userID` FROM `friends` WHERE `friendOf` = '{$$blogID}' AND `friendType` = 'friend') " .
                 "GROUP BY CONCAT(`y`, '-', `m`, '-', `d`), d";
 		}
 

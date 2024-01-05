@@ -34,7 +34,7 @@ class banfacade
 		}
 
         $numBanned = count($this->bannedIPs);
-		$this->log->debug("Loaded ${numBanned} banned IP(s)");
+		$this->log->debug("Loaded {$numBanned} banned IP(s)");
 	}
 	
 	private function saveBannedIPs() : void
@@ -43,7 +43,7 @@ class banfacade
 
         $contents = '';
 		foreach ($this->bannedIPs as $ip => $reason) {
-			$contents .= "${ip};${reason}\n";
+			$contents .= "{$ip};{$reason}\n";
 		}
 		
         $result = file_put_contents(self::BANNED_IPS_FILE, $contents);
@@ -54,7 +54,7 @@ class banfacade
 	
 	public function getBanReason(string $ip) : string
 	{
-		$this->log->info("Checking IP ${ip} for being banned");
+		$this->log->info("Checking IP {$ip} for being banned");
 		
 		if (array_key_exists($ip, $this->bannedIPs)) {
 			return $this->bannedIPs[$ip];
@@ -78,10 +78,10 @@ class banfacade
 		$reason = strtr($reason, "\n\r\t;", '   ');
         $currentDate = date('Y-m-d G:i:s');
 		
-        $this->log->info("Banning ${ip}. Reason: ${reason}");
-		$this->bannedIPs[$ip] = "${existingReason} ${reason}@${currentDate}";
+        $this->log->info("Banning {$ip}. Reason: {$reason}");
+		$this->bannedIPs[$ip] = "{$existingReason} {$reason}@{$currentDate}";
 		
-		$q = "DELETE FROM `sessions` where `IP` = '${ip}'";
+		$q = "DELETE FROM `sessions` where `IP` = '{$ip}'";
 		$this->getDb()->mquery($q);
 
 		if ($store) {

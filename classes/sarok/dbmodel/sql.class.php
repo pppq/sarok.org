@@ -11,13 +11,13 @@ class mysql
 		global $db_host, $db_name, $db_user, $db_password, $db_port;
 
 		$this->log = singletonloader::getInstance('log');
-		$this->log->debug("Connecting to ${db_host}:${db_port} (${db_name}) with user ${db_user}, password ${db_password}");
+		$this->log->debug("Connecting to {$db_host}:{$db_port} ({$db_name}) with user {$db_user}, password {$db_password}");
 		$this->dbcon = mysqli_connect($db_host, $db_user, $db_password);
 		
 		if ($this->dbcon === false) {
 			$connect_errno = mysqli_connect_errno();
 			$connect_error = mysqli_connect_error();
-			$this->log->halt("dbFacade initalization failed. Error ${connect_errno}: ${connect_error}");
+			$this->log->halt("dbFacade initalization failed. Error {$connect_errno}: {$connect_error}");
 			exit;
 		}
 
@@ -29,22 +29,22 @@ class mysql
 	public function close() : void
 	{
 		$counter = $this->getCounter();
-		$this->log->debug("closing db connection, ${counter} connections made");
+		$this->log->debug("closing db connection, {$counter} connections made");
 
 		mysqli_close($this->dbcon);
 	}
 
 	public function mquery(string $query) : mysqli_result|bool
 	{
-		$this->log->debug("mquery: ${query}");
+		$this->log->debug("mquery: {$query}");
 		
 		$result = mysqli_query($this->dbcon, $query);
 		
 		if ($result === false) {
 			$errno = $this->mysqli_errno();
 			$error = $this->mysqli_error();
-			$this->log->security("${query} mquery: error ${errno}: ${error}");
-			throw new mysqlException("${errno}: ${error}");
+			$this->log->security("{$query} mquery: error {$errno}: {$error}");
+			throw new mysqlException("{$errno}: {$error}");
 		}
 
 		$this->counter++;
@@ -67,7 +67,7 @@ class mysql
 		if (is_array($row)) {
 			// Use the first value in the array
 			$val = current($row);
-			$this->log->debug("Result for querynum is: ${val}");
+			$this->log->debug("Result for querynum is: {$val}");
 			return $val;
 		} else {
 			$this->log->error("querynum: Output row for query is not an array");
@@ -87,7 +87,7 @@ class mysql
 		mysqli_free_result($result);
 		
 		$numResults = count($resrow);
-		$this->log->debug("queryall: returned ${numResults} rows");
+		$this->log->debug("queryall: returned {$numResults} rows");
 		return $resrow;
 	}
 

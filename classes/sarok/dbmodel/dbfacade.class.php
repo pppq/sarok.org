@@ -161,7 +161,7 @@ class dbFacade {
 		}
 
 		$propertiesJson = json_encode($properties);
-		$this->log->info("setUserProperties(${ID},${propertiesJson})");
+		$this->log->info("setUserProperties({$ID},{$propertiesJson})");
 
 		try {
 			
@@ -172,7 +172,7 @@ class dbFacade {
 		} catch (mysqlException $e) {
 			if ($e->getCode() != 1062) {
                 $message = $e->getMessage();
-				$this->log->error("setUserProperties(${ID},${properties}): failure: ${message}");
+				$this->log->error("setUserProperties({$ID},{$properties}): failure: {$message}");
             }
 		}
 	}

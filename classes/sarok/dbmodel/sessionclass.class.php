@@ -33,7 +33,7 @@ class sessionclass
             $banReason = $this->banFC->getBanReason($IP);
 			if ($banReason !== '')
 			{
-				//$this->log->security("Accessing website from banned IP $IP, reason is: ${banReason}");
+				//$this->log->security("Accessing website from banned IP $IP, reason is: {$banReason}");
 				exit;
 			}	
 			$time= abs((int) ($this->log->getmicrotime() * 1000));

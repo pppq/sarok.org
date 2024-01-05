@@ -48,19 +48,19 @@ class contextClass
         } 
 
         $db = singletonloader::getInstance('mysql');
-        $userID = (int) $db->querynum("SELECT `ID` FROM `users` WHERE `login` = '${IDOrLogin}' LIMIT 1");
+        $userID = (int) $db->querynum("SELECT `ID` FROM `users` WHERE `login` = '{$IDOrLogin}' LIMIT 1");
         return $userID;
     }
 
 	public function getUser(int|string $IDOrLogin) : object
     {
-		$this->log->debug2("getUser(${IDOrLogin})");
+		$this->log->debug("getUser({$IDOrLogin})");
 		
         $id = $this->getUserID($IDOrLogin);
 		if (!array_key_exists($id, $this->users)) {
 			$user = new userDAL($id);
             $this->users[$id] = $user;
-			$this->log->debug("${id} added to container");
+			$this->log->debug("{$id} added to container");
 		}
 
 		return $this->users[$id];
@@ -173,7 +173,7 @@ class contextClass
             default:
                 throw new DomainException("Unsupported user link type '{$type}'.");
         }
-	}
+    }    
 
 	public function getProperty($name){
 		$this->log->debug("checking: ".$this->props[$name]);
