@@ -53,13 +53,21 @@ if(sizeof($row)>1)
 				$logins[]=$row["userID"];
 				$logtable=$session->getUserLogins($logins);
 			}
-			$cList=array();
-			if(count($commentList) > 0) 
-			foreach($commentList as $comment)
-			{
-				if(!in_array($comment["userID"],$this->context->user->bans) and !in_array($comment["userID"],$this->context->user->banOfs))
-				$cList[]=$comment;
-			}
+			
+            $cList = array();
+			
+            if (count($commentList) > 0) {
+                $userID = $this->context->user->ID;
+                $userBans = $this->context->getUserLinks($userID, 'bans')->toArray();
+                $userBanOfs = $this->context->getUserLinks($userID, 'banOfs')->toArray();
+
+                foreach ($commentList as $comment) {
+                    if (!in_array($comment["userID"], $userBans) && !in_array($comment["userID"], $userBanOfs)) {
+                        $cList[]=$comment;
+                    }
+                }
+            }
+
 			$data["commentList"]=$cList;
 }
 else

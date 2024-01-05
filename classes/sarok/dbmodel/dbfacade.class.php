@@ -225,7 +225,7 @@ class dbFacade {
 		if ($type != "friend" and  $type != "read")
 			$type = "banned";
 		$retval = array ();
-		$this->log->info("getFriends($ID,$type)");
+		$this->log->info("getFriendOfs($ID,$type)");
 		try {
 			$rows = $this->db->queryall("select friendOf from friends where userID='$ID' and friendType='$type'");
 			for ($i = 0; $i < sizeof($rows); $i ++) {

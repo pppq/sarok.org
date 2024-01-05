@@ -10,16 +10,17 @@ class entry_infoAction extends Action
  	{
 		$blog=$this->context->blog;
 		$user=$this->context->user;
+
 		$out=array();
 		$this->sf=singletonloader::getInstance("sessionfacade");
 		$this->mysql=singletonloader::getInstance("mysql");
 		$params=$this->context->ActionPage->params;
 		$this->log->debug("Info Action inited");
 
-		$out["blogLogin"]=$this->context->blog->login;
-		$out["friends"]=$this->context->blog->friends;
-		$out["friendOfs"]=$this->context->blog->friendOfs;
-		$out["myFriends"]=$this->context->user->friends;
+		$out["blogLogin"] = $blog->login;
+		$out["friends"] = $this->context->getUserLinks($blog->ID, 'friends')->toArray();
+		$out["friendOfs"] = $this->context->getUserLinks($blog->ID, 'friendOfs')->toArray();
+		$out["myFriends"] = $this->context->getUserLinks($user->ID, 'friends')->toArray();
 
         // Core properties of each user
         $userKeys = array(
@@ -67,6 +68,7 @@ class entry_infoAction extends Action
         // For debugging purposes only (keys are used to enumerate all values available within the template)
         $out["props"] = array_merge($userKeys, $userDataKeys);
 		$out["logins"] = $this->sf->getUserLogins(array_merge($out["friends"], $out["friendOfs"]));
+
 		return $out;
  	}
 }

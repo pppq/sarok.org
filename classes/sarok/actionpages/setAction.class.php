@@ -96,48 +96,60 @@ private function setBlog($data)
 private function setFriends($data)
 {
 	extract($data);
-	//print_r($data);
-	$dirtylist=array();
-	$user=$this->context->user;
-	$this->log->debug("friends: ".implode(", ",$friends));
-	$this->log->debug("bans: ".implode(", ",$bans));
+    //print_r($data);
+    $dirtylist = array();
+	$user = $this->context->user;
+
+    if (isset($friends)) { $this->log->debug("friends: ".implode(", ",$friends)); }
+	if (isset($bans)) {$this->log->debug("bans: ".implode(", ",$bans)); }
 	$this->log->debug("newFriend: $newFriend");
 	$this->log->debug("newBan: $newBan");
-	if(strlen($newFriend))
-	{
+
+    $currentFriends = $this->context->getUserLinks($user->ID, 'friends');
+
+	if (strlen($newFriend)) {
 		//add new friend;
-		$newUser=$this->context->getUser($newFriend);
-		$this->context->user->friends=array_merge($this->context->user->friends,array($newUser->ID));
-		$this->log->debug("new Friends: ".implode(", ",$this->context->user->friends));
-		$dirtylist[]=$newFriend;
+		$newUser = $this->context->getUser($newFriend);
+        $currentFriends->add($newUser->ID);
+
+		$this->log->debug("new Friends: " . implode(", ", $currentFriends->toArray()));
+		$dirtylist[] = $newFriend;
 	}
 
-	if(strlen($newBan))
-	{
+    if (isset($friends) && count($friends) > 0) {
+        $currentFriends->removeAll($friends);
+    }
+
+    $currentBans = $this->context->getUserLinks($user->ID, 'bans');
+
+	if (strlen($newBan)) {
 		//add new friend;
-		$newUser=$this->context->getUser($newBan);
-		$this->context->user->bans=array_merge($this->context->user->bans,array($newUser->ID));
+		$newUser = $this->context->getUser($newBan);
+        $currentBans->add($newUser->ID);
 		$dirtylist[]=$newBan;
 	}
-	if(sizeof($friends))
-		$this->context->user->friends=array_diff($this->context->user->friends,$friends);
-	if(sizeof($bans))
-		$this->context->user->bans=array_diff($this->context->user->bans,$bans);
+
+	if (isset($bans) && count($bans) > 0) {
+        $currentBans->removeAll($bans);
+    }
 
 	$this->log->debug("Committing user");
-	$user->commit();
+	$this->context->saveUserLinks($user->ID, 'friends');
+    $this->context->saveUserLinks($user->ID, 'bans');
 
 	foreach($friends as $value)
 	{
 		$dirtylist[]=$value;
-
 	}
+
 	foreach($bans as $value)
 	{
 		$dirtylist[]=$value;
 		$dirtylist[]=$this->context->user->ID;
 	}
+
 	$dirtylist=array_unique($dirtylist);
+
 if(sizeof($dirtylist))
 {
 $this->log->debug("DirtyList: ".implode(", ",$dirtylist));

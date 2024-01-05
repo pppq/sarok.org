@@ -2,6 +2,7 @@
 
 namespace sarok\models;
 
+use Countable;
 use UnexpectedValueException;
 
 /**
@@ -9,7 +10,7 @@ use UnexpectedValueException;
  * duplicate values. Since we are using values as associative array keys, 
  * only integers and strings are allowed.
  */
-class TrackedSet
+class TrackedSet implements Countable
 {
     private const REMOVED = -1;
     private const UNCHANGED = 0;
@@ -20,6 +21,10 @@ class TrackedSet
      */
     private array $values = array();
 
+    public function __construct(array $values = array()) {
+        $this->setAll($values);
+    }
+
     /**
      * Resets changes and sets all content to match the given array.
      * 
@@ -28,7 +33,7 @@ class TrackedSet
     public function setAll(array $values = array()) : void
     {
         // Initialize all elements to unchanged
-        $this->values = array_map(fn($v) => self::UNCHANGED, $values);
+        $this->values = array_fill_keys($values, self::UNCHANGED);
     }
     
     public function add(int|string $value) : bool
@@ -84,10 +89,24 @@ class TrackedSet
         }
     }
 
+    public function removeAll(array $values) : bool
+    {
+        return array_reduce($values, fn($modified, $v) => ($modified || $this->remove($v)), false);
+    }
+
+    private function presentEntries() {
+        // Unchanged and added keys are the current members of this set
+        return array_filter($this->values, fn($v) => ($v === self::UNCHANGED || $v === self::ADDED));
+    }
+
+    public function count() : int
+    {
+        return count($this->presentEntries());
+    }
+
     public function toArray() : array
     {
-        // Unchanged and added keys are the current members of this set
-        return array_keys(array_filter($this->values, fn($v) => ($v === self::UNCHANGED || $v === self::ADDED)));
+        return array_keys($this->presentEntries());
     }
 
     private function valuesWithState(int $state) {

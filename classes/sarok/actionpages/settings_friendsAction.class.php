@@ -7,43 +7,24 @@ protected $sessionFacade;
 		$this->sessionFacade=singletonloader::getInstance("sessionfacade");
 		$this->log->debug("Running defaultAction");
 
-		$friendOfs=array();
-		$banOfs=array();
-		$friends=$this->context->user->friends;
-		if(is_array($friends) and sizeof($friends))
-		{
-			$this->log->debug("Retrieved ".sizeof($friends)." friends");
-			$this->log->debug("sorting friends");
-			//sort($friends);
+        $user = $this->context->user;
+        
+		$friends = $this->context->getUserLinks($user->ID, 'friends')->toArray();
+        $this->log->debug("Retrieved " . count($friends) . " friends");
+        $friendOfs = $this->context->getUserLinks($user->ID, 'friendOfs')->toArray();
 
-			$friendOfs=$this->context->user->friendOfs;
-		}
-		else
-		{
-			$friends=array();
-		}
+		$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+		$this->log->debug("Retrieved " . count($bans) . " bans");
+        $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
 
-		$bans=$this->context->user->bans;
-		if(is_array($bans) and sizeof($bans))
-		{
-		$this->log->debug("Retrieved ".sizeof($bans)." bans");
-		$this->log->debug("sorting bans");
-		sort($bans);
+		$out["friends"] = $friends;
+		$out["friendOfs"] = $friendOfs;
+		$out["bans"] = $bans;
+		$out["banOfs"] = $banOfs;
 
-		$banOfs=$this->context->user->banOfs;
-		}
-		else
-		{
-			$bans=array();
-		}
+		$out["friendLogins"] = $this->sessionFacade->getUserLogins($friends);
+		$out["banLogins"] = $this->sessionFacade->getUserLogins($bans);
 
-		$out["friends"]=$friends;
-		$out["friendLogins"]=$this->sessionFacade->getUserLogins($friends);
-		$out["bans"]=$bans;
-		$out["banLogins"]=$this->sessionFacade->getUserLogins($bans);
-		$out["friendOfs"]=$friendOfs;
-		$out["banOfs"]=$banOfs;
 		return $out;
  	}
 }
-?>

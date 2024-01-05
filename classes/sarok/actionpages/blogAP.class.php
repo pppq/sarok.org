@@ -114,8 +114,8 @@ public $entryCode,$rows,$tags,$numComments,$month, $year;
 		{
 		if($friends===true)
 		{
-			$friendL=$blog->friends;
-				if(sizeof($friendL))
+			$friendL = $this->context->getUserLinks($blog->ID, 'friends');
+				if($friendL->count() > 0)
 				{
 					$friends_crit=" e.diaryID in (".implode(", ",$friendL).")";
 				}

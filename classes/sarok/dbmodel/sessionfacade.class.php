@@ -159,8 +159,11 @@ public function getCachedComments($ID)
 {
 	$this->log->debug2("getCachedComments($ID) -->start");
 
-	$bans=$this->context->user->bans;
-	$bans=array_merge($bans,$this->context->user->banOfs);
+    $user = $this->context->user;
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))
@@ -206,8 +209,11 @@ public function getCachedEntries($ID)
 {
 	$this->log->debug2("getCachedEntries($ID) -->start");
 
-	$bans=$this->context->user->bans;
-	$bans=array_merge($bans,$this->context->user->banOfs);
+    $user = $this->context->user;
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))
@@ -248,8 +254,11 @@ public function getCommentsOfEntries($ID)
 {
 	$this->log->debug2("getCommentsOfEntries($ID) -->start");
 
-	$bans=$this->context->user->bans;
-	$bans=array_merge($bans,$this->context->user->banOfs);
+    $user = $this->context->user;
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))
@@ -487,16 +496,12 @@ public function cleanCache($ID)
 
 private function genCommentsQuery($ID,$fields,$dateCriteria,$banstr,$banstr2,$friendstr)
 {
-	$user=$this->context->getUser($ID);
-	$friendL=$user->friendOfs;
-				if(sizeof($friendL))
-				{
-					$value=" e.diaryID in (".implode(", ",$friendL).")";
-				}
-				else
-				{
-						$value=" false";
-				}
+	$friendL = $this->context->getUserLinks($ID, 'friendOfs')->toArray();
+    if (sizeof($friendL)) {
+        $value = " e.diaryID in (".implode(", ",$friendL).")";
+    } else {
+        $value = " false";
+    }
 
 	$q="select $fields where $dateCriteria
 		c.isTerminated='N' and  c.entryID in
@@ -517,16 +522,12 @@ return($q);
 
 private function genEntriesQuery($ID,$fields,$dateCriteria,$banstr2,$friendstr)
 {
-	$user=$this->context->getUser($ID);
-	$friendL=$user->friendOfs;
-				if(sizeof($friendL))
-				{
-					$value=" e2.diaryID in (".implode(", ",$friendL).")";
-				}
-				else
-				{
-						$value=" false";
-				}
+    $friendL = $this->context->getUserLinks($ID, 'friendOfs')->toArray();
+    if (sizeof($friendL)) {
+        $value = " e2.diaryID in (".implode(", ",$friendL).")";
+    } else {
+        $value = " false";
+    }
 
 	$q="SELECT  $fields where
 		isTerminated='N' and  $dateCriteria
@@ -547,9 +548,12 @@ public function loadComments($ID)
 
 	$this->log->debug2("Loading comments");
 	$fields="c.ID, c.entryID, c.userID,c.createDate, c.body, e2.diaryID, e2.access from comments as c left join entries as e2 on c.entryID=e2.ID";
-	$user=$this->context->getUser($ID);
-	$bans=$user->bans;
-	$bans=array_merge($bans,$user->banOfs);
+	
+    $user=$this->context->getUser($ID);
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))
@@ -584,9 +588,12 @@ public function loadEntries($ID)
 	$friendstr=$dateCriteria=$banstr=$banstr2="";
 	$this->log->debug2("Loading comments");
 	$fields="e2.ID, e2.userID, e2.diaryID, e2.createDate, concat(e2.title, ' ',e2.body) as body, e2.access from entries as e2 ";
-	$user=$this->context->getUser($ID);
-	$bans=$user->bans;
-	$bans=array_merge($bans,$user->banOfs);
+
+    $user=$this->context->getUser($ID);
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))
@@ -623,9 +630,12 @@ public function loadCommentsOfEntries($ID)
 		$this->log->debug("No entries written by user, returning empty array");
 		return(array());
 	}
-	$user=$this->context->getUser($ID);
-	$bans=$user->bans;
-	$bans=array_merge($bans,$user->banOfs);
+	
+    $user=$this->context->getUser($ID);
+	$bans = $this->context->getUserLinks($user->ID, 'bans')->toArray();
+    $banOfs = $this->context->getUserLinks($user->ID, 'banOfs')->toArray();
+	$bans = array_merge($bans, $banOfs);
+
 	$this->log->debug("bans merged, number of bans is: ".sizeof($bans));
 	$banstr=$friendstr="";
 	if(sizeof($bans))

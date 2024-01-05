@@ -51,7 +51,7 @@ class blogfacade
 		{
 			return ("self");
 		}
-		if (in_array($user->ID, $blog->friends))
+		if (in_array($user->ID, $this->context->getUserLinks($blog->ID, 'friends')))
 		{
 			return ("friend");
 		}
@@ -94,7 +94,7 @@ class blogfacade
 			}
 			elseif ($value == 2)
 			{
-				$friendL= $user->friendOfs;
+				$friendL = $this->context->getUserLinks($ID, 'friendOfs')->toArray();
 				if (sizeof($friendL))
 				{
 					$value= " e.diaryID in (".implode(", ", $friendL).")";
@@ -330,19 +330,26 @@ class blogfacade
 			return true;
 		}
 		
-		if ((is_array($entryAuthor->bans) && in_array($user->ID, $entryAuthor->bans)) or (is_array($entryAuthor->banOfs) and in_array($user->ID, $entryAuthor->banOfs)))
+        $entryAuthorBans = $this->context->getUserLinks($entryAuthor->ID, 'bans')->toArray();
+        $entryAuthorBanOfs = $this->context->getUserLinks($entryAuthor->ID, 'banOfs')->toArray();
+		if (in_array($user->ID, $entryAuthorBans) || in_array($user->ID, $entryAuthorBanOfs))
 		{
 			$this->log->debug($user->ID." cannot view the entry, it is in the banlist of the author or diary or backwards".$entry["ID"]);
 			return false;
 		}
+
 		if ($entry["diaryID"] != $entry["userID"])
 		{
-			if ((is_array($entryOwner->bans) && in_array($user->ID, $entryOwner->bans)) or (is_array($entryOwner->banOfs) and in_array($user->ID, $entryOwner->banOfs)))
+            $entryOwnerBans = $this->context->getUserLinks($entryOwner->ID, 'bans')->toArray();
+            $entryOwnerBanOfs = $this->context->getUserLinks($entryOwner->ID, 'banOfs')->toArray();
+    
+			if (in_array($user->ID, $entryOwnerBans) || in_array($user->ID, $entryOwnerBanOfs))
 			{
 				$this->log->debug($user->ID." cannot view the entry because of the banlist".$entry["ID"]);
 				return false;
 			}
 		}
+
 		$this->log->debug("Access of the entry is: ".$entry["access"]);
 		switch ($entry["access"])
 		{
@@ -353,9 +360,10 @@ class blogfacade
 				$retval= $user->ID != 1;
 				break;
 			case "FRIENDS" :
-			$this->log->debug("In FRIENDS branch");
-						$this->log->debug("friends of {$entryOwner->ID} are: ".implode(",",$entryOwner->friends));
-				$retval= in_array($user->ID, $entryOwner->friends);
+			    $this->log->debug("In FRIENDS branch");
+                $entryOwnerFriends = $this->context->getUserLinks($entryOwner->ID, 'friends');
+				$this->log->debug("friends of {$entryOwner->ID} are: ".implode(",",$entryOwnerFriends));
+				$retval= in_array($user->ID, $entryOwnerFriends);
 				break;
 			case "LIST" :
 				//TODO fix this
@@ -444,10 +452,10 @@ class blogfacade
 			case "FRIENDS" :
 				//$this->log->debug("Choosed friends");
 				$blog= $this->context->getUser($entry["diaryID"]);
-				//$friends=$blog->friends;
+                $blogFriends = $this->context->getUserLinks($blog->ID, 'friends');
 				//$this->log->debug("Friends of alma: ".implode(", ",$friends));
 				//$this->log->debug("Result: ".in_array($ID,$friends));
-				return (in_array($ID, $blog->friends));
+				return (in_array($ID, $blogFriends));
 			case "PRIVATE" :
 				return ($entry["diaryID"] == $ID or $entry["userID"] == $ID);
 		}
@@ -488,7 +496,8 @@ class blogfacade
 			case "registered" :
 				return true;
 			case "friends" :
-				return in_array($user->ID, $blog->friends);
+                $blogFriends = $this->context->getUserLinks($blog->ID, 'friends');
+				return in_array($user->ID, $blogFriends);
 			case "private" :
 				return $user->ID == $blog->ID;
 			case "disabled" :
@@ -1416,7 +1425,7 @@ class blogfacade
 					from userdata as  u1, userdata as u2, userdata as u3, users as u4
 					where u1.userID=u2.userID and u1.userID=u2.userID and u1.userID=u3.userID and u1.name='publicinfo' and u2.name='posX' and u3.name='posY' and u4.id=u1.userID
 					and length(u2.value)>0 and length(u2.value)>0 \n";
-		$friendOfs= $user->friendOfs;
+		$friendOfs = $this->context->getUserLinks($user->ID, 'friendOfs')->toArray();
 		$conditions[]= " (u1.value='A') ";
 		//$q.="";
 		if ($user->ID != 1)

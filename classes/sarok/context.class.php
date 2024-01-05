@@ -1,6 +1,7 @@
 <?php
 
 use sarok\models\TrackedMap;
+use sarok\models\TrackedSet;
 
 class contextClass 
 {
@@ -16,6 +17,13 @@ class contextClass
      * @var array<int, TrackedMap>
      */
 	public $userProperties = array();
+
+    /**
+     * User connections (friends, bans, reads) referenced during the request, 
+     * keyed by user ID and connection type, eg. `4383-friends` (string)
+     * @var array<string, TrackedSet>
+     */
+	public $userLinks = array();
 
 	public $session; // sessionClass that stores current session values
 	public $entries = array (); // hash of loaded entries
@@ -89,6 +97,82 @@ class contextClass
         $df = singletonloader::getInstance('dbfacade');
         $changedProps = $this->userProperties[$id]->flush();
         $df->setUserProperties($id, $changedProps);
+    }
+
+    public function getUserLinks(int $id, string $type = 'friends') : TrackedSet
+    {
+        $this->log->debug("getUserLinks({$id}, {$type})");
+
+        $key = "{$id}-{$type}";
+        if (!isset($this->userLinks[$key])) {
+            $df = singletonloader::getInstance('dbfacade');
+
+            switch ($type) {
+                // TODO: eliminate plural-to-singular link type name conversion
+                case 'friends':
+                    $value = $df->getFriends($id);
+                    break;
+                case 'friendOfs':
+                    $value = $df->getFriendOfs($id);
+                    break;
+                case 'bans':
+                    $value = $df->getFriends($id, 'banned');
+                    break;
+                case 'banOfs':
+                    $value = $df->getFriendOfs($id, 'banned');
+                    break;
+                case 'reads':
+                    $value = $df->getFriends($id, 'read');
+                    break;
+                case 'readOfs':
+                    $value = $df->getFriendOfs($id, 'read');
+                    break;
+                default:
+                    throw new DomainException("Unsupported user link type '{$type}'.");
+            }
+
+            $trackedLinks = new TrackedSet($value);
+            $this->userLinks[$key] = $trackedLinks;
+        }
+
+        return $this->userLinks[$key];
+    }    
+
+    public function saveUserLinks(int $id, string $type = 'friends') : void
+    {
+        $this->log->debug("saveUserLinks({$id}, {$type})");
+
+        $key = "{$id}-{$type}";
+        if (!isset($this->userLinks[$key])) {
+            return;
+        }
+         
+        $df = singletonloader::getInstance('dbfacade');
+        $links = $this->userLinks[$key]->flush();
+
+        switch ($type) {
+            // TODO: eliminate plural-to-singular link type name conversion
+            case 'friends':
+                $df->setFriends($id, $links);
+                break;
+            case 'friendOfs':
+                $df->setFriendOfs($id, $links);
+                break;
+            case 'bans':
+                $df->setFriends($id, $links, 'banned');
+                break;
+            case 'banOfs':
+                $df->setFriendOfs($id, $links, 'banned');
+                break;
+            case 'reads':
+                $df->setFriends($id, $links, 'read');
+                break;
+            case 'readOfs':
+                $df->setFriendOfs($id, $links, 'read');
+                break;
+            default:
+                throw new DomainException("Unsupported user link type '{$type}'.");
+        }
 	}
 
 	public function getProperty($name){
